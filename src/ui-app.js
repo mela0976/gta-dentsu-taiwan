@@ -487,7 +487,10 @@ class GtaDentsuApp {
         ]),
         el('button', { class: 'btn-primary', text: '進入現場 ➔', onClick: proceed })
       ]),
-      videoEl,
+      el('div', { class: 'cutscene-stage-wrap' }, [
+        videoEl,
+        el('div', { class: 'cutscene-subtitle', text: `${ch.lineSender.name}：「${ch.lineMessage}」` })
+      ]),
       el('p', { class: 'chapter-desc', text: ch.sceneDesc })
     ]);
   }
@@ -512,6 +515,7 @@ class GtaDentsuApp {
           alt: ch.location,
           onerror: (e) => { e.target.style.display = 'none'; }
         }),
+        el('div', { class: 'scene-subtitle', text: `${ch.lineSender.name}：「${ch.lineMessage}」` }),
         el('div', { class: 'scene-banner-overlay' }, [
           el('div', {}, [
             el('div', { style: 'font-size:12px;font-weight:800;color:var(--gold);', text: `${ch.book} · ${ch.timeSlot}` }),
