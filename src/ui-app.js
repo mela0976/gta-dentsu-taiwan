@@ -303,9 +303,13 @@ class GtaDentsuApp {
     }
 
     if (this.scooterModalOpen || this.ch6CallModalOpen || this.streetViewModalOpen) {
-      if (e.key === 'Escape' && this.streetViewModalOpen) {
-        this.streetViewModalOpen = false;
-        this.render();
+      if (e.key === 'Escape') {
+        if (this.streetViewModalOpen) {
+          this.streetViewModalOpen = false;
+          this.render();
+        } else if (this.scooterModalOpen) {
+          this._closeScooterModal(true);
+        }
       }
       return;
     }
@@ -465,6 +469,9 @@ class GtaDentsuApp {
       soundFX.playLinePing();
       this.ch6CallModalOpen = true;
       this.render();
+      if (ch.grandmaPhoneCall?.text) {
+        soundFX.speak(ch.grandmaPhoneCall.text, 'grandma', false);
+      }
       return;
     }
 
@@ -568,8 +575,11 @@ class GtaDentsuApp {
         el('span', { class: 'pill', text: '🧠 People Model（Lisa & Cindy）' }),
         el('span', { class: 'pill', text: '📻 3 台 GTA 車載電台' }),
         el('span', { class: 'pill', text: '🎙️ 台灣語音播報' }),
-        el('span', { class: 'pill pill-gold', text: '👵 隱藏阿嬤模組' })
+        el('span', { class: 'pill pill-gold', text: this.state.grandmaUnlocked ? '👵 隱藏阿嬤已解鎖 ✓' : '👵 隱藏阿嬤模組' })
       ]),
+      this.state.grandmaUnlocked
+        ? el('div', { class: 'rescue-toast', style: 'font-size:13.5px;padding:6px 10px;', text: '🍲 秘技 AMA666 已啟動！隱藏第 5 角色「滿級皇太后・台灣阿嬤」解鎖完成，請點下方打卡上班！' })
+        : null,
       el('div', { class: 'plate-box' }, [
         el('span', { class: 'plate-label', text: '台灣秘技車牌 AMA-666' }),
         this._renderCheatInput()
@@ -609,19 +619,26 @@ class GtaDentsuApp {
       maxLength: '10',
       'aria-label': '輸入阿嬤模組秘技碼'
     });
+    const activate = () => {
+      const val = input.value.trim().toUpperCase();
+      if (val === CHEAT_CODE || val === 'GRANDMA') {
+        this._triggerCheatCode(true);
+      } else {
+        soundFX.playClick();
+        input.value = '';
+        input.placeholder = '提示: AMA666';
+      }
+    };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        activate();
+      }
+    });
     const btn = el('button', {
       class: 'btn-ghost',
       text: '發動秘技',
-      onClick: () => {
-        const val = input.value.trim().toUpperCase();
-        if (val === CHEAT_CODE || val === 'GRANDMA') {
-          this._triggerCheatCode(true);
-        } else {
-          soundFX.playClick();
-          input.value = '';
-          input.placeholder = '提示: AMA666';
-        }
-      }
+      onClick: activate
     });
     return el('div', { class: 'cheat-bar' }, [input, btn]);
   }
@@ -821,7 +838,7 @@ class GtaDentsuApp {
       this._setState(finishCutscene(this.state));
     };
 
-    return el('section', { class: 'panel', style: 'display:flex;flex-direction:column;gap:14px;border-color:var(--gold);' }, [
+    return el('section', { class: 'panel cutscene-stage', style: 'display:flex;flex-direction:column;gap:14px;border-color:var(--gold);' }, [
       el('div', { class: 'chapter-header' }, [
         el('div', {}, [
           el('div', { class: 'gta-kicker', text: isGrandmaVideo ? 'HIGGSFIELD CUTSCENE · 阿嬤緊急支援' : `HIGGSFIELD CUTSCENE · ${ch.timeSlot}` }),
@@ -955,18 +972,18 @@ class GtaDentsuApp {
       ]),
       // Track 2：純淨 16:9 視景
       viewport,
-      // Track 3：雙列控制列
+      // Track 3：雙列控制列（固定不折 3 排）
       el('div', { class: 'track-controls' }, [
         el('div', { class: 'ctl-row', role: 'group', 'aria-label': '視景模式' }, [
-          chip('gta', '🎬 3D寫實劇照'),
+          chip('gta', '🎬 3D劇照'),
           chip('gmap_360', '🌐 360°街景', () => this._lookupLivePano(ch)),
-          chip('gmap_photo', '🏛️ A25完工實拍'),
-          chip('gmap_live', '🛰️ 衛星地圖'),
+          chip('gmap_photo', '🏛️ A25實拍'),
+          chip('gmap_live', '🛰️ 衛星圖'),
           el('button', {
             class: `mode-chip${this.fsdHudOverlay ? ' is-active' : ''}`,
             'aria-pressed': String(this.fsdHudOverlay),
             title: '開關 Tesla FSD 疊加 HUD',
-            text: '🤖 Tesla FSD視角',
+            text: '🤖 Tesla FSD',
             onClick: () => this._toggleFsd(ch)
           }),
           el('button', {
@@ -982,14 +999,14 @@ class GtaDentsuApp {
           })
         ]),
         el('div', { class: 'ctl-row', role: 'group', 'aria-label': '捷徑' }, [
-          el('button', { class: 'hotspot-chip', title: '查看你的專屬桌上線索', text: '🕵️ 桌上線索', onClick: () => this._focusHelper('clue') }),
-          el('button', { class: 'hotspot-chip', title: '問 Lisa / Cindy 真心話', text: '🧠 問同事讀心', onClick: () => this._focusHelper('phone', 'people', 'lisa') }),
-          el('button', { class: 'hotspot-chip is-scooter', title: '騎 2026 電動車／Tesla FSD 衝松仁路加分', text: '🛵 2026騎車／FSD', onClick: () => this._openScooterModal() }),
+          el('button', { class: 'hotspot-chip', title: '查看你的專屬桌上線索', text: '🕵️ 線索', onClick: () => this._focusHelper('clue') }),
+          el('button', { class: 'hotspot-chip', title: '問 Lisa / Cindy 真心話', text: '🧠 問同事', onClick: () => this._focusHelper('phone', 'people', 'lisa') }),
+          el('button', { class: 'hotspot-chip is-scooter', title: '騎 2026 電動車／Tesla FSD 衝松高路富邦 A25 加分', text: '🛵 2026騎車', onClick: () => this._openScooterModal() }),
           el('button', {
             class: 'hotspot-chip',
             'data-voice': 'narrator',
             title: '朗讀現場旁白',
-            text: '🎙️ 聽現場旁白',
+            text: '🎙️ 聽旁白',
             onClick: () => { soundFX.playClick(); soundFX.speak(ch.sceneDesc, 'narrator', true); }
           }),
           ch.cutscene
@@ -1643,22 +1660,33 @@ class GtaDentsuApp {
             el('h2', { style: 'margin:6px 0 0 0;color:var(--gold);', text: call.title })
           ])
         ]),
-        el('div', { class: 'boss-callout', text: `「${call.text}」` }),
+        el('div', { class: 'boss-callout' }, [
+          el('div', { text: `「${call.text}」` })
+        ]),
         el('div', { class: 'rescue-toast', text: `🍲 ${call.rewardText}` }),
-        el('button', {
-          class: 'btn-gold',
-          text: '謝阿嬤！繼續完成這張文案測試 ➔',
-          onClick: () => {
-            soundFX.playTatungCooker();
-            this.ch6CallModalOpen = false;
-            this.ch6CallDismissed = true;
-            const next = submitMiniGame(
-              { ...this.state, grandmaUnlocked: true },
-              this.swipeChoices
-            );
-            this._setState(next);
-          }
-        })
+        el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;' }, [
+          el('button', {
+            class: 'btn-gold',
+            style: 'flex:1 1 auto;',
+            text: '謝阿嬤！繼續完成這張文案測試 ➔',
+            onClick: () => {
+              soundFX.playTatungCooker();
+              this.ch6CallModalOpen = false;
+              this.ch6CallDismissed = true;
+              const next = submitMiniGame(
+                { ...this.state, grandmaUnlocked: true },
+                this.swipeChoices
+              );
+              this._setState(next);
+            }
+          }),
+          el('button', {
+            class: 'replay-btn',
+            'data-voice': 'grandma',
+            text: '🔊 重聽阿嬤來電',
+            onClick: () => soundFX.speak(call.text, 'grandma', true)
+          })
+        ])
       ])
     ]);
   }
@@ -1809,54 +1837,58 @@ class GtaDentsuApp {
     const persona = determinePersona(this.state);
     const role = getRole(this.state.roleId);
     const s = this.state.stats;
+    const reviewSpeech = `恭喜完成十個時段！你的終局稱號是${persona.name}，${persona.title}。強項：${persona.strength}。總積分${this.state.points}元。`;
 
-    return el('section', { class: 'panel', style: 'display:flex;flex-direction:column;gap:18px;border-color:var(--gold);' }, [
-      el('div', { class: 'chapter-header' }, [
+    return el('section', { class: 'panel review-stage' }, [
+      el('div', { class: 'chapter-header review-head' }, [
         el('div', {}, [
           el('div', { class: 'gta-kicker', text: 'MISSION PASSED · 電通台灣十年一日考績結算' }),
-          el('h1', { class: 'gta-title', style: 'font-size:38px;margin-top:6px;', text: persona.name }),
-          el('p', { style: 'margin:4px 0 0 0;font-size:18px;color:var(--gold);', text: persona.title })
+          el('h1', { class: 'gta-title', style: 'font-size:clamp(26px,2.8vw,40px);margin-top:6px;', text: persona.name }),
+          el('p', { style: 'margin:4px 0 0 0;font-size:16px;color:var(--gold);', text: persona.title })
         ]),
-        el('div', { class: 'score-pill', style: 'font-size:22px;padding:10px 18px;', text: `總積分 $${this.state.points.toLocaleString()}` })
+        el('div', { class: 'review-right-head' }, [
+          htmlNode('review-stamp', SVG_TEMPLE_STAMP_PASSED),
+          el('div', { class: 'score-pill', style: 'font-size:20px;padding:8px 14px;', text: `總積分 $${this.state.points.toLocaleString()}` })
+        ])
       ]),
-      el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;' }, [
+      el('div', { class: 'review-top-grid' }, [
         el('div', { class: 'panel', style: 'border-color:var(--cyan);' }, [
-          el('div', { style: 'display:flex;align-items:center;gap:12px;margin-bottom:10px;' }, [
+          el('div', { style: 'display:flex;align-items:center;gap:12px;margin-bottom:8px;' }, [
             el('img', { src: role.image, alt: role.name, class: 'hud-avatar' }),
             el('div', {}, [
               el('div', { style: 'font-weight:800;font-size:17px;', text: role.name }),
               el('div', { style: 'font-size:13px;color:var(--muted);', text: `答對小互動 ${this.state.gamesCorrectCount}／${this.state.gamesScoredCount} · 阿嬤救援 ${this.state.grandmaRescues} 次` })
             ])
           ]),
-          el('p', { text: `✅ 強項：${persona.strength}` }),
-          el('p', { text: `⚠️ 盲點：${persona.blind}` }),
-          el('p', { style: 'color:var(--cyan);font-size:14px;', text: `📖 推薦延伸閱讀：${persona.read}` })
+          el('p', { style: 'margin:4px 0;', text: `✅ 強項：${persona.strength}` }),
+          el('p', { style: 'margin:4px 0;', text: `⚠️ 盲點：${persona.blind}` }),
+          el('p', { style: 'color:var(--cyan);font-size:13.5px;margin:4px 0 0;', text: `📖 推薦延伸閱讀：${persona.read}` })
         ]),
         el('div', { class: 'panel' }, [
-          el('h3', { style: 'margin:0 0 10px 0;', text: '五維能力最終數值' }),
+          el('h3', { style: 'margin:0 0 8px 0;font-size:16px;', text: '五維能力最終數值' }),
           ...[
             ['🔥 肝指數 (Stamina)', s.stamina],
             ['🎤 嘴砲力 (Street Cred)', s.streetCred],
             ['📈 真實增量 (Real Lift)', s.realLift],
             ['🛡️ 品牌信任 (Brand Trust)', s.brandTrust],
             ['⚖️ 人類衡斷力 (Judgment)', s.judgment]
-          ].map(([k, v]) => el('div', { style: 'display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);' }, [
+          ].map(([k, v]) => el('div', { style: 'display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:14px;' }, [
             el('span', { text: k }),
             el('strong', { style: 'color:var(--gold);', text: String(v) })
           ]))
         ])
       ]),
       el('div', { class: 'panel' }, [
-        el('h3', { style: 'margin:0 0 10px 0;', text: '今日 10 大時段決策戰報' }),
-        el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;' }, this.state.history.map((h) =>
-          el('div', { style: 'padding:10px;border-radius:10px;background:rgba(255,255,255,0.05);font-size:13px;' }, [
+        el('h3', { style: 'margin:0 0 8px 0;font-size:16px;', text: '今日 10 大時段決策戰報' }),
+        el('div', { class: 'review-history-grid' }, this.state.history.map((h) =>
+          el('div', { style: 'padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);font-size:12.5px;' }, [
             el('div', { style: 'font-weight:800;color:var(--cyan);', text: `${h.year} · ${h.title}` }),
             el('div', { text: `回覆：${h.replyText}` }),
             el('div', { style: 'color:var(--gold);', text: `${h.correct ? '✓ 識破' : '• 參與'} · +$${h.pointsEarned.toLocaleString()}` })
           ])
         ))
       ]),
-      el('div', { style: 'display:flex;flex-wrap:wrap;gap:12px;' }, [
+      el('div', { class: 'review-actions', style: 'display:flex;flex-wrap:wrap;gap:10px;' }, [
         el('button', {
           class: 'btn-primary',
           text: '換個電通職能再玩一天 ↻',
@@ -1866,6 +1898,12 @@ class GtaDentsuApp {
           class: 'btn-gold',
           text: '👵 騎阿嬤電動車破紀錄',
           onClick: () => this._openScooterModal()
+        }),
+        el('button', {
+          class: 'btn-cyan',
+          'data-voice': 'narrator',
+          text: '🔊 朗讀十年考績評語',
+          onClick: () => soundFX.speak(reviewSpeech, 'narrator', true)
         })
       ])
     ]);

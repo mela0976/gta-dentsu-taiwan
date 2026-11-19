@@ -127,7 +127,7 @@ function gdtFitRoadLabel(value, baseSize) {
   };
 }
 
-export function SVG_ROAD_SIGN_BADGE(roadName = "松仁路 100 號", enName = "Songren Rd. · Fubon A25") {
+export function SVG_ROAD_SIGN_BADGE(roadName = "松高路 77 號", enName = "Songgao Rd. · Fubon A25") {
   const chinese = gdtFitRoadLabel(roadName, 17);
   const english = gdtFitRoadLabel(enName, 10);
   return `<svg xmlns="${gdtSvgNamespace}" class="gdt-road-sign" viewBox="0 0 280 46" role="img" aria-label="${gdtEscape(String(roadName))} · ${gdtEscape(String(enName))}">

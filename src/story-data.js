@@ -160,7 +160,7 @@ export const CHAPTERS = [
       lng: 121.5691512,
       heading: 115,
       pitch: 16,
-      roadSign: '松仁路 100 號 · Songren Rd.',
+      roadSign: '松高路 77 號 · 松仁路口',
       realPhoto: './public/images/gmap-morning-scooter.webp',
       embedQuery: '富邦信義A25園區+台北市信義區松仁路100號',
       streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.0391247,121.5691512&heading=115&pitch=16&fov=90',
@@ -808,7 +808,7 @@ export const CHAPTERS = [
       lng: 121.5691512,
       heading: 135,
       pitch: 22,
-      roadSign: '松仁路 100 號頂層戰情室 · 富邦 A25',
+      roadSign: '松高路 77 號頂層戰情室 · 富邦 A25',
       realPhoto: './public/images/gmap-boardroom.webp',
       embedQuery: '富邦信義A25大樓+台北101',
       streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.0391247,121.5691512&heading=135&pitch=22&fov=90',
@@ -906,7 +906,7 @@ export const PERSONAS = [
 
 export const SCOOTER_CONFIG = {
   title: '阿嬤買菜電動車：松仁路富邦 A25 × 陶朱隱園大暴走',
-  subtitle: '載著綠色大同電鍋繞過「陶朱隱園」，直衝松仁路 100 號富邦 A25 電通大樓！',
+  subtitle: '載著綠色大同電鍋繞過「陶朱隱園」，直衝松高路 77 號富邦 A25 電通大樓！',
   lanes: 3,
   baseSpeed: 6,
   maxSpeed: 14,
