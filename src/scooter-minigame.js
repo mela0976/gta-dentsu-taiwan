@@ -80,8 +80,8 @@ export class GrandmaScooterGame {
     this.running = false;
     this.rafId = null;
     this.lastTs = 0;
-    this.bannerText = '阿嬤騎買菜車進信義區！左右閃避演算法陷阱！';
-    this.bannerTimer = 2.6;
+    this.bannerText = '阿嬤騎買菜車衝進 2026 信義區松仁路！掠過陶豬隱園直達富邦 A25 電通大樓！';
+    this.bannerTimer = 2.8;
 
     this._onKeyDown = (e) => {
       if (!this.running) return;
@@ -92,6 +92,14 @@ export class GrandmaScooterGame {
         e.preventDefault();
         this.moveLane(1);
       }
+    };
+
+    this._onPointerDown = (e) => {
+      if (!this.running || !this.canvas) return;
+      const rect = this.canvas.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / Math.max(1, rect.width);
+      if (relX < 0.42) this.moveLane(-1);
+      else if (relX > 0.58) this.moveLane(1);
     };
   }
 
@@ -107,6 +115,7 @@ export class GrandmaScooterGame {
     this.running = true;
     this.lastTs = performance.now();
     window.addEventListener('keydown', this._onKeyDown);
+    if (this.canvas) this.canvas.addEventListener('pointerdown', this._onPointerDown);
     const loop = (ts) => {
       if (!this.running) return;
       const dt = Math.min(0.05, Math.max(0.001, (ts - this.lastTs) / 1000));
@@ -123,6 +132,7 @@ export class GrandmaScooterGame {
   stop(aborted = false) {
     this.running = false;
     window.removeEventListener('keydown', this._onKeyDown);
+    if (this.canvas) this.canvas.removeEventListener('pointerdown', this._onPointerDown);
     if (this.rafId) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
@@ -251,7 +261,7 @@ export class GrandmaScooterGame {
   }
 
   _zToY(z, h) {
-    const horizon = h * 0.28;
+    const horizon = h * 0.34;
     return horizon + Math.pow(z, 1.35) * (h - horizon);
   }
 
@@ -268,7 +278,7 @@ export class GrandmaScooterGame {
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
-    const horizon = h * 0.28;
+    const horizon = h * 0.34;
 
     // 1. GTA 6 台灣夕陽夜市天空漸層
     const sky = ctx.createLinearGradient(0, 0, 0, horizon);
@@ -281,32 +291,63 @@ export class GrandmaScooterGame {
     // 霓虹太陽 + 台北 101 剪影
     ctx.fillStyle = 'rgba(255, 198, 92, 0.85)';
     ctx.beginPath();
-    ctx.arc(w * 0.5, horizon - 18, 44, Math.PI, 0);
+    ctx.arc(w * 0.5, horizon - 14, 40, Math.PI, 0);
     ctx.fill();
 
-    // 台北 101 剪影
+    // 1.1 「陶豬隱園」雙螺旋旋轉豪宅剪影（陶朱隱園諧音地標）
+    const ax = w * 0.25;
+    for (let fl = 0; fl < 9; fl += 1) {
+      const fy = horizon - 7 - fl * 6.5;
+      const shift = Math.sin((fl / 8) * Math.PI) * 7 - 3;
+      const fw = 30 - Math.abs(4 - fl) * 1.1;
+      ctx.fillStyle = '#18102d';
+      ctx.fillRect(ax - fw / 2 + shift, fy, fw, 5.5);
+      ctx.fillStyle = fl % 2 === 0 ? '#4ade80' : '#00e5ff';
+      ctx.fillRect(ax - fw / 2 + shift + 2, fy + 1.5, 4, 2.5);
+      ctx.fillRect(ax + fw / 2 + shift - 6, fy + 1.5, 4, 2.5);
+    }
+
+    // 1.2 「富邦 A25 電通大樓」玻璃摩天樓剪影
+    const fx = w * 0.67;
+    ctx.fillStyle = '#140c29';
+    ctx.fillRect(fx - 15, horizon - 74, 30, 74);
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.48)';
+    ctx.lineWidth = 1;
+    for (let gy = horizon - 68; gy < horizon - 6; gy += 9) {
+      ctx.beginPath();
+      ctx.moveTo(fx - 12, gy);
+      ctx.lineTo(fx + 12, gy);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ff52b8';
+    ctx.fillRect(fx - 13, horizon - 76, 26, 3);
+
+    // 1.3 台北 101 剪影
     ctx.fillStyle = '#150826';
-    const tx = w * 0.78;
-    ctx.fillRect(tx - 11, horizon - 78, 22, 78);
-    ctx.fillRect(tx - 15, horizon - 58, 30, 12);
-    ctx.fillRect(tx - 14, horizon - 40, 28, 12);
-    ctx.fillRect(tx - 2, horizon - 98, 4, 22);
-    // 左側夜市霓虹招牌
+    const tx = w * 0.84;
+    ctx.fillRect(tx - 10, horizon - 72, 20, 72);
+    ctx.fillRect(tx - 14, horizon - 54, 28, 12);
+    ctx.fillRect(tx - 13, horizon - 36, 26, 12);
+    ctx.fillRect(tx - 2, horizon - 88, 4, 18);
+
+    // 2026 信義區街邊霓虹招牌（位於頂部播報條下方，互不遮擋）
     const signs = [
-      { x: 0.14, y: 0.21, txt: '熱炒', c: '#ff52b8' },
-      { x: 0.28, y: 0.21, txt: '大冰奶', c: '#00e5ff' },
-      { x: 0.88, y: 0.21, txt: '電通', c: '#ffd166' }
+      { x: 0.10, y: 0.25, txt: '大冰奶', c: '#00e5ff' },
+      { x: 0.25, y: 0.15, txt: '陶豬隱園', c: '#4ade80' },
+      { x: 0.67, y: 0.14, txt: '富邦A25電通', c: '#ffd166' },
+      { x: 0.91, y: 0.25, txt: '熱炒', c: '#ff52b8' }
     ];
-    ctx.font = 'bold 12px sans-serif';
+    ctx.font = 'bold 11px sans-serif';
     ctx.textAlign = 'center';
     signs.forEach((s) => {
-      ctx.fillStyle = 'rgba(15,8,30,0.85)';
-      ctx.fillRect(w * s.x - 24, h * s.y - 12, 48, 20);
+      const boxW = Math.max(46, s.txt.length * 12 + 12);
+      ctx.fillStyle = 'rgba(15,8,30,0.88)';
+      ctx.fillRect(w * s.x - boxW / 2, h * s.y - 10, boxW, 18);
       ctx.strokeStyle = s.c;
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(w * s.x - 24, h * s.y - 12, 48, 20);
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(w * s.x - boxW / 2, h * s.y - 10, boxW, 18);
       ctx.fillStyle = s.c;
-      ctx.fillText(s.txt, w * s.x, h * s.y + 2);
+      ctx.fillText(s.txt, w * s.x, h * s.y + 3);
     });
 
     // 2. 柏油地面與霓虹路面梯形
@@ -450,15 +491,15 @@ export class GrandmaScooterGame {
 
     // 6. 頂部即時播報條
     if (this.bannerTimer > 0 && this.bannerText) {
-      ctx.fillStyle = 'rgba(12, 8, 28, 0.84)';
-      ctx.fillRect(16, 12, w - 32, 30);
+      ctx.fillStyle = 'rgba(12, 8, 28, 0.88)';
+      ctx.fillRect(14, 6, w - 28, 26);
       ctx.strokeStyle = '#ffd166';
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(16, 12, w - 32, 30);
+      ctx.strokeRect(14, 6, w - 28, 26);
       ctx.fillStyle = '#ffd166';
-      ctx.font = 'bold 13px sans-serif';
+      ctx.font = 'bold 12px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(this.bannerText, w / 2, 31);
+      ctx.fillText(this.bannerText, w / 2, 23);
     }
   }
 }
