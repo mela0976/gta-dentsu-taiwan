@@ -11,6 +11,7 @@ ZH/
 *.lock
 .env
 .env.*
+*.env.map
 unity-companion/Library/
 unity-companion/Temp/
 unity-companion/Obj/

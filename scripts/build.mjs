@@ -4,6 +4,22 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, 'dist');
 
+function readMapsApiKey() {
+  if (process.env.GOOGLE_MAPS_API_KEY) return process.env.GOOGLE_MAPS_API_KEY.trim();
+  for (const cand of [path.join(ROOT, '.env.map'), path.resolve(ROOT, '../.env.map')]) {
+    if (!fs.existsSync(cand)) continue;
+    const raw = fs.readFileSync(cand, 'utf8');
+    const m = raw.match(/(?:^|\n)\s*(?:api|GOOGLE_MAPS_API_KEY)\s*=\s*([^\r\n#]+)/i);
+    if (m && m[1]) return m[1].trim();
+  }
+  return '';
+}
+
+const MAPS_API_KEY = readMapsApiKey();
+if (MAPS_API_KEY) {
+  console.log('Detected Google Maps API key from environment / .env.map');
+}
+
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 
@@ -20,7 +36,12 @@ function copyDir(src, dest) {
   }
 }
 
-fs.copyFileSync(path.join(ROOT, 'index.html'), path.join(DIST, 'index.html'));
+const rawIndexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+const injectedIndexHtml = rawIndexHtml.replace(
+  '<script type="module" src="./src/ui-app.js"></script>',
+  `<script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>\n  <script type="module" src="./src/ui-app.js"></script>`
+);
+fs.writeFileSync(path.join(DIST, 'index.html'), injectedIndexHtml, 'utf8');
 copyDir(path.join(ROOT, 'src'), path.join(DIST, 'src'));
 copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 
@@ -52,6 +73,7 @@ const standaloneHtml = `<!DOCTYPE html>
 </head>
 <body>
   <div id="app" class="gta-shell"></div>
+  <script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>
   <script>
 (() => {
 'use strict';

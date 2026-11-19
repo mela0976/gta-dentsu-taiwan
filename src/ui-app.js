@@ -62,11 +62,83 @@ class GtaDentsuApp {
     this.stopFinished = false;
     this.cheatBuffer = '';
     this.highlightTarget = null; // 'clue' | 'phone' | null
-    this.sceneViewMode = 'gta'; // 'gta' | 'gmap_photo' | 'gmap_live'
+    this.sceneViewMode = 'gta'; // 'gta' | 'gmap_360' | 'gmap_photo' | 'gmap_live'
     this.radarMode = 'radar'; // 'radar' | 'gmap'
+    this.streetViewModalOpen = false;
+    this.resolvedPanoInfo = {};
+    this._mapsJsPromise = null;
 
     window.addEventListener('keydown', (e) => this._handleGlobalKey(e));
     this.render();
+  }
+
+  _getMapsApiKey() {
+    try {
+      const k = (typeof window !== 'undefined' && window.__GOOGLE_MAPS_API_KEY__) || localStorage.getItem('gta_gmaps_key') || '';
+      return String(k || '').trim();
+    } catch {
+      return '';
+    }
+  }
+
+  _build360EmbedUrl(gm = {}) {
+    const info = gm.panoId ? gm : {};
+    const pid = info.panoId || 'dp2njH37xCDpod8-j4Ockw';
+    const lat = info.lat || 25.0391247;
+    const lng = info.lng || 121.5691512;
+    const h = info.heading ?? 115;
+    const p = info.pitch ?? 16;
+    return `https://www.google.com/maps/embed?pb=!4v1700000000000!6m8!1m7!1s${encodeURIComponent(pid)}!2m2!1d${lat}!2d${lng}!3f${h}!4f${p}!5f0.7820865974627469`;
+  }
+
+  _ensureMapsJsLoaded() {
+    const key = this._getMapsApiKey();
+    if (!key) return Promise.resolve(false);
+    if (window.google && window.google.maps && window.google.maps.StreetViewService) {
+      return Promise.resolve(true);
+    }
+    if (this._mapsJsPromise) return this._mapsJsPromise;
+    this._mapsJsPromise = new Promise((resolve) => {
+      window.gm_authFailure = () => resolve(false);
+      const s = document.createElement('script');
+      s.async = true;
+      s.defer = true;
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&loading=async`;
+      s.onload = () => {
+        const waitReady = (tries = 0) => {
+          if (window.google?.maps?.StreetViewService) resolve(true);
+          else if (tries < 20) setTimeout(() => waitReady(tries + 1), 100);
+          else resolve(false);
+        };
+        waitReady();
+      };
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+    return this._mapsJsPromise;
+  }
+
+  async _lookupLivePano(ch) {
+    if (!ch || !ch.googleMap || this.resolvedPanoInfo[ch.id]) return;
+    const ok = await this._ensureMapsJsLoaded();
+    if (!ok || !window.google?.maps?.StreetViewService) return;
+    const sv = new window.google.maps.StreetViewService();
+    sv.getPanorama(
+      {
+        location: { lat: ch.googleMap.lat, lng: ch.googleMap.lng },
+        radius: 120,
+        source: window.google.maps.StreetViewSource.OUTDOOR
+      },
+      (data, status) => {
+        if (status === 'OK' && data?.location?.pano) {
+          this.resolvedPanoInfo[ch.id] = {
+            panoId: data.location.pano,
+            desc: data.location.description || ch.googleMap.roadSign
+          };
+          if (this.streetViewModalOpen) this.render();
+        }
+      }
+    );
   }
 
   _loadState() {
@@ -132,7 +204,13 @@ class GtaDentsuApp {
       }
     }
 
-    if (this.scooterModalOpen || this.ch6CallModalOpen) return;
+    if (this.scooterModalOpen || this.ch6CallModalOpen || this.streetViewModalOpen) {
+      if (e.key === 'Escape' && this.streetViewModalOpen) {
+        this.streetViewModalOpen = false;
+        this.render();
+      }
+      return;
+    }
 
     const ch = getCurrentChapter(this.state);
 
@@ -341,6 +419,9 @@ class GtaDentsuApp {
 
     if (this.ch6CallModalOpen) {
       this.root.appendChild(this._renderCh6PhoneModal());
+    }
+    if (this.streetViewModalOpen) {
+      this.root.appendChild(this._renderStreetViewModal());
     }
     if (this.scooterModalOpen) {
       this.root.appendChild(this._renderScooterModal());
@@ -609,7 +690,16 @@ class GtaDentsuApp {
     const gm = ch.googleMap || {};
 
     let bannerMedia;
-    if (this.sceneViewMode === 'gmap_live' && gm.embedQuery) {
+    if (this.sceneViewMode === 'gmap_360' && gm.panoId) {
+      bannerMedia = el('iframe', {
+        class: 'scene-gmap-iframe',
+        src: this._build360EmbedUrl(gm),
+        title: `Google 360° 互動街景：${ch.location}`,
+        allowfullscreen: 'true',
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    } else if (this.sceneViewMode === 'gmap_live' && gm.embedQuery) {
       bannerMedia = el('iframe', {
         class: 'scene-gmap-iframe',
         src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=k&hl=zh-TW&z=18&output=embed`,
@@ -633,11 +723,11 @@ class GtaDentsuApp {
 
     const subtitleText = this.sceneViewMode === 'gmap_photo'
       ? `📷 Google Maps 真實街景 · ${gm.roadSign || ch.location}`
-      : (this.sceneViewMode === 'gmap_live'
+      : (this.sceneViewMode === 'gmap_live' || this.sceneViewMode === 'gmap_360'
         ? ''
         : `${ch.lineSender.name}：「${ch.lineMessage}」`);
 
-    // 1. 2026 台北場景主視覺卡＋Google Maps 真實街景切換＋台灣綠牌道路名
+    // 1. 2026 台北場景主視覺卡＋Google 360° 街景＆實景＆衛星即時切換＋台灣綠牌道路名
     const sceneCard = el('div', { class: 'panel scene-card tw-glass-accent' }, [
       el('div', { class: 'scene-banner-wrap' }, [
         bannerMedia,
@@ -655,24 +745,25 @@ class GtaDentsuApp {
           onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gta'; this.render(); }
         }),
         el('button', {
+          class: `mode-chip${this.sceneViewMode === 'gmap_360' ? ' is-active' : ''}`,
+          text: '🌐 360°街景',
+          onClick: () => {
+            soundFX.playClick();
+            this.sceneViewMode = 'gmap_360';
+            this._lookupLivePano(ch);
+            this.render();
+          }
+        }),
+        el('button', {
           class: `mode-chip${this.sceneViewMode === 'gmap_photo' ? ' is-active' : ''}`,
-          text: '📷 真實街景',
+          text: '📷 街景實拍',
           onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gmap_photo'; this.render(); }
         }),
         el('button', {
           class: `mode-chip${this.sceneViewMode === 'gmap_live' ? ' is-active' : ''}`,
           text: '🛰️ 衛星地圖',
           onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gmap_live'; this.render(); }
-        }),
-        gm.streetViewUrl
-          ? el('a', {
-              class: 'mode-chip',
-              href: gm.streetViewUrl,
-              target: '_blank',
-              rel: 'noopener noreferrer',
-              text: '↗ 360°街景'
-            })
-          : null
+        })
       ]),
       el('div', { class: 'scene-hotspots' }, [
         el('button', {
@@ -689,9 +780,14 @@ class GtaDentsuApp {
         }),
         el('button', {
           class: 'hotspot-chip',
-          title: '對照 GTA 6 預告片橋段、角色動機與台灣設計元素',
-          text: '🎬 GTA6解析',
-          onClick: () => this._focusHelper('phone', 'gta6')
+          title: '放大開啟 Google Maps 360° 實景視窗',
+          text: '🧭 放大街景',
+          onClick: () => {
+            soundFX.playClick();
+            this.streetViewModalOpen = true;
+            this._lookupLivePano(ch);
+            this.render();
+          }
         }),
         el('button', {
           class: 'hotspot-chip is-scooter',
@@ -1374,6 +1470,63 @@ class GtaDentsuApp {
     return modal;
   }
 
+  _renderStreetViewModal() {
+    const ch = getCurrentChapter(this.state);
+    const gm = ch.googleMap || {};
+    const live = this.resolvedPanoInfo[ch.id];
+    const hasKey = Boolean(this._getMapsApiKey());
+
+    const statusBadge = live
+      ? `🟢 Google Maps API 已連線 · Pano ${live.panoId} (${live.desc})`
+      : (hasKey
+        ? `🟢 .env.map 金鑰已載入 · Pano ${gm.panoId || ''}`
+        : `📍 官方 Google 360° 街景 · Pano ${gm.panoId || ''}`);
+
+    return el('div', { class: 'modal-backdrop' }, [
+      el('div', { class: 'modal-box', style: 'width:min(880px,100%);' }, [
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
+          el('div', {}, [
+            el('div', { class: 'gta-kicker', text: `GOOGLE STREET VIEW 360° · ${gm.roadSign || ch.location}` }),
+            el('h2', { style: 'margin:4px 0 0 0;font-size:20px;', text: `第 ${ch.id} 站實地踩點：${ch.location}` })
+          ]),
+          el('button', {
+            class: 'btn-ghost',
+            text: '✕ 關閉視窗 (Esc)',
+            onClick: () => {
+              soundFX.playClick();
+              this.streetViewModalOpen = false;
+              this.render();
+            }
+          })
+        ]),
+        el('div', { style: 'font-size:12px;color:var(--cyan);font-weight:700;', text: statusBadge }),
+        el('div', { class: 'cutscene-stage-wrap', style: 'aspect-ratio:16/9;max-height:54dvh;border-width:6px;' }, [
+          el('iframe', {
+            class: 'scene-gmap-iframe',
+            src: this._build360EmbedUrl(gm),
+            title: `Google Maps 360° 全景街景：${ch.location}`,
+            allowfullscreen: 'true',
+            loading: 'lazy',
+            referrerpolicy: 'no-referrer-when-downgrade'
+          })
+        ]),
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
+          el('span', { style: 'font-size:12.5px;color:var(--muted);', text: '👆 可用滑鼠／手指 360° 旋轉環顧四周，或點擊路面箭頭沿松仁路實境前進！' }),
+          gm.streetViewUrl
+            ? el('a', {
+                class: 'btn-cyan',
+                style: 'min-height:36px;padding:6px 14px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;',
+                href: gm.streetViewUrl,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                text: '↗ 在 Google 地圖全螢幕開啟'
+              })
+            : null
+        ])
+      ])
+    ]);
+  }
+
   _renderReview() {
     const persona = determinePersona(this.state);
     const role = getRole(this.state.roleId);
@@ -1444,7 +1597,19 @@ class GtaDentsuApp {
     let text = '點選畫面按鈕操作；隨時可按鍵盤或點擊下方快捷指令。';
     const actions = [];
 
-    if (this.scooterModalOpen) {
+    if (this.streetViewModalOpen) {
+      text = '🌐 操作指示：正在瀏覽 360° Google 真實街景！拖曳畫面旋轉視角看富邦 A25 與陶豬隱園，按「關閉視窗」或 Esc 回到任務。';
+      actions.push(
+        el('button', {
+          class: 'guide-btn is-primary',
+          text: '✕ 關閉 360° 街景回任務 (Esc)',
+          onClick: () => {
+            this.streetViewModalOpen = false;
+            this.render();
+          }
+        })
+      );
+    } else if (this.scooterModalOpen) {
       text = '🛵 操作指示：點畫面左／右半邊、按 A / D（或 ← / →）切換三條車道！撿 🧋大冰奶 / 🍲大同電鍋，閃開 🍎RMN毒蘋果！';
       actions.push(
         el('button', { class: 'guide-btn', text: '⬅ 左切', onClick: () => this.scooterInstance && this.scooterInstance.moveLane(-1) }),
