@@ -515,24 +515,24 @@ class GtaDentsuApp {
           alt: ch.location,
           onerror: (e) => { e.target.style.display = 'none'; }
         }),
-        el('div', { class: 'scene-subtitle', text: `${ch.lineSender.name}：「${ch.lineMessage}」` }),
-        el('div', { class: 'scene-banner-overlay' }, [
-          el('div', {}, [
-            el('div', { style: 'font-size:12px;font-weight:800;color:var(--gold);', text: `${ch.book} · ${ch.timeSlot}` }),
-            el('div', { style: 'font-size:15px;font-weight:800;', text: ch.location })
-          ]),
-          ch.cutscene
-            ? el('button', {
-                class: 'btn-ghost',
-                style: 'min-height:34px;padding:4px 10px;font-size:12px;',
-                text: '🎬 播動畫',
-                onClick: () => {
-                  this.activeCutsceneSrc = ch.cutscene;
-                  this._setState({ ...this.state, phase: 'cutscene' });
-                }
-              })
-            : null
-        ])
+        el('div', { class: 'scene-subtitle', text: `${ch.lineSender.name}：「${ch.lineMessage}」` })
+      ]),
+      el('div', { class: 'scene-banner-overlay' }, [
+        el('div', {}, [
+          el('div', { style: 'font-size:12px;font-weight:800;color:var(--gold);', text: `${ch.book} · ${ch.timeSlot}` }),
+          el('div', { style: 'font-size:15px;font-weight:800;', text: ch.location })
+        ]),
+        ch.cutscene
+          ? el('button', {
+              class: 'btn-ghost',
+              style: 'min-height:34px;padding:4px 10px;font-size:12px;',
+              text: '🎬 播動畫',
+              onClick: () => {
+                this.activeCutsceneSrc = ch.cutscene;
+                this._setState({ ...this.state, phase: 'cutscene' });
+              }
+            })
+          : null
       ])
     ]);
 
