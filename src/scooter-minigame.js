@@ -80,7 +80,7 @@ export class GrandmaScooterGame {
     this.running = false;
     this.rafId = null;
     this.lastTs = 0;
-    this.bannerText = '阿嬤騎買菜車衝進 2026 信義區松仁路！掠過陶豬隱園直達富邦 A25 電通大樓！';
+    this.bannerText = '阿嬤騎買菜車衝進 2026 信義區松仁路！掠過陶朱隱園直達富邦 A25 電通大樓！';
     this.bannerTimer = 2.8;
 
     this._onKeyDown = (e) => {
@@ -294,7 +294,7 @@ export class GrandmaScooterGame {
     ctx.arc(w * 0.5, horizon - 14, 40, Math.PI, 0);
     ctx.fill();
 
-    // 1.1 「陶豬隱園」雙螺旋旋轉豪宅剪影（陶朱隱園諧音地標）
+    // 1.1 「陶朱隱園」雙螺旋旋轉豪宅剪影（陶朱隱園實景地標）
     const ax = w * 0.25;
     for (let fl = 0; fl < 9; fl += 1) {
       const fy = horizon - 7 - fl * 6.5;
@@ -333,7 +333,7 @@ export class GrandmaScooterGame {
     // 2026 信義區街邊霓虹招牌（位於頂部播報條下方，互不遮擋）
     const signs = [
       { x: 0.10, y: 0.25, txt: '大冰奶', c: '#00e5ff' },
-      { x: 0.25, y: 0.15, txt: '陶豬隱園', c: '#4ade80' },
+      { x: 0.25, y: 0.15, txt: '陶朱隱園', c: '#4ade80' },
       { x: 0.67, y: 0.14, txt: '富邦A25電通', c: '#ffd166' },
       { x: 0.91, y: 0.25, txt: '熱炒', c: '#ff52b8' }
     ];

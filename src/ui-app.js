@@ -63,12 +63,16 @@ class GtaDentsuApp {
     this.cheatBuffer = '';
     this.highlightTarget = null; // 'clue' | 'phone' | null
     this.sceneViewMode = 'gta'; // 'gta' | 'gmap_360' | 'gmap_photo' | 'gmap_live'
-    this.radarMode = 'radar'; // 'radar' | 'gmap'
+    this.radarMode = 'radar'; // 'radar' | 'gmap' | 'gmap_js'
+    this.svModalMode = 'embed'; // 'embed' | 'jsapi'
     this.streetViewModalOpen = false;
     this.resolvedPanoInfo = {};
     this._mapsJsPromise = null;
 
     window.addEventListener('keydown', (e) => this._handleGlobalKey(e));
+    if (this._getMapsApiKey()) {
+      this._ensureMapsJsLoaded();
+    }
     this.render();
   }
 
@@ -433,7 +437,7 @@ class GtaDentsuApp {
     const heroMedia = el('div', { class: 'hero-media' }, [
       el('img', {
         src: './public/images/scene-morning-scooter.webp',
-        alt: '2026 台北信義區松仁路富邦 A25 電通大樓與陶豬隱園 GTA 6 主視覺',
+        alt: '2026 台北信義區松仁路富邦 A25 電通大樓與陶朱隱園 GTA 6 主視覺',
         onerror: (e) => { e.target.style.display = 'none'; }
       })
     ]);
@@ -443,7 +447,7 @@ class GtaDentsuApp {
       el('h1', { class: 'gta-title', text: 'GRAND THEFT AGENCY\n電通台灣一日風雲' }),
       el('p', {
         class: 'gta-subtitle',
-        text: '08:30 從台北橋殺進信義區松仁路「富邦 A25 電通大樓」，對面就是旋轉地標「陶豬隱園」與 101。九本《決策智慧》濃縮成十個高壓時段，看你怎麼用真實判斷力破局！'
+        text: '08:30 從台北橋殺進信義區松仁路「富邦 A25 電通大樓」，對面就是旋轉地標「陶朱隱園」與 101。九本《決策智慧》濃縮成十個高壓時段，看你怎麼用真實判斷力破局！'
       }),
       el('div', { class: 'hero-badges' }, [
         el('span', { class: 'pill', text: '🛵 10 個台北代理商一日時段' }),
@@ -683,11 +687,60 @@ class GtaDentsuApp {
     ]);
   }
 
+  async _mountJsRadarMap(hostEl, activeCh) {
+    const ok = await this._ensureMapsJsLoaded();
+    if (!ok || !window.google?.maps?.Map || !hostEl.isConnected) return;
+    const gm = activeCh.googleMap || { lat: 25.0391247, lng: 121.5691512 };
+    const map = new window.google.maps.Map(hostEl, {
+      center: { lat: gm.lat, lng: gm.lng },
+      zoom: 14,
+      disableDefaultUI: true,
+      mapTypeId: 'roadmap'
+    });
+    const path = [];
+    for (const c of CHAPTERS) {
+      if (!c.googleMap) continue;
+      const pos = { lat: c.googleMap.lat, lng: c.googleMap.lng };
+      path.push(pos);
+      new window.google.maps.Marker({
+        position: pos,
+        map,
+        title: `第 ${c.id} 站 ${c.timeSlot}｜${c.location}`,
+        label: String(c.id)
+      });
+    }
+    new window.google.maps.Polyline({
+      path,
+      map,
+      strokeColor: '#ff4fa3',
+      strokeOpacity: 0.9,
+      strokeWeight: 2.5
+    });
+    setTimeout(() => hostEl.querySelector('.dismissButton')?.click(), 450);
+  }
+
+  async _mountJsStreetView(hostEl, ch) {
+    const ok = await this._ensureMapsJsLoaded();
+    if (!ok || !window.google?.maps?.StreetViewPanorama || !hostEl.isConnected) return;
+    const gm = ch.googleMap || {};
+    new window.google.maps.StreetViewPanorama(hostEl, {
+      pano: (this.resolvedPanoInfo[ch.id]?.panoId) || gm.panoId || 'dp2njH37xCDpod8-j4Ockw',
+      pov: { heading: gm.heading ?? 115, pitch: gm.pitch ?? 16 },
+      zoom: 0,
+      addressControl: true,
+      showRoadLabels: true
+    });
+    setTimeout(() => hostEl.querySelector('.dismissButton')?.click(), 450);
+  }
+
   _renderSideColumn() {
     const ch = getCurrentChapter(this.state);
     const role = getRole(this.state.roleId);
     const clue = ch.roleClues[role.id] || ch.roleClues.planner;
     const gm = ch.googleMap || {};
+    if (this._getMapsApiKey() && !this.resolvedPanoInfo[ch.id]) {
+      this._lookupLivePano(ch);
+    }
 
     let bannerMedia;
     if (this.sceneViewMode === 'gmap_360' && gm.panoId) {
@@ -815,30 +868,46 @@ class GtaDentsuApp {
       ])
     ]);
 
-    // 2. 2026 台北 GPS 雷達／Google Maps 雙模切換小地圖
+    // 2. 2026 台北 GPS 雷達／Google Maps 雙模＆JS API 三模切換小地圖
+    const hasKey = Boolean(this._getMapsApiKey());
+    const radarNextLabel = this.radarMode === 'radar'
+      ? '🗺️ 衛星圖'
+      : (this.radarMode === 'gmap' && hasKey ? '🔑 JS地圖' : '📡 切雷達');
+
+    let miniMapBody;
+    if (this.radarMode === 'gmap' && gm.embedQuery) {
+      miniMapBody = el('iframe', {
+        class: 'minimap-gmap-iframe',
+        src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=m&hl=zh-TW&z=16&output=embed`,
+        title: 'Google Maps 小地圖',
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    } else if (this.radarMode === 'gmap_js' && hasKey) {
+      const host = el('div', { class: 'minimap-gmap-iframe', style: 'background:#0d1424;' });
+      requestAnimationFrame(() => this._mountJsRadarMap(host, ch));
+      miniMapBody = host;
+    } else {
+      miniMapBody = this._buildTaipeiMiniMapSvg(ch);
+    }
+
     const miniMap = el('div', { class: 'minimap-box' }, [
       el('div', { style: 'display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:var(--cyan);margin-bottom:4px;gap:6px;' }, [
         el('span', { text: `2026 信義 GPS · 站點 ${ch.id}/10` }),
         el('button', {
           class: 'mode-chip',
           style: 'min-height:22px;padding:1px 7px;font-size:10.5px;',
-          text: this.radarMode === 'radar' ? '🗺️ 切Google地圖' : '📡 切GTA雷達',
+          text: radarNextLabel,
           onClick: () => {
             soundFX.playClick();
-            this.radarMode = this.radarMode === 'radar' ? 'gmap' : 'radar';
+            if (this.radarMode === 'radar') this.radarMode = 'gmap';
+            else if (this.radarMode === 'gmap' && hasKey) this.radarMode = 'gmap_js';
+            else this.radarMode = 'radar';
             this.render();
           }
         })
       ]),
-      this.radarMode === 'gmap' && gm.embedQuery
-        ? el('iframe', {
-            class: 'minimap-gmap-iframe',
-            src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=m&hl=zh-TW&z=16&output=embed`,
-            title: 'Google Maps 小地圖',
-            loading: 'lazy',
-            referrerpolicy: 'no-referrer-when-downgrade'
-          })
-        : this._buildTaipeiMiniMapSvg(ch)
+      miniMapBody
     ]);
 
     // 3. 職能獨家線索 ＋ 絕招
@@ -900,7 +969,7 @@ class GtaDentsuApp {
     // 2026 台北信義區實景地標標記
     const landmarks = [
       { x: 148, y: 36, text: '★富邦A25', color: '#ffd166' },
-      { x: 162, y: 55, text: '🌀陶豬隱園', color: '#4ade80' },
+      { x: 162, y: 55, text: '🌀陶朱隱園', color: '#4ade80' },
       { x: 112, y: 50, text: '🗼101', color: '#00e5ff' },
       { x: 192, y: 22, text: '🎬內湖棚', color: '#ff52b8' },
       { x: 24, y: 105, text: '🛵台北橋', color: '#e2d9f3' }
@@ -941,7 +1010,7 @@ class GtaDentsuApp {
     label.setAttribute('fill', '#ffd166');
     label.setAttribute('font-size', '9.5');
     label.setAttribute('font-weight', 'bold');
-    label.textContent = '2026 松仁路 · 富邦A25 ⇄ 陶豬隱園';
+    label.textContent = '2026 松仁路 · 富邦A25 ⇄ 陶朱隱園';
     svg.appendChild(label);
 
     return svg;
@@ -1477,10 +1546,27 @@ class GtaDentsuApp {
     const hasKey = Boolean(this._getMapsApiKey());
 
     const statusBadge = live
-      ? `🟢 Google Maps API 已連線 · Pano ${live.panoId} (${live.desc})`
+      ? `🟢 Google Maps API (.env.map) 已連線 · Pano ${live.panoId} (${live.desc})`
       : (hasKey
         ? `🟢 .env.map 金鑰已載入 · Pano ${gm.panoId || ''}`
         : `📍 官方 Google 360° 街景 · Pano ${gm.panoId || ''}`);
+
+    let viewportNode;
+    if (this.svModalMode === 'jsapi' && hasKey) {
+      const host = el('div', { class: 'scene-gmap-iframe', style: 'min-height:360px;height:52dvh;background:#0d1424;' });
+      requestAnimationFrame(() => this._mountJsStreetView(host, ch));
+      viewportNode = host;
+    } else {
+      viewportNode = el('iframe', {
+        class: 'scene-gmap-iframe',
+        style: 'min-height:360px;height:52dvh;',
+        src: this._build360EmbedUrl({ ...gm, panoId: live?.panoId || gm.panoId }),
+        title: `Google Maps 360° 全景街景：${ch.location}`,
+        allowfullscreen: 'true',
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    }
 
     return el('div', { class: 'modal-backdrop' }, [
       el('div', { class: 'modal-box', style: 'width:min(880px,100%);' }, [
@@ -1489,27 +1575,35 @@ class GtaDentsuApp {
             el('div', { class: 'gta-kicker', text: `GOOGLE STREET VIEW 360° · ${gm.roadSign || ch.location}` }),
             el('h2', { style: 'margin:4px 0 0 0;font-size:20px;', text: `第 ${ch.id} 站實地踩點：${ch.location}` })
           ]),
-          el('button', {
-            class: 'btn-ghost',
-            text: '✕ 關閉視窗 (Esc)',
-            onClick: () => {
-              soundFX.playClick();
-              this.streetViewModalOpen = false;
-              this.render();
-            }
-          })
+          el('div', { style: 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;' }, [
+            el('button', {
+              class: `mode-chip${this.svModalMode === 'embed' ? ' is-active' : ''}`,
+              style: 'min-height:34px;padding:4px 10px;font-size:12px;',
+              text: '🌐 360° 全彩街景',
+              onClick: () => { soundFX.playClick(); this.svModalMode = 'embed'; this.render(); }
+            }),
+            hasKey
+              ? el('button', {
+                  class: `mode-chip${this.svModalMode === 'jsapi' ? ' is-active' : ''}`,
+                  style: 'min-height:34px;padding:4px 10px;font-size:12px;',
+                  text: '🔑 JS API 街景',
+                  onClick: () => { soundFX.playClick(); this.svModalMode = 'jsapi'; this.render(); }
+                })
+              : null,
+            el('button', {
+              class: 'btn-ghost',
+              style: 'min-height:36px;',
+              text: '✕ 關閉 (Esc)',
+              onClick: () => {
+                soundFX.playClick();
+                this.streetViewModalOpen = false;
+                this.render();
+              }
+            })
+          ])
         ]),
         el('div', { style: 'font-size:12px;color:var(--cyan);font-weight:700;', text: statusBadge }),
-        el('div', { class: 'cutscene-stage-wrap', style: 'aspect-ratio:16/9;max-height:54dvh;border-width:6px;' }, [
-          el('iframe', {
-            class: 'scene-gmap-iframe',
-            src: this._build360EmbedUrl(gm),
-            title: `Google Maps 360° 全景街景：${ch.location}`,
-            allowfullscreen: 'true',
-            loading: 'lazy',
-            referrerpolicy: 'no-referrer-when-downgrade'
-          })
-        ]),
+        el('div', { class: 'cutscene-stage-wrap', style: 'max-height:54dvh;border-width:6px;' }, [viewportNode]),
         el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
           el('span', { style: 'font-size:12.5px;color:var(--muted);', text: '👆 可用滑鼠／手指 360° 旋轉環顧四周，或點擊路面箭頭沿松仁路實境前進！' }),
           gm.streetViewUrl
@@ -1598,7 +1692,7 @@ class GtaDentsuApp {
     const actions = [];
 
     if (this.streetViewModalOpen) {
-      text = '🌐 操作指示：正在瀏覽 360° Google 真實街景！拖曳畫面旋轉視角看富邦 A25 與陶豬隱園，按「關閉視窗」或 Esc 回到任務。';
+      text = '🌐 操作指示：正在瀏覽 360° Google 真實街景！拖曳畫面旋轉視角看富邦 A25 與陶朱隱園，按「關閉視窗」或 Esc 回到任務。';
       actions.push(
         el('button', {
           class: 'guide-btn is-primary',

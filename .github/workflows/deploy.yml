@@ -24,6 +24,8 @@ jobs:
           node-version: "22"
       - run: npm test
       - run: npm run build && npm run check
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
