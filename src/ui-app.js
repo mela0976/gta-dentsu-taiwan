@@ -1,4 +1,4 @@
-// 主介面控制器：GTA 6 台灣風格《決策智慧：電通台灣一日風雲》
+// 主介面控制器：GTA 6 × 台灣街頭工藝《決策智慧：電通台灣一日風雲》（Diegetic Game HUD）
 import { ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, GTA6_TAIWAN_ANALYSIS, CHAPTERS, SCOOTER_CONFIG } from './story-data.js';
 import {
   CHEAT_CODE,
@@ -17,9 +17,25 @@ import {
   determinePersona
 } from './game-engine.js';
 import { GrandmaScooterGame } from './scooter-minigame.js';
-import { soundFX } from './audio-fx.js';
+import { RADIO_STATIONS, soundFX } from './audio-fx.js';
+import { SVG_GTA_TAIWAN_CREST, SVG_IRON_GRILLE_CORNER, SVG_TEMPLE_STAMP_PASSED, SVG_IFRUIT_CHASSIS_TOP, SVG_RADAR_COMPASS_RING, SVG_ROAD_SIGN_BADGE, getStatIconSvg, SVG_TESLA_FSD_HUD_OVERLAY, SVG_FUBON_A25_WIKI_BLUEPRINT } from './ui-graphics.js';
 
 const STORAGE_KEY = 'gta_dentsu_taiwan_v1';
+
+// 五項指標：state.stats 欄位 → 標籤 / Codex 圖示 / 霓虹色
+const HUD_STATS = [
+  { key: 'stamina', icon: 'liver', label: '肝指數', color: '#4ade80' },
+  { key: 'streetCred', icon: 'bs', label: '嘴砲力', color: '#ff9e2c' },
+  { key: 'realLift', icon: 'incrementality', label: '真增量', color: '#00e5ff' },
+  { key: 'brandTrust', icon: 'trust', label: '品牌信任', color: '#ff52b8' },
+  { key: 'judgment', icon: 'judgment', label: '衡斷力', color: '#ffd166' }
+];
+
+// 十個時段在 ui-taipei-radar-map.webp（16:9）上的位置（百分比），對齊底圖內建的地標圖釘
+const RADAR_POS = [
+  [16.4, 61], [76.7, 68], [50, 57], [80.8, 71.7], [60, 59],
+  [71, 20], [74.5, 64], [78.5, 74.5], [53, 49], [79.5, 65]
+];
 
 function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
@@ -40,11 +56,19 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
+// 僅用於本地靜態 SVG（ui-graphics.js）與已跳脫的 SVG_ROAD_SIGN_BADGE；使用者字元一律走 textContent
+function htmlNode(className, svgString) {
+  const node = document.createElement('div');
+  node.className = className;
+  node.innerHTML = svgString;
+  return node;
+}
+
 class GtaDentsuApp {
   constructor(root) {
     this.root = root;
     this.state = this._loadState();
-    this.phoneTab = 'line'; // 'line' | 'people' | 'grandma'
+    this.phoneTab = 'line'; // 'line' | 'people' | 'grandma' | 'gta6'
     this.muted = false;
     this.scooterModalOpen = false;
     this.scooterInstance = null;
@@ -63,17 +87,87 @@ class GtaDentsuApp {
     this.cheatBuffer = '';
     this.highlightTarget = null; // 'clue' | 'phone' | null
     this.sceneViewMode = 'gta'; // 'gta' | 'gmap_360' | 'gmap_photo' | 'gmap_live'
+    this.fsdHudOverlay = false; // 點擊「🤖 Tesla FSD視角」可一鍵切換抬頭顯示器圖層
     this.radarMode = 'radar'; // 'radar' | 'gmap' | 'gmap_js'
     this.svModalMode = 'embed'; // 'embed' | 'jsapi'
     this.streetViewModalOpen = false;
     this.resolvedPanoInfo = {};
     this._mapsJsPromise = null;
+    this._lastSpokenChapterPhase = '';
+    this._prevStation = null;
+
+    // 全螢幕動態場景氛圍背景（放在 #app 之外，render 時只換圖）
+    this.backdrop = el('div', { class: 'ambient-backdrop', 'aria-hidden': 'true' });
+    this.veil = el('div', { class: 'ambient-veil', 'aria-hidden': 'true' });
+    document.body.prepend(this.veil);
+    document.body.prepend(this.backdrop);
+
+    soundFX.onVoiceChange = () => this._syncVoiceIndicator();
+    const startAudio = () => {
+      soundFX._ensureCtx();
+      soundFX.startBGM();
+    };
+    window.addEventListener('pointerdown', startAudio, { once: true });
+    window.addEventListener('keydown', startAudio, { once: true });
 
     window.addEventListener('keydown', (e) => this._handleGlobalKey(e));
     if (this._getMapsApiKey()) {
       this._ensureMapsJsLoaded();
     }
     this.render();
+  }
+
+  _roadParts(ch) {
+    const raw = String((ch.googleMap && ch.googleMap.roadSign) || ch.location || '');
+    const i = raw.indexOf('·');
+    if (i < 0) return [raw, 'Taipei · Taiwan'];
+    return [raw.slice(0, i).trim(), raw.slice(i + 1).trim()];
+  }
+
+  // 依 soundFX 狀態更新所有「說話中」指示（不重畫 DOM）
+  _syncVoiceIndicator() {
+    const speaking = Boolean(soundFX.speaking);
+    const role = soundFX.activeVoiceRole;
+    document.querySelectorAll('[data-voice]').forEach((n) => {
+      const who = n.getAttribute('data-voice');
+      n.classList.toggle('is-speaking', speaking && (who === 'any' || who === role));
+    });
+  }
+
+  _voiceBtnLabel() {
+    return soundFX.voiceEnabled ? '語音開' : '語音關';
+  }
+
+  // 章節剛進入時溫和朗讀一次（以 chapterIndex:phase 去重，re-render 不會重唸）
+  _speakOnce(key, text, roleKey) {
+    if (this._lastSpokenChapterPhase === key) return;
+    this._lastSpokenChapterPhase = key;
+    if (soundFX.voiceEnabled && !this.muted) soundFX.speak(text, roleKey);
+  }
+
+  _onPhaseEnter() {
+    const phase = this.state.phase;
+    if (phase !== 'scene' && phase !== 'reveal') return;
+    if (this.scooterModalOpen || this.ch6CallModalOpen) return;
+    const ch = getCurrentChapter(this.state);
+    const key = `${this.state.chapterIndex}:${phase}`;
+    if (this._lastSpokenChapterPhase === key) return;
+    if (phase === 'scene') {
+      this._speakOnce(key, ch.lineMessage, 'boss');
+    } else {
+      if (!this.muted) soundFX.playStampImpact();
+      this._speakOnce(key, ch.takeaway, 'narrator');
+    }
+  }
+
+  _syncBackdrop() {
+    const phase = this.state.phase;
+    let img = './public/images/scene-morning-scooter.webp';
+    if (phase !== 'title' && phase !== 'role') {
+      const ch = getCurrentChapter(this.state);
+      if (ch && ch.sceneImage) img = ch.sceneImage;
+    }
+    this.backdrop.style.backgroundImage = `url("${img}")`;
   }
 
   _getMapsApiKey() {
@@ -317,6 +411,7 @@ class GtaDentsuApp {
     if (twinId && !this.state.askedTwins.includes(twinId)) {
       soundFX.playLinePing();
       this._setState(consultTwin(this.state, twinId));
+      this._speakTwin(getCurrentChapter(this.state), twinId, false);
     } else if (phoneTab === 'grandma' && !this.state.grandmaUnlocked) {
       this._triggerCheatCode(false);
     } else {
@@ -334,12 +429,6 @@ class GtaDentsuApp {
   _triggerCheatCode(withRescue = true) {
     soundFX.playTatungCooker();
     this._setState(activateGrandmaCheat(this.state, withRescue));
-  }
-
-  _toggleMute() {
-    this.muted = !this.muted;
-    soundFX.setMuted(this.muted);
-    this.render();
   }
 
   _pickReply(idx) {
@@ -389,9 +478,18 @@ class GtaDentsuApp {
   }
 
   _openScooterModal() {
+    this._prevStation = soundFX.stationIndex;
+    soundFX.setStation(2); // Turbo Cyber-Pulse
     this.scooterModalOpen = true;
     soundFX.playScooterHorn();
     this.render();
+  }
+
+  _restoreStation() {
+    if (this._prevStation !== null) {
+      soundFX.setStation(this._prevStation);
+      this._prevStation = null;
+    }
   }
 
   _closeScooterModal(aborted = true) {
@@ -400,11 +498,13 @@ class GtaDentsuApp {
       this.scooterInstance = null;
     }
     this.scooterModalOpen = false;
+    this._restoreStation();
     this.render();
   }
 
   render() {
     this.root.innerHTML = '';
+    this._syncBackdrop();
 
     if (this.state.phase === 'title') {
       this.root.appendChild(this._renderTitle());
@@ -431,6 +531,14 @@ class GtaDentsuApp {
       this.root.appendChild(this._renderScooterModal());
     }
     this.root.appendChild(this._renderBottomGuideBar());
+    this._onPhaseEnter();
+    this._syncVoiceIndicator();
+  }
+
+  _startShift() {
+    soundFX.playScooterHorn();
+    soundFX.startBGM();
+    this._setState({ ...this.state, phase: 'role' });
   }
 
   _renderTitle() {
@@ -439,12 +547,18 @@ class GtaDentsuApp {
         src: './public/images/scene-morning-scooter.webp',
         alt: '2026 台北信義區松仁路富邦 A25 電通大樓與陶朱隱園 GTA 6 主視覺',
         onerror: (e) => { e.target.style.display = 'none'; }
-      })
+      }),
+      htmlNode('hero-fsd', SVG_TESLA_FSD_HUD_OVERLAY),
+      htmlNode('hero-a25', SVG_FUBON_A25_WIKI_BLUEPRINT)
     ]);
 
     const body = el('div', { class: 'hero-body' }, [
+      htmlNode('hero-crest', SVG_GTA_TAIWAN_CREST),
       el('div', { class: 'gta-kicker', text: 'DENTSU TAIWAN 富邦 A25 × 決策智慧 2018–2026' }),
-      el('h1', { class: 'gta-title', text: 'GRAND THEFT AGENCY\n電通台灣一日風雲' }),
+      el('h1', { class: 'gta-title gta-title-split', 'aria-label': 'GRAND THEFT AGENCY 電通台灣一日風雲' }, [
+        el('span', { class: 't-a', text: 'GRAND THEFT AGENCY' }),
+        el('span', { class: 't-b', text: '電通台灣一日風雲' })
+      ]),
       el('p', {
         class: 'gta-subtitle',
         text: '08:30 從台北橋殺進信義區松仁路「富邦 A25 電通大樓」，對面就是旋轉地標「陶朱隱園」與 101。九本《決策智慧》濃縮成十個高壓時段，看你怎麼用真實判斷力破局！'
@@ -452,22 +566,23 @@ class GtaDentsuApp {
       el('div', { class: 'hero-badges' }, [
         el('span', { class: 'pill', text: '🛵 10 個台北代理商一日時段' }),
         el('span', { class: 'pill', text: '🧠 People Model（Lisa & Cindy）' }),
-        el('span', { class: 'pill pill-gold', text: '👵 隱藏阿嬤模組（AMA666）' }),
-        el('span', { class: 'pill', text: '🎬 Higgsfield 實景過場動畫' })
+        el('span', { class: 'pill', text: '📻 3 台 GTA 車載電台' }),
+        el('span', { class: 'pill', text: '🎙️ 台灣語音播報' }),
+        el('span', { class: 'pill pill-gold', text: '👵 隱藏阿嬤模組' })
+      ]),
+      el('div', { class: 'plate-box' }, [
+        el('span', { class: 'plate-label', text: '台灣秘技車牌 AMA-666' }),
+        this._renderCheatInput()
       ]),
       el('div', { class: 'hero-actions' }, [
         el('button', {
           class: 'btn-primary',
           text: '打卡上班：選你的電通職能 ➔',
-          onClick: () => {
-            soundFX.playScooterHorn();
-            soundFX.startBGM();
-            this._setState({ ...this.state, phase: 'role' });
-          }
+          onClick: () => this._startShift()
         }),
         el('button', {
           class: 'btn-gold',
-          text: '🛵 先試騎：阿嬤買菜電動車',
+          text: '🛵 試駕 2026 電車 × Tesla FSD',
           onClick: () => this._openScooterModal()
         }),
         this.state.history.length > 0
@@ -480,10 +595,6 @@ class GtaDentsuApp {
               }
             })
           : null
-      ]),
-      el('div', { class: 'cheat-bar' }, [
-        el('span', { style: 'font-size:13px;color:var(--muted);', text: 'GTA 台灣秘技碼（試試輸入 AMA666）：' }),
-        this._renderCheatInput()
       ])
     ]);
 
@@ -515,11 +626,17 @@ class GtaDentsuApp {
     return el('div', { class: 'cheat-bar' }, [input, btn]);
   }
 
+  _renderSegBar(val, color) {
+    const on = Math.max(0, Math.min(10, Math.round(Number(val) / 10)));
+    return el('div', { class: 'seg-bar', style: `--seg:${color};`, role: 'img', 'aria-label': `${val} / 100` },
+      Array.from({ length: 10 }, (_, i) => el('i', { class: i < on ? 'on' : '' })));
+  }
+
   _renderRoleSelect() {
     const topBar = el('div', { class: 'panel role-topbar' }, [
       el('div', {}, [
         el('div', { class: 'gta-kicker', text: 'STEP 1 · 領取松仁路富邦 A25 電通台灣識別證' }),
-        el('h2', { style: 'margin:4px 0 0 0;font-size:clamp(18px,2.2vw,24px);', text: '2026 早安信義區：今天你以哪個職能走進富邦 A25？' })
+        el('h2', { text: '2026 早安信義區：今天你以哪個職能走進富邦 A25？' })
       ]),
       el('div', { class: 'cheat-bar' }, [
         el('button', {
@@ -535,7 +652,7 @@ class GtaDentsuApp {
       ])
     ]);
 
-    const grid = el('div', { class: 'role-grid' }, ROLES.map((role) => {
+    const grid = el('div', { class: 'role-grid' }, ROLES.map((role, idx) => {
       const locked = role.id === 'grandma' && !this.state.grandmaUnlocked;
       const cls = `role-card${role.id === 'grandma' ? ' is-grandma' : ''}${locked ? ' is-locked' : ''}`;
       return el('button', {
@@ -547,6 +664,11 @@ class GtaDentsuApp {
           this._setState(selectRole(this.state, role.id));
         }
       }, [
+        el('div', { class: 'role-lanyard' }),
+        el('div', { class: 'role-id-head' }, [
+          el('span', { text: 'DENTSU TW · FUBON A25' }),
+          el('span', { text: `WANTED #0${idx + 1}` })
+        ]),
         el('div', { class: 'role-avatar-wrap' }, [
           el('img', {
             src: role.image,
@@ -561,15 +683,15 @@ class GtaDentsuApp {
         ]),
         el('div', { class: 'role-info' }, [
           el('h3', { style: `color:${role.color};`, text: role.name }),
-          el('p', { style: 'font-weight:700;color:#efeafd;', text: `${role.dept} · ${role.title}` }),
-          el('p', { text: `「${role.quote}」` }),
-          el('p', { style: 'font-size:13px;color:var(--cyan);', text: `⚡ 絕招：${role.specialName}` }),
-          el('div', { class: 'mini-stats' }, [
-            el('span', { text: `🔥 肝指數 ${role.startingStats.stamina}` }),
-            el('span', { text: `🎤 嘴砲力 ${role.startingStats.streetCred}` }),
-            el('span', { text: `📈 真增量 ${role.startingStats.realLift}` }),
-            el('span', { text: `🛡️ 衡斷力 ${role.startingStats.judgment}` })
-          ])
+          el('p', { class: 'role-dept', text: `${role.dept} · ${role.title}` }),
+          el('p', { class: 'role-quote', text: `「${role.quote}」` }),
+          el('span', { class: 'role-special', text: `⚡ ${role.specialName}` }),
+          el('div', { class: 'role-bars' }, HUD_STATS.map((st) =>
+            el('div', { class: 'role-bar-row', title: `${st.label} ${role.startingStats[st.key]}` }, [
+              htmlNode('role-bar-icon', getStatIconSvg(st.icon)),
+              this._renderSegBar(role.startingStats[st.key], st.color)
+            ])
+          ))
         ])
       ]);
     }));
@@ -577,64 +699,99 @@ class GtaDentsuApp {
     return el('div', { class: 'role-select-wrap' }, [topBar, grid]);
   }
 
+  _toggleVoice(btn) {
+    soundFX.toggleVoice();
+    const t = btn.querySelector('.hud-btn-text');
+    if (t) t.textContent = `${soundFX.voiceEnabled ? '🎙️' : '🔇'} ${this._voiceBtnLabel()}`;
+    btn.setAttribute('aria-pressed', String(soundFX.voiceEnabled));
+  }
+
+  _toggleMute() {
+    this.muted = !this.muted;
+    soundFX.setMuted(this.muted);
+    if (!this.muted) soundFX.startBGM();
+    document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = this.muted ? '🔇 靜音' : '🔊 音效'; });
+  }
+
   _renderHud() {
     const role = getRole(this.state.roleId);
     const ch = getCurrentChapter(this.state);
     const s = this.state.stats;
+    const [roadZh, roadEn] = this._roadParts(ch);
+    const stars = Math.max(0, Math.min(5, this.state.wantedStars));
+    const starsText = '★'.repeat(stars) + '☆'.repeat(5 - stars);
 
-    const meters = [
-      { label: '肝指數', val: s.stamina, color: '#4ade80' },
-      { label: '嘴砲力', val: s.streetCred, color: '#ff9e2c' },
-      { label: '真增量', val: s.realLift, color: '#00e5ff' },
-      { label: '品牌信任', val: s.brandTrust, color: '#ff52b8' },
-      { label: '衡斷力', val: s.judgment, color: '#ffd166' }
-    ];
+    const stationBtn = el('button', {
+      class: 'hud-btn is-radio',
+      title: '切換 GTA 車載電台',
+      'aria-label': '切換車載電台',
+      text: `📻 ${soundFX.getCurrentStation().short}`,
+      onClick: (e) => {
+        const st = soundFX.nextStation();
+        e.currentTarget.textContent = `📻 ${st.short}`;
+      }
+    });
 
-    const starsText = '★'.repeat(this.state.wantedStars) + '☆'.repeat(Math.max(0, 5 - this.state.wantedStars));
+    const voiceBtn = el('button', {
+      class: 'hud-btn',
+      'data-voice': 'any',
+      'aria-pressed': String(soundFX.voiceEnabled),
+      title: '台灣語音播報開關',
+      onClick: (e) => this._toggleVoice(e.currentTarget)
+    }, [
+      el('span', { class: 'wave', 'aria-hidden': 'true' }, [el('i'), el('i'), el('i')]),
+      el('span', { class: 'hud-btn-text', text: `${soundFX.voiceEnabled ? '🎙️' : '🔇'} ${this._voiceBtnLabel()}` })
+    ]);
 
     return el('header', { class: 'hud-bar' }, [
       el('div', { class: 'hud-identity' }, [
-        el('img', {
-          class: 'hud-avatar',
-          src: role.image,
-          alt: role.name,
-          onerror: (e) => { e.target.style.display = 'none'; }
-        }),
-        el('div', {}, [
+        el('div', { class: 'hud-avatar-frame', 'data-voice': 'any' }, [
+          el('img', { src: role.image, alt: role.name, onerror: (e) => { e.target.style.display = 'none'; } })
+        ]),
+        el('div', { class: 'hud-id-text' }, [
+          htmlNode('hud-sign', SVG_ROAD_SIGN_BADGE(roadZh, roadEn)),
           el('div', { class: 'hud-time', text: `${ch.timeSlot} · 第 ${ch.id}／10 站 · ${ch.year} 年鑑` }),
-          el('div', { class: 'hud-name', text: `${role.name}｜${ch.location}` })
+          el('div', { class: 'hud-name', text: `${role.name}｜${ch.location}` }),
+          el('div', { class: 'hud-pips', 'aria-hidden': 'true' }, CHAPTERS.map((c) =>
+            el('i', { class: c.id < ch.id ? 'done' : (c.id === ch.id ? 'now' : '') })))
         ])
       ]),
-      el('div', { class: 'hud-meters' }, meters.map((m) =>
-        el('div', { class: 'meter-box' }, [
+      el('div', { class: 'hud-meters' }, HUD_STATS.map((m) =>
+        el('div', { class: 'meter-box', style: `--seg:${m.color};` }, [
+          htmlNode('meter-icon', getStatIconSvg(m.icon)),
           el('div', { class: 'meter-label' }, [
             el('span', { text: m.label }),
-            el('span', { text: String(m.val) })
+            el('b', { text: String(s[m.key]) })
           ]),
-          el('div', { class: 'meter-track' }, [
-            el('div', { class: 'meter-fill', style: `width:${m.val}%;background:${m.color};` })
-          ])
+          this._renderSegBar(s[m.key], m.color)
         ])
       )),
       el('div', { class: 'hud-right' }, [
-        el('div', {
-          class: `wanted-box${this.state.wantedStars >= 4 ? ' is-hot' : ''}`,
-          title: '慣老闆／CFO 炎上通緝星級（滿 5 星觸發阿嬤電鍋救援）',
-          text: `通緝 ${starsText}`
-        }),
-        el('div', { class: 'score-pill', text: `$${this.state.points.toLocaleString()}` }),
+        el('div', { class: 'cash-box' }, [
+          el('div', { class: 'score-pill', text: `$${this.state.points.toLocaleString()}` }),
+          el('div', {
+            class: `wanted-box${this.state.wantedStars >= 4 ? ' is-hot' : ''}`,
+            title: '慣老闆／CFO 炎上通緝星級（滿 5 星觸發阿嬤電鍋救援）',
+            'aria-label': `通緝 ${stars} 星`,
+            text: starsText
+          })
+        ]),
+        stationBtn,
+        voiceBtn,
+        el('button', { class: 'hud-btn is-gold', text: '🛵 電動車×FSD', onClick: () => this._openScooterModal() }),
         el('button', {
-          class: 'btn-gold',
-          style: 'min-height:40px;padding:6px 12px;font-size:14px;',
-          text: '🛵 買菜車',
-          onClick: () => this._openScooterModal()
-        }),
-        el('button', {
-          class: 'btn-ghost',
-          style: 'min-height:40px;padding:6px 12px;font-size:14px;',
-          text: this.muted ? '🔇' : '🔊',
+          class: 'hud-btn',
+          'data-mute-btn': '1',
+          text: this.muted ? '🔇 靜音' : '🔊 音效',
           'aria-label': '切換音效',
           onClick: () => this._toggleMute()
+        }),
+        el('button', {
+          class: 'hud-btn',
+          text: '↺ 重開',
+          onClick: () => {
+            if (window.confirm('確定要重開？目前進度會清除。')) this._resetGame();
+          }
         })
       ])
     ]);
@@ -681,9 +838,403 @@ class GtaDentsuApp {
   }
 
   _renderPlayGrid() {
+    const ch = getCurrentChapter(this.state);
+    if (this._getMapsApiKey() && !this.resolvedPanoInfo[ch.id]) {
+      this._lookupLivePano(ch);
+    }
     return el('div', { class: 'play-grid' }, [
-      this._renderSideColumn(),
-      this._renderMainStage()
+      this._renderLeftColumn(ch),
+      this._renderRightColumn(ch)
+    ]);
+  }
+
+  _renderLeftColumn(ch) {
+    const role = getRole(this.state.roleId);
+    return el('div', { class: 'col-left' }, [
+      this._renderSceneCard(ch),
+      el('div', { class: 'dock-row' }, [
+        this._renderMiniMap(ch),
+        this._renderClueCard(ch, role)
+      ])
+    ]);
+  }
+
+  _renderRightColumn(ch) {
+    return el('div', { class: 'col-right' }, [
+      this._renderMainStage(),
+      this._renderPhoneDrawer(ch)
+    ]);
+  }
+
+  _toggleFsd(ch) {
+    soundFX.playAutopilotChime();
+    this.fsdHudOverlay = !this.fsdHudOverlay;
+    if (this.fsdHudOverlay && (this.sceneViewMode === 'gmap_360' || this.sceneViewMode === 'gmap_live')) {
+      this.sceneViewMode = 'gta';
+    }
+    this.render();
+    if (this.fsdHudOverlay) {
+      soundFX.speak('Tesla FSD 已接管，前方機車十八公尺，車距鎖定，沿松仁路前進。', 'fsd', true);
+    } else {
+      soundFX.speak('已切換回手動駕駛。', 'fsd', true);
+    }
+  }
+
+  _renderSceneCard(ch) {
+    const gm = ch.googleMap || {};
+    const mode = this.sceneViewMode;
+    let media;
+    let isIframe = false;
+    if (mode === 'gmap_360' && gm.panoId) {
+      isIframe = true;
+      media = el('iframe', {
+        class: 'scene-gmap-iframe',
+        src: this._build360EmbedUrl({ ...gm, panoId: this.resolvedPanoInfo[ch.id]?.panoId || gm.panoId }),
+        title: `Google 360° 互動街景：${ch.location}`,
+        allowfullscreen: 'true',
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    } else if (mode === 'gmap_live' && gm.embedQuery) {
+      isIframe = true;
+      media = el('iframe', {
+        class: 'scene-gmap-iframe',
+        src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=k&hl=zh-TW&z=18&output=embed`,
+        title: `Google Maps 真實衛星圖：${ch.location}`,
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    } else if (mode === 'gmap_photo' && gm.realPhoto) {
+      media = el('img', {
+        src: gm.realPhoto,
+        alt: `A25 完工實拍：${gm.roadSign || ch.location}`,
+        onerror: (e) => { e.target.style.display = 'none'; }
+      });
+    } else {
+      media = el('img', {
+        src: ch.sceneImage,
+        alt: ch.location,
+        onerror: (e) => { e.target.style.display = 'none'; }
+      });
+    }
+
+    let subtitleText = '';
+    if (mode === 'gmap_photo') subtitleText = `📷 富邦 A25 完工實拍 · ${gm.roadSign || ch.location}`;
+    else if (!isIframe) subtitleText = `${ch.lineSender.name}：「${ch.lineMessage}」`;
+
+    const [roadZh, roadEn] = this._roadParts(ch);
+    const setMode = (m, extra) => () => {
+      soundFX.playClick();
+      this.sceneViewMode = m;
+      if (extra) extra();
+      this.render();
+    };
+    const chip = (m, text, extra) => el('button', {
+      class: `mode-chip${mode === m ? ' is-active' : ''}`,
+      text,
+      onClick: setMode(m, extra)
+    });
+
+    const viewport = el('div', { class: 'scene-media-viewport' }, [
+      media,
+      this.fsdHudOverlay && !isIframe ? htmlNode('scene-fsd', SVG_TESLA_FSD_HUD_OVERLAY) : null,
+      subtitleText ? el('div', { class: 'scene-subtitle', text: subtitleText }) : null
+    ]);
+
+    return el('div', { class: 'panel scene-card' }, [
+      el('div', { class: 'tex', style: 'background-image:url(./public/images/ui-begonia-glass.webp);', 'aria-hidden': 'true' }),
+      htmlNode('grille tl', SVG_IRON_GRILLE_CORNER),
+      htmlNode('grille tr', SVG_IRON_GRILLE_CORNER),
+      // Track 1：路牌狀態列（獨立空間）
+      el('div', { class: 'track-status' }, [
+        htmlNode('track-sign', SVG_ROAD_SIGN_BADGE(roadZh, roadEn)),
+        el('div', { class: 'track-right' }, [
+          htmlNode('track-a25', SVG_FUBON_A25_WIKI_BLUEPRINT),
+          el('span', { class: 'time-tag', text: `${ch.timeSlot} · ${ch.book}` })
+        ])
+      ]),
+      // Track 2：純淨 16:9 視景
+      viewport,
+      // Track 3：雙列控制列
+      el('div', { class: 'track-controls' }, [
+        el('div', { class: 'ctl-row', role: 'group', 'aria-label': '視景模式' }, [
+          chip('gta', '🎬 3D寫實劇照'),
+          chip('gmap_360', '🌐 360°街景', () => this._lookupLivePano(ch)),
+          chip('gmap_photo', '🏛️ A25完工實拍'),
+          chip('gmap_live', '🛰️ 衛星地圖'),
+          el('button', {
+            class: `mode-chip${this.fsdHudOverlay ? ' is-active' : ''}`,
+            'aria-pressed': String(this.fsdHudOverlay),
+            title: '開關 Tesla FSD 疊加 HUD',
+            text: '🤖 Tesla FSD視角',
+            onClick: () => this._toggleFsd(ch)
+          }),
+          el('button', {
+            class: 'mode-chip',
+            title: '放大開啟 Google Maps 360° 實景視窗',
+            text: '🧭 放大街景',
+            onClick: () => {
+              soundFX.playClick();
+              this.streetViewModalOpen = true;
+              this._lookupLivePano(ch);
+              this.render();
+            }
+          })
+        ]),
+        el('div', { class: 'ctl-row', role: 'group', 'aria-label': '捷徑' }, [
+          el('button', { class: 'hotspot-chip', title: '查看你的專屬桌上線索', text: '🕵️ 桌上線索', onClick: () => this._focusHelper('clue') }),
+          el('button', { class: 'hotspot-chip', title: '問 Lisa / Cindy 真心話', text: '🧠 問同事讀心', onClick: () => this._focusHelper('phone', 'people', 'lisa') }),
+          el('button', { class: 'hotspot-chip is-scooter', title: '騎 2026 電動車／Tesla FSD 衝松仁路加分', text: '🛵 2026騎車／FSD', onClick: () => this._openScooterModal() }),
+          el('button', {
+            class: 'hotspot-chip',
+            'data-voice': 'narrator',
+            title: '朗讀現場旁白',
+            text: '🎙️ 聽現場旁白',
+            onClick: () => { soundFX.playClick(); soundFX.speak(ch.sceneDesc, 'narrator', true); }
+          }),
+          ch.cutscene
+            ? el('button', {
+                class: 'hotspot-chip',
+                text: '🎬 重播動畫',
+                onClick: () => {
+                  this.activeCutsceneSrc = ch.cutscene;
+                  this._setState({ ...this.state, phase: 'cutscene' });
+                }
+              })
+            : null
+        ])
+      ])
+    ]);
+  }
+
+  _renderClueCard(ch, role) {
+    const clue = ch.roleClues[role.id] || ch.roleClues.planner;
+    return el('div', {
+      id: 'clue-card-panel',
+      class: `panel clue-card${this.highlightTarget === 'clue' ? ' is-highlighted' : ''}`,
+      style: `border-color:${role.color};`
+    }, [
+      htmlNode('grille', SVG_IRON_GRILLE_CORNER),
+      el('div', { class: 'clue-title', style: `color:${role.color};`, text: `🕵️ ${role.name}・桌上獨家線索` }),
+      el('div', { class: 'clue-text', text: clue }),
+      el('button', {
+        class: 'btn-cyan',
+        disabled: this.state.roleSpecialUsedThisChapter,
+        text: this.state.roleSpecialUsedThisChapter ? `✓ 本章已用 ${role.specialName}` : `⚡ 發動絕招：${role.specialName}`,
+        onClick: () => {
+          soundFX.playMissionPassed();
+          this._setState(useRoleSpecial(this.state));
+        }
+      })
+    ]);
+  }
+
+  // 台北 GPS 戰術雷達：底圖 ui-taipei-radar-map.webp ＋ 羅盤外環 ＋ 以百分比定位的十個站點
+  _renderMiniMap(ch) {
+    const gm = ch.googleMap || {};
+    const hasKey = Boolean(this._getMapsApiKey());
+    const radarNextLabel = this.radarMode === 'radar'
+      ? '🗺️ 衛星圖'
+      : (this.radarMode === 'gmap' && hasKey ? '🔑 JS地圖' : '📡 切雷達');
+
+    let body;
+    if (this.radarMode === 'gmap' && gm.embedQuery) {
+      body = el('iframe', {
+        class: 'minimap-gmap-iframe',
+        src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=m&hl=zh-TW&z=16&output=embed`,
+        title: 'Google Maps 小地圖',
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    } else if (this.radarMode === 'gmap_js' && hasKey) {
+      const host = el('div', { class: 'minimap-gmap-iframe', style: 'background:#0d1424;' });
+      requestAnimationFrame(() => this._mountJsRadarMap(host, ch));
+      body = host;
+    } else {
+      body = this._buildRadarStage(ch);
+    }
+
+    return el('div', { class: 'minimap-box' }, [
+      el('div', { class: 'minimap-head' }, [
+        el('span', { text: `2026 信義 GPS · 站點 ${ch.id}/10` }),
+        el('button', {
+          class: 'mode-chip',
+          text: radarNextLabel,
+          onClick: () => {
+            soundFX.playClick();
+            if (this.radarMode === 'radar') this.radarMode = 'gmap';
+            else if (this.radarMode === 'gmap' && hasKey) this.radarMode = 'gmap_js';
+            else this.radarMode = 'radar';
+            this.render();
+          }
+        })
+      ]),
+      body
+    ]);
+  }
+
+  _buildRadarStage(activeCh) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const route = document.createElementNS(svgNS, 'svg');
+    route.setAttribute('viewBox', '0 0 100 100');
+    route.setAttribute('preserveAspectRatio', 'none');
+    route.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;');
+    const line = document.createElementNS(svgNS, 'polyline');
+    line.setAttribute('points', RADAR_POS.map((p) => `${p[0]},${p[1]}`).join(' '));
+    line.setAttribute('fill', 'none');
+    line.setAttribute('stroke', 'rgba(255,79,163,0.55)');
+    line.setAttribute('stroke-width', '1.4');
+    line.setAttribute('stroke-dasharray', '3 2');
+    line.setAttribute('vector-effect', 'non-scaling-stroke');
+    route.appendChild(line);
+
+    const dots = CHAPTERS.map((c, i) => {
+      const p = RADAR_POS[i] || [50, 50];
+      const cls = c.id === activeCh.id ? 'now' : (c.id < activeCh.id ? 'done' : '');
+      return el('span', {
+        class: `radar-dot ${cls}`,
+        style: `left:${p[0]}%;top:${p[1]}%;`,
+        title: `第 ${c.id} 站 ${c.timeSlot}｜${c.location}`
+      });
+    });
+
+    return el('div', { class: 'radar-wrap' }, [
+      el('div', { class: 'radar-stage' }, [
+        el('img', {
+          class: 'radar-base',
+          src: './public/images/ui-taipei-radar-map.webp',
+          alt: '台北信義區 GPS 戰術雷達底圖',
+          onerror: (e) => { e.target.style.display = 'none'; }
+        }),
+        route,
+        ...dots,
+        htmlNode('radar-ring', SVG_RADAR_COMPASS_RING),
+        el('span', { class: 'radar-tag', text: '2026 松仁路 · 富邦A25 ⇄ 陶朱隱園' })
+      ])
+    ]);
+  }
+
+  _speakTwin(ch, tid, manual) {
+    const text = ch.peopleModel && ch.peopleModel[tid];
+    if (text) soundFX.speak(text, tid, manual);
+  }
+
+  _renderPhoneDrawer(ch) {
+    const tabs = el('div', { class: 'phone-tabs' }, [
+      el('button', {
+        class: `phone-tab${this.phoneTab === 'line' ? ' is-active' : ''}`,
+        text: `💬 LINE (${this.state.phoneLog.length})`,
+        onClick: () => { this.phoneTab = 'line'; this.render(); }
+      }),
+      el('button', {
+        class: `phone-tab${this.phoneTab === 'people' ? ' is-active' : ''}`,
+        text: '🧠 讀心',
+        onClick: () => { this.phoneTab = 'people'; this.render(); }
+      }),
+      el('button', {
+        class: `phone-tab${this.phoneTab === 'grandma' ? ' is-active' : ''}`,
+        text: '👵 阿嬤',
+        onClick: () => {
+          this.phoneTab = 'grandma';
+          if (!this.state.grandmaUnlocked) {
+            this._triggerCheatCode(false);
+          } else {
+            this.render();
+          }
+          soundFX.speak(ch.grandmaQuip, 'grandma', true);
+        }
+      }),
+      el('button', {
+        class: `phone-tab${this.phoneTab === 'gta6' ? ' is-active' : ''}`,
+        text: '🎬 GTA6',
+        onClick: () => { soundFX.playClick(); this.phoneTab = 'gta6'; this.render(); }
+      })
+    ]);
+
+    let bodyNode;
+    if (this.phoneTab === 'line') {
+      const items = [...this.state.phoneLog].reverse().slice(0, 8);
+      bodyNode = el('div', { class: 'chat-scroll' }, items.map((m) => {
+        const cls = m.badge?.includes('AMA') || m.badge === 'RESCUE'
+          ? 'msg-bubble is-grandma'
+          : (m.badge === 'BOSS' || m.badge === 'CFO' ? 'msg-bubble is-boss' : 'msg-bubble');
+        return el('div', { class: cls }, [
+          el('div', { style: 'font-size:12px;font-weight:800;color:var(--gold);margin-bottom:2px;', text: `${m.from} · ${m.time} [${m.badge}]` }),
+          el('div', { text: m.text })
+        ]);
+      }));
+    } else if (this.phoneTab === 'people') {
+      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' }, [
+        el('div', { style: 'font-size:13px;color:var(--muted);', text: '電通 2026《People Model》數位分身，點擊即可追問（會用該角色聲線朗讀）：' }),
+        ...['lisa', 'cindy'].map((tid) => {
+          const twin = PEOPLE_MODEL_TWINS[tid];
+          const asked = this.state.askedTwins.includes(tid);
+          return el('div', { class: 'twin-wrap' }, [
+            el('button', {
+              class: 'twin-row',
+              onClick: () => {
+                soundFX.playLinePing();
+                this._setState(consultTwin(this.state, tid));
+                this._speakTwin(ch, tid, false);
+              }
+            }, [
+              el('img', { class: 'twin-avatar', src: twin.image, alt: twin.name, onerror: (e) => { e.target.style.display = 'none'; } }),
+              el('div', { class: 'twin-text' }, [
+                el('b', { text: twin.name }),
+                el('span', { text: asked ? `「${ch.peopleModel[tid]}」` : '點擊詢問（+250 分 / 衡斷力+2）' })
+              ])
+            ]),
+            asked
+              ? el('button', {
+                  class: 'replay-btn',
+                  'data-voice': tid,
+                  'aria-label': `重聽 ${twin.name}`,
+                  text: '🔊 重聽',
+                  onClick: () => this._speakTwin(ch, tid, true)
+                })
+              : null
+          ]);
+        })
+      ]);
+    } else if (this.phoneTab === 'gta6') {
+      const g6 = ch.gta6Analysis || {};
+      bodyNode = el('div', { class: 'chat-scroll gta6-analysis-card' }, [
+        el('div', { style: 'font-size:12.5px;font-weight:800;color:var(--cyan);', text: `🎬 ${g6.trailerScene || GTA6_TAIWAN_ANALYSIS.title}` }),
+        el('div', { style: 'font-size:13px;color:#efeafd;', text: `🎭 Lucia × Jason 角色映射：${g6.characterArc || GTA6_TAIWAN_ANALYSIS.coreParallel}` }),
+        el('div', { style: 'font-size:13px;color:var(--gold);', text: `🇹🇼 台灣設計元素：${g6.taiwanCraft || GTA6_TAIWAN_ANALYSIS.taiwanMotifs[0]}` })
+      ]);
+    } else {
+      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' }, [
+        el('div', { class: 'rescue-toast', style: 'font-size:14px;padding:6px 10px;', text: ch.grandmaQuip }),
+        el('div', { style: 'font-size:13px;color:var(--gold);', text: `☎️ ${ch.grandmaPhoneCall.title}：「${ch.grandmaPhoneCall.text}」` }),
+        el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;' }, [
+          el('button', {
+            class: 'btn-gold',
+            style: 'min-height:44px;font-size:14px;padding:6px 10px;flex:1 1 auto;',
+            text: '🍲 呼叫阿嬤大同電鍋（清通緝星＋補滿體力）',
+            onClick: () => this._triggerCheatCode(true)
+          }),
+          el('button', {
+            class: 'replay-btn',
+            'data-voice': 'grandma',
+            text: '🔊 重聽',
+            onClick: () => soundFX.speak(ch.grandmaQuip, 'grandma', true)
+          })
+        ])
+      ]);
+    }
+
+    return el('section', {
+      id: 'phone-card-panel',
+      class: `phone-frame${this.highlightTarget === 'phone' ? ' is-highlighted' : ''}`
+    }, [
+      htmlNode('phone-island', SVG_IFRUIT_CHASSIS_TOP),
+      el('div', { class: 'phone-head' }, [
+        el('span', { style: 'color:var(--pink);', text: '📱 iFruit Taiwan · LINE 99+' }),
+        el('span', { style: 'font-size:12px;color:var(--muted);', text: '5G 富邦 A25' })
+      ]),
+      tabs,
+      bodyNode
     ]);
   }
 
@@ -733,389 +1284,6 @@ class GtaDentsuApp {
     setTimeout(() => hostEl.querySelector('.dismissButton')?.click(), 450);
   }
 
-  _renderSideColumn() {
-    const ch = getCurrentChapter(this.state);
-    const role = getRole(this.state.roleId);
-    const clue = ch.roleClues[role.id] || ch.roleClues.planner;
-    const gm = ch.googleMap || {};
-    if (this._getMapsApiKey() && !this.resolvedPanoInfo[ch.id]) {
-      this._lookupLivePano(ch);
-    }
-
-    let bannerMedia;
-    if (this.sceneViewMode === 'gmap_360' && gm.panoId) {
-      bannerMedia = el('iframe', {
-        class: 'scene-gmap-iframe',
-        src: this._build360EmbedUrl(gm),
-        title: `Google 360° 互動街景：${ch.location}`,
-        allowfullscreen: 'true',
-        loading: 'lazy',
-        referrerpolicy: 'no-referrer-when-downgrade'
-      });
-    } else if (this.sceneViewMode === 'gmap_live' && gm.embedQuery) {
-      bannerMedia = el('iframe', {
-        class: 'scene-gmap-iframe',
-        src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=k&hl=zh-TW&z=18&output=embed`,
-        title: `Google Maps 真實衛星圖：${ch.location}`,
-        loading: 'lazy',
-        referrerpolicy: 'no-referrer-when-downgrade'
-      });
-    } else if (this.sceneViewMode === 'gmap_photo' && gm.realPhoto) {
-      bannerMedia = el('img', {
-        src: gm.realPhoto,
-        alt: `Google Maps 真實街景：${gm.roadSign || ch.location}`,
-        onerror: (e) => { e.target.style.display = 'none'; }
-      });
-    } else {
-      bannerMedia = el('img', {
-        src: ch.sceneImage,
-        alt: ch.location,
-        onerror: (e) => { e.target.style.display = 'none'; }
-      });
-    }
-
-    const subtitleText = this.sceneViewMode === 'gmap_photo'
-      ? `📷 Google Maps 真實街景 · ${gm.roadSign || ch.location}`
-      : (this.sceneViewMode === 'gmap_live' || this.sceneViewMode === 'gmap_360'
-        ? ''
-        : `${ch.lineSender.name}：「${ch.lineMessage}」`);
-
-    // 1. 2026 台北場景主視覺卡＋Google 360° 街景＆實景＆衛星即時切換＋台灣綠牌道路名
-    const sceneCard = el('div', { class: 'panel scene-card tw-glass-accent' }, [
-      el('div', { class: 'scene-banner-wrap' }, [
-        bannerMedia,
-        gm.roadSign
-          ? el('div', { class: 'tw-road-sign', text: gm.roadSign })
-          : null,
-        subtitleText
-          ? el('div', { class: 'scene-subtitle', text: subtitleText })
-          : null
-      ]),
-      el('div', { class: 'scene-mode-bar' }, [
-        el('button', {
-          class: `mode-chip${this.sceneViewMode === 'gta' ? ' is-active' : ''}`,
-          text: '🎬 GTA6劇照',
-          onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gta'; this.render(); }
-        }),
-        el('button', {
-          class: `mode-chip${this.sceneViewMode === 'gmap_360' ? ' is-active' : ''}`,
-          text: '🌐 360°街景',
-          onClick: () => {
-            soundFX.playClick();
-            this.sceneViewMode = 'gmap_360';
-            this._lookupLivePano(ch);
-            this.render();
-          }
-        }),
-        el('button', {
-          class: `mode-chip${this.sceneViewMode === 'gmap_photo' ? ' is-active' : ''}`,
-          text: '📷 街景實拍',
-          onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gmap_photo'; this.render(); }
-        }),
-        el('button', {
-          class: `mode-chip${this.sceneViewMode === 'gmap_live' ? ' is-active' : ''}`,
-          text: '🛰️ 衛星地圖',
-          onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gmap_live'; this.render(); }
-        })
-      ]),
-      el('div', { class: 'scene-hotspots' }, [
-        el('button', {
-          class: 'hotspot-chip',
-          title: '點擊查看你的專屬桌上線索',
-          text: '🕵️ 線索',
-          onClick: () => this._focusHelper('clue')
-        }),
-        el('button', {
-          class: 'hotspot-chip',
-          title: '即問同事 Lisa / Cindy 真心話',
-          text: '🧠 問同事',
-          onClick: () => this._focusHelper('phone', 'people', 'lisa')
-        }),
-        el('button', {
-          class: 'hotspot-chip',
-          title: '放大開啟 Google Maps 360° 實景視窗',
-          text: '🧭 放大街景',
-          onClick: () => {
-            soundFX.playClick();
-            this.streetViewModalOpen = true;
-            this._lookupLivePano(ch);
-            this.render();
-          }
-        }),
-        el('button', {
-          class: 'hotspot-chip is-scooter',
-          title: '騎阿嬤買菜電動車衝松仁路加分',
-          text: '🛵 買菜車',
-          onClick: () => this._openScooterModal()
-        })
-      ]),
-      el('div', { class: 'scene-banner-overlay' }, [
-        el('div', {}, [
-          el('div', { style: 'font-size:11px;font-weight:800;color:var(--gold);', text: `${ch.book} · ${ch.timeSlot}` }),
-          el('div', { style: 'font-size:12.5px;font-weight:800;', text: ch.location })
-        ]),
-        ch.cutscene
-          ? el('button', {
-              class: 'btn-ghost',
-              style: 'min-height:30px;padding:3px 9px;font-size:11.5px;',
-              text: '🎬 播動畫',
-              onClick: () => {
-                this.activeCutsceneSrc = ch.cutscene;
-                this._setState({ ...this.state, phase: 'cutscene' });
-              }
-            })
-          : null
-      ])
-    ]);
-
-    // 2. 2026 台北 GPS 雷達／Google Maps 雙模＆JS API 三模切換小地圖
-    const hasKey = Boolean(this._getMapsApiKey());
-    const radarNextLabel = this.radarMode === 'radar'
-      ? '🗺️ 衛星圖'
-      : (this.radarMode === 'gmap' && hasKey ? '🔑 JS地圖' : '📡 切雷達');
-
-    let miniMapBody;
-    if (this.radarMode === 'gmap' && gm.embedQuery) {
-      miniMapBody = el('iframe', {
-        class: 'minimap-gmap-iframe',
-        src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=m&hl=zh-TW&z=16&output=embed`,
-        title: 'Google Maps 小地圖',
-        loading: 'lazy',
-        referrerpolicy: 'no-referrer-when-downgrade'
-      });
-    } else if (this.radarMode === 'gmap_js' && hasKey) {
-      const host = el('div', { class: 'minimap-gmap-iframe', style: 'background:#0d1424;' });
-      requestAnimationFrame(() => this._mountJsRadarMap(host, ch));
-      miniMapBody = host;
-    } else {
-      miniMapBody = this._buildTaipeiMiniMapSvg(ch);
-    }
-
-    const miniMap = el('div', { class: 'minimap-box' }, [
-      el('div', { style: 'display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:var(--cyan);margin-bottom:4px;gap:6px;' }, [
-        el('span', { text: `2026 信義 GPS · 站點 ${ch.id}/10` }),
-        el('button', {
-          class: 'mode-chip',
-          style: 'min-height:22px;padding:1px 7px;font-size:10.5px;',
-          text: radarNextLabel,
-          onClick: () => {
-            soundFX.playClick();
-            if (this.radarMode === 'radar') this.radarMode = 'gmap';
-            else if (this.radarMode === 'gmap' && hasKey) this.radarMode = 'gmap_js';
-            else this.radarMode = 'radar';
-            this.render();
-          }
-        })
-      ]),
-      miniMapBody
-    ]);
-
-    // 3. 職能獨家線索 ＋ 絕招
-    const clueCard = el('div', {
-      id: 'clue-card-panel',
-      class: `panel tw-iron-grille${this.highlightTarget === 'clue' ? ' is-highlighted' : ''}`,
-      style: `border-color:${role.color};display:flex;flex-direction:column;gap:6px;`
-    }, [
-      el('div', { style: `font-size:12.5px;font-weight:800;color:${role.color};`, text: `🕵️ ${role.name}・桌上獨家線索` }),
-      el('div', { style: 'font-size:13.5px;color:#f5efff;', text: clue }),
-      el('button', {
-        class: 'btn-cyan',
-        style: 'min-height:36px;padding:6px 12px;font-size:13px;',
-        disabled: this.state.roleSpecialUsedThisChapter,
-        text: this.state.roleSpecialUsedThisChapter ? `✓ 本章已用 ${role.specialName}` : `⚡ 發動絕招：${role.specialName}`,
-        onClick: () => {
-          soundFX.playMissionPassed();
-          this._setState(useRoleSpecial(this.state));
-        }
-      })
-    ]);
-
-    // 4. GTA LINE 99+ 智慧型手機
-    const phone = this._renderPhoneDrawer(ch);
-
-    return el('aside', { class: 'side-stack' }, [sceneCard, miniMap, clueCard, phone]);
-  }
-
-  _buildTaipeiMiniMapSvg(activeCh) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('viewBox', '0 0 240 130');
-    svg.setAttribute('class', 'minimap-svg');
-
-    // 背景網格與基隆河/淡水河意象線
-    const grid = document.createElementNS(svgNS, 'path');
-    grid.setAttribute('d', 'M0 30 H240 M0 65 H240 M0 100 H240 M60 0 V130 M120 0 V130 M180 0 V130');
-    grid.setAttribute('stroke', 'rgba(0,229,255,0.12)');
-    grid.setAttribute('stroke-width', '1');
-    svg.appendChild(grid);
-
-    const river = document.createElementNS(svgNS, 'path');
-    river.setAttribute('d', 'M0 112 Q 75 90, 140 96 T 240 50');
-    river.setAttribute('fill', 'none');
-    river.setAttribute('stroke', 'rgba(0, 229, 255, 0.28)');
-    river.setAttribute('stroke-width', '6');
-    svg.appendChild(river);
-
-    // 10 個章節連線
-    const pts = CHAPTERS.map((c) => `${Math.round((c.mapPos.x / 100) * 210 + 15)},${Math.round((c.mapPos.y / 100) * 100 + 15)}`);
-    const route = document.createElementNS(svgNS, 'polyline');
-    route.setAttribute('points', pts.join(' '));
-    route.setAttribute('fill', 'none');
-    route.setAttribute('stroke', 'rgba(255,79,163,0.45)');
-    route.setAttribute('stroke-width', '2');
-    route.setAttribute('stroke-dasharray', '4 3');
-    svg.appendChild(route);
-
-    // 2026 台北信義區實景地標標記
-    const landmarks = [
-      { x: 148, y: 36, text: '★富邦A25', color: '#ffd166' },
-      { x: 162, y: 55, text: '🌀陶朱隱園', color: '#4ade80' },
-      { x: 112, y: 50, text: '🗼101', color: '#00e5ff' },
-      { x: 192, y: 22, text: '🎬內湖棚', color: '#ff52b8' },
-      { x: 24, y: 105, text: '🛵台北橋', color: '#e2d9f3' }
-    ];
-    for (const lm of landmarks) {
-      const t = document.createElementNS(svgNS, 'text');
-      t.setAttribute('x', String(lm.x));
-      t.setAttribute('y', String(lm.y));
-      t.setAttribute('fill', lm.color);
-      t.setAttribute('font-size', '9');
-      t.setAttribute('font-weight', 'bold');
-      t.textContent = lm.text;
-      svg.appendChild(t);
-    }
-
-    for (const c of CHAPTERS) {
-      const cx = Math.round((c.mapPos.x / 100) * 210 + 15);
-      const cy = Math.round((c.mapPos.y / 100) * 100 + 15);
-      const isCurrent = c.id === activeCh.id;
-      const dot = document.createElementNS(svgNS, 'circle');
-      dot.setAttribute('cx', String(cx));
-      dot.setAttribute('cy', String(cy));
-      dot.setAttribute('r', isCurrent ? '6.5' : '3.5');
-      dot.setAttribute('fill', isCurrent ? '#ffd166' : (c.id < activeCh.id ? '#4ade80' : '#ff4fa3'));
-      if (isCurrent) {
-        dot.setAttribute('stroke', '#ffffff');
-        dot.setAttribute('stroke-width', '2');
-      }
-      const tip = document.createElementNS(svgNS, 'title');
-      tip.textContent = `第 ${c.id} 站 ${c.timeSlot}｜${c.location}`;
-      dot.appendChild(tip);
-      svg.appendChild(dot);
-    }
-
-    const label = document.createElementNS(svgNS, 'text');
-    label.setAttribute('x', '8');
-    label.setAttribute('y', '14');
-    label.setAttribute('fill', '#ffd166');
-    label.setAttribute('font-size', '9.5');
-    label.setAttribute('font-weight', 'bold');
-    label.textContent = '2026 松仁路 · 富邦A25 ⇄ 陶朱隱園';
-    svg.appendChild(label);
-
-    return svg;
-  }
-
-  _renderPhoneDrawer(ch) {
-    const tabs = el('div', { class: 'phone-tabs' }, [
-      el('button', {
-        class: `phone-tab${this.phoneTab === 'line' ? ' is-active' : ''}`,
-        text: `💬 LINE (${this.state.phoneLog.length})`,
-        onClick: () => { this.phoneTab = 'line'; this.render(); }
-      }),
-      el('button', {
-        class: `phone-tab${this.phoneTab === 'people' ? ' is-active' : ''}`,
-        text: '🧠 讀心',
-        onClick: () => { this.phoneTab = 'people'; this.render(); }
-      }),
-      el('button', {
-        class: `phone-tab${this.phoneTab === 'grandma' ? ' is-active' : ''}`,
-        text: '👵 阿嬤',
-        onClick: () => {
-          this.phoneTab = 'grandma';
-          if (!this.state.grandmaUnlocked) {
-            this._triggerCheatCode(false);
-          } else {
-            this.render();
-          }
-        }
-      }),
-      el('button', {
-        class: `phone-tab${this.phoneTab === 'gta6' ? ' is-active' : ''}`,
-        text: '🎬 GTA6',
-        onClick: () => { soundFX.playClick(); this.phoneTab = 'gta6'; this.render(); }
-      })
-    ]);
-
-    let bodyNode;
-    if (this.phoneTab === 'line') {
-      const items = [...this.state.phoneLog].reverse().slice(0, 8);
-      bodyNode = el('div', { class: 'chat-scroll' }, items.map((m) => {
-        const cls = m.badge?.includes('AMA') || m.badge === 'RESCUE'
-          ? 'msg-bubble is-grandma'
-          : (m.badge === 'BOSS' || m.badge === 'CFO' ? 'msg-bubble is-boss' : 'msg-bubble');
-        return el('div', { class: cls }, [
-          el('div', { style: 'font-size:11.5px;font-weight:800;color:var(--gold);margin-bottom:2px;', text: `${m.from} · ${m.time} [${m.badge}]` }),
-          el('div', { text: m.text })
-        ]);
-      }));
-    } else if (this.phoneTab === 'people') {
-      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' }, [
-        el('div', { style: 'font-size:12px;color:var(--muted);', text: '電通 2026《People Model》數位分身，點擊即可即時追問：' }),
-        ...['lisa', 'cindy'].map((tid) => {
-          const twin = PEOPLE_MODEL_TWINS[tid];
-          const asked = this.state.askedTwins.includes(tid);
-          return el('button', {
-            class: 'twin-row',
-            onClick: () => {
-              soundFX.playLinePing();
-              this._setState(consultTwin(this.state, tid));
-            }
-          }, [
-            el('img', { class: 'twin-avatar', src: twin.image, alt: twin.name, onerror: (e) => { e.target.style.display = 'none'; } }),
-            el('div', {}, [
-              el('div', { style: 'font-size:13px;font-weight:800;color:var(--cyan);', text: twin.name }),
-              el('div', {
-                style: 'font-size:12px;color:#efeafd;',
-                text: asked ? `「${ch.peopleModel[tid]}」` : '點擊詢問（+250 分 / 衡斷力+2）'
-              })
-            ])
-          ]);
-        })
-      ]);
-    } else if (this.phoneTab === 'gta6') {
-      const g6 = ch.gta6Analysis || {};
-      bodyNode = el('div', { class: 'chat-scroll gta6-analysis-card' }, [
-        el('div', { style: 'font-size:11.5px;font-weight:800;color:var(--cyan);', text: `🎬 ${g6.trailerScene || GTA6_TAIWAN_ANALYSIS.title}` }),
-        el('div', { style: 'font-size:12px;color:#efeafd;', text: `🎭 Lucia × Jason 角色映射：${g6.characterArc || GTA6_TAIWAN_ANALYSIS.coreParallel}` }),
-        el('div', { style: 'font-size:12px;color:var(--gold);', text: `🇹🇼 台灣設計元素：${g6.taiwanCraft || GTA6_TAIWAN_ANALYSIS.taiwanMotifs[0]}` })
-      ]);
-    } else {
-      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:8px;' }, [
-        el('div', { class: 'rescue-toast', style: 'font-size:13px;padding:8px 10px;', text: ch.grandmaQuip }),
-        el('div', { style: 'font-size:12px;color:var(--gold);', text: `☎️ ${ch.grandmaPhoneCall.title}：「${ch.grandmaPhoneCall.text}」` }),
-        el('button', {
-          class: 'btn-gold',
-          style: 'min-height:36px;font-size:13px;padding:6px 10px;',
-          text: '🍲 呼叫阿嬤大同電鍋（清通緝星＋補滿體力）',
-          onClick: () => this._triggerCheatCode(true)
-        })
-      ]);
-    }
-
-    return el('section', {
-      id: 'phone-card-panel',
-      class: `phone-frame tw-glass-accent${this.highlightTarget === 'phone' ? ' is-highlighted' : ''}`
-    }, [
-      el('div', { style: 'display:flex;justify-content:space-between;align-items:center;' }, [
-        el('span', { style: 'font-size:12.5px;font-weight:800;color:var(--pink);', text: '📱 iFruit Taiwan · LINE 99+' }),
-        el('span', { style: 'font-size:11px;color:var(--muted);', text: '5G 富邦 A25 基地台' })
-      ]),
-      tabs,
-      bodyNode
-    ]);
-  }
-
   _renderStepFlow(phase) {
     const steps = [
       { id: 'scene', label: '① 看現場＆同事線索' },
@@ -1143,13 +1311,12 @@ class GtaDentsuApp {
     const header = el('div', { class: 'chapter-header' }, [
       el('div', {}, [
         el('div', { class: 'gta-kicker', text: `${ch.timeSlot} · ${ch.book} · 《${ch.title}》` }),
-        el('h2', { style: 'margin:4px 0 0 0;font-size:clamp(18px,2vw,24px);', text: ch.location })
+        el('h2', { text: ch.location })
       ]),
       el('div', { class: 'pill', text: `第 ${ch.id}／10 站` })
     ]);
 
     const stepFlow = this._renderStepFlow(phase);
-
     const rescueBanner = this.state.lastRescueMessage
       ? el('div', { class: 'rescue-toast', text: `🍲 ${this.state.lastRescueMessage}` })
       : null;
@@ -1160,11 +1327,19 @@ class GtaDentsuApp {
         stepFlow,
         rescueBanner,
         el('p', { class: 'chapter-desc', text: ch.sceneDesc }),
-        el('div', { class: 'boss-callout' }, [
-          el('div', { style: 'font-size:13px;color:var(--gold);margin-bottom:4px;', text: `📩 ${ch.lineSender.name}（${ch.lineSender.role}）剛剛傳 LINE 給你：` }),
-          el('div', { text: `「${ch.lineMessage}」` })
+        el('div', { class: 'boss-callout line-banner' }, [
+          el('div', {}, [
+            el('div', { class: 'boss-meta', text: `📩 ${ch.lineSender.name}（${ch.lineSender.role}）剛剛傳 LINE 給你：` }),
+            el('div', { text: `「${ch.lineMessage}」` })
+          ]),
+          el('button', {
+            class: 'replay-btn',
+            'data-voice': 'boss',
+            text: '🔊 聽老闆語音',
+            onClick: () => soundFX.speak(ch.lineMessage, 'boss', true)
+          })
         ]),
-        el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: '👆 請直接點擊下方 4 個真實臨場回覆之一（或按鍵盤 1–4 快捷鍵）：' }),
+        el('div', { class: 'prompt-line', text: '👆 請直接點擊下方 4 個真實臨場回覆之一（或按鍵盤 1–4 快捷鍵）：' }),
         el('div', { class: 'replies-grid' }, ch.replies.map((r, idx) =>
           el('button', {
             class: 'reply-btn',
@@ -1183,7 +1358,7 @@ class GtaDentsuApp {
         stepFlow,
         rescueBanner,
         this.state.activeReply
-          ? el('div', { style: 'padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-size:14px;color:#e0d6f7;', text: `你剛剛回：「${this.state.activeReply.text}」➔ ${this.state.activeReply.feedback}` })
+          ? el('div', { style: 'padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-size:15px;color:#e0d6f7;', text: `你剛剛回：「${this.state.activeReply.text}」➔ ${this.state.activeReply.feedback}` })
           : null,
         this._renderMiniGame(ch.game)
       ]);
@@ -1200,23 +1375,31 @@ class GtaDentsuApp {
         el('div', { style: 'font-size:15px;color:var(--gold);margin-bottom:4px;', text: `${badgeText} · +$${out.pointsEarned.toLocaleString()}` }),
         el('div', { text: out.detail })
       ]),
-      el('div', { class: 'panel', style: 'background:rgba(0,229,255,0.08);border-color:var(--cyan);' }, [
-        el('div', { style: 'font-size:12px;font-weight:800;color:var(--cyan);margin-bottom:4px;', text: '📌 一句帶走 TAKEAWAY' }),
-        el('div', { style: 'font-size:clamp(17px,1.8vw,21px);font-weight:900;color:#ffffff;', text: `「${ch.takeaway}」` }),
-        el('div', { style: 'font-size:13px;color:var(--muted);margin-top:4px;', text: `出處：${ch.book} ${ch.source}` })
+      el('div', { class: 'panel takeaway-card' }, [
+        htmlNode('stamp-slot', SVG_TEMPLE_STAMP_PASSED),
+        el('div', { style: 'font-size:13px;font-weight:800;color:var(--cyan);margin-bottom:4px;', text: '📌 一句帶走 TAKEAWAY' }),
+        el('div', { class: 'takeaway-text', text: `「${ch.takeaway}」` }),
+        el('div', { style: 'font-size:14px;color:var(--muted);margin-top:4px;', text: `出處：${ch.book} ${ch.source}` }),
+        el('button', {
+          class: 'replay-btn',
+          style: 'margin-top:6px;',
+          'data-voice': 'narrator',
+          text: '🔊 再聽一次',
+          onClick: () => soundFX.speak(ch.takeaway, 'narrator', true)
+        })
       ]),
       ch.gta6Analysis
-        ? el('div', { class: 'panel tw-glass-accent', style: 'border-color:rgba(255,79,163,0.45);display:flex;flex-direction:column;gap:4px;' }, [
-            el('div', { style: 'font-size:12px;font-weight:800;color:var(--pink);', text: `🎬 GTA 6 × 台灣設計美學｜${ch.gta6Analysis.trailerScene}` }),
-            el('div', { style: 'font-size:13px;color:#efeafd;', text: `🎭 ${ch.gta6Analysis.characterArc}` }),
-            el('div', { style: 'font-size:12.5px;color:var(--gold);', text: `🇹🇼 在地元素：${ch.gta6Analysis.taiwanCraft}` })
+        ? el('div', { class: 'panel', style: 'border-color:rgba(255,79,163,0.45);display:flex;flex-direction:column;gap:4px;' }, [
+            el('div', { style: 'font-size:13px;font-weight:800;color:var(--pink);', text: `🎬 GTA 6 × 台灣設計美學｜${ch.gta6Analysis.trailerScene}` }),
+            el('div', { style: 'font-size:14px;color:#efeafd;', text: `🎭 ${ch.gta6Analysis.characterArc}` }),
+            el('div', { style: 'font-size:13.5px;color:var(--gold);', text: `🇹🇼 在地元素：${ch.gta6Analysis.taiwanCraft}` })
           ])
         : null,
       el('div', { class: 'rescue-toast', text: `👵 ${ch.grandmaQuip}` }),
-      el('div', { style: 'display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;' }, [
+      el('div', { class: 'reveal-actions' }, [
         el('button', {
           class: 'btn-gold',
-          text: '🛵 騎阿嬤買菜車衝一波加分',
+          text: '🛵 騎2026電動車衝一波加分',
           onClick: () => this._openScooterModal()
         }),
         el('button', {
@@ -1530,6 +1713,7 @@ class GtaDentsuApp {
           soundFX.playTatungCooker();
           this.scooterInstance = null;
           this.scooterModalOpen = false;
+          this._restoreStation();
           this._setState(completeScooterRun(this.state, result));
         }
       });

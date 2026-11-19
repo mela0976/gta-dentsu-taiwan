@@ -23,7 +23,9 @@ const REQUIRED_IMAGES = [
   'gmap-bento-rain.webp',
   'gmap-neihu-studio.webp',
   'gmap-xinyi-overtime.webp',
-  'gmap-rechao-night.webp'
+  'gmap-rechao-night.webp',
+  'ui-taipei-radar-map.webp',
+  'ui-begonia-glass.webp'
 ];
 
 const REQUIRED_VIDEOS = [

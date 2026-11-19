@@ -75,12 +75,16 @@ export class GrandmaScooterGame {
     this.timeLeft = this.cfg.durationSec;
     this.entities = [];
     this.particles = [];
+    this.teslaCars = [
+      { lane: 0, z: 0.22, speed: 0.13, targetLane: 0, color: '#8da2b8', label: 'TESLA FSD v13' },
+      { lane: 2, z: 0.54, speed: 0.16, targetLane: 2, color: '#cbd5e1', label: 'MODEL Y 2026 FSD' }
+    ];
     this.spawnCooldown = 0.45;
     this.roadOffset = 0;
     this.running = false;
     this.rafId = null;
     this.lastTs = 0;
-    this.bannerText = '阿嬤騎買菜車衝進 2026 信義區松仁路！掠過陶朱隱園直達富邦 A25 電通大樓！';
+    this.bannerText = '2026 旗艦電摩 × Tesla FSD 自動駕駛測試道｜松仁路直達富邦 A25！';
     this.bannerTimer = 2.8;
 
     this._onKeyDown = (e) => {
@@ -247,6 +251,24 @@ export class GrandmaScooterGame {
       if (p.life <= 0) this.particles.splice(i, 1);
     }
 
+    // 2026 Tesla FSD 自動駕駛巡航車流：自動偵測並禮讓玩家車道，避免穿模碰撞
+    for (const car of this.teslaCars) {
+      car.z += car.speed * dt;
+      if (car.z > 0.66 && Math.round(car.targetLane) === playerLane) {
+        car.targetLane = playerLane === 0 ? 1 : playerLane === 2 ? 1 : 2;
+      } else if (Math.random() < dt * 0.45 && car.z < 0.58) {
+        const choices = [0, 1, 2].filter((ln) => ln !== playerLane || car.z < 0.45);
+        car.targetLane = choices[Math.floor(Math.random() * choices.length)] ?? car.targetLane;
+      }
+      car.lane += (car.targetLane - car.lane) * Math.min(1, dt * 4.5);
+      if (car.z > 1.08) {
+        car.z = 0.08 + Math.random() * 0.08;
+        const safeLanes = [0, 2];
+        car.targetLane = safeLanes[Math.floor(Math.random() * safeLanes.length)];
+        car.lane = car.targetLane;
+      }
+    }
+
     this.onHudUpdate({
       timeLeft: Math.ceil(this.timeLeft),
       score: this.score,
@@ -274,129 +296,269 @@ export class GrandmaScooterGame {
     return center + norm * half * 0.64;
   }
 
+  _drawTeslaCar(ctx, car, w, h) {
+    const x = this._laneX(car.lane, car.z, w);
+    const y = this._zToY(car.z, h);
+    const scale = 0.28 + Math.pow(car.z, 1.05) * 0.95;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+
+    // FSD v13 自動駕駛藍色全息光毯路徑（向前投影至地平線方向）
+    const pathGrad = ctx.createLinearGradient(0, -14, 0, -96);
+    pathGrad.addColorStop(0, 'rgba(0, 229, 255, 0.42)');
+    pathGrad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+    ctx.fillStyle = pathGrad;
+    ctx.beginPath();
+    ctx.moveTo(-18, -14);
+    ctx.lineTo(-7, -92);
+    ctx.lineTo(7, -92);
+    ctx.lineTo(18, -14);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.78)';
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(-17, -16);
+    ctx.lineTo(-7, -86);
+    ctx.moveTo(17, -16);
+    ctx.lineTo(7, -86);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 車底陰影
+    ctx.fillStyle = 'rgba(0,0,0,0.52)';
+    ctx.beginPath();
+    ctx.ellipse(0, 12, 34, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2026 Tesla Model Y Juniper 流線車體
+    const bodyGrad = ctx.createLinearGradient(-28, -28, 28, 10);
+    bodyGrad.addColorStop(0, '#cbd5e1');
+    bodyGrad.addColorStop(0.45, car.color || '#94a3b8');
+    bodyGrad.addColorStop(1, '#334155');
+    ctx.fillStyle = bodyGrad;
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-29, 6);
+    ctx.lineTo(-27, -10);
+    ctx.lineTo(-19, -24);
+    ctx.lineTo(19, -24);
+    ctx.lineTo(27, -10);
+    ctx.lineTo(29, 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 全景玻璃天窗與後檔
+    ctx.fillStyle = '#0b1526';
+    ctx.beginPath();
+    ctx.moveTo(-17, -22);
+    ctx.lineTo(17, -22);
+    ctx.lineTo(21, -11);
+    ctx.lineTo(-21, -11);
+    ctx.closePath();
+    ctx.fill();
+
+    // 2026 貫穿式間接反射紅色光條尾燈 (Juniper Lightbar)
+    ctx.shadowColor = '#ff2a5f';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#ff3864';
+    ctx.fillRect(-25, -9, 50, 3.2);
+    ctx.fillStyle = '#ffe4ea';
+    ctx.fillRect(-20, -8.3, 40, 1.4);
+    ctx.shadowBlur = 0;
+
+    // 白色低調車牌 + FSD 偵測標註（z > 0.24 才顯示避免堆疊）
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(-8, -2, 16, 5.5);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 4.5px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('EAL-2026', 0, 2.3);
+
+    if (car.z > 0.24 && car.z < 0.92) {
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.72)';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(-33, -29, 66, 42);
+      ctx.fillStyle = 'rgba(8, 20, 38, 0.88)';
+      ctx.fillRect(-28, -42, 56, 11);
+      ctx.strokeRect(-28, -42, 56, 11);
+      ctx.fillStyle = '#00e5ff';
+      ctx.font = 'bold 6.5px monospace';
+      ctx.fillText('AUTOPILOT FSD', 0, -34.2);
+    }
+
+    ctx.restore();
+  }
+
   render() {
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
-    const horizon = h * 0.34;
+    const horizon = Math.round(h * 0.34);
 
-    // 1. GTA 6 台灣夕陽夜市天空漸層
-    const sky = ctx.createLinearGradient(0, 0, 0, horizon);
-    sky.addColorStop(0, '#190b2e');
-    sky.addColorStop(0.55, '#6b1d5e');
-    sky.addColorStop(1, '#ff6b4a');
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, w, horizon + 2);
-
-    // 霓虹太陽 + 台北 101 剪影
-    ctx.fillStyle = 'rgba(255, 198, 92, 0.85)';
+    // 1. 嚴格裁切天空與台北信義天際線（絕不向路面穿模）
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(w * 0.5, horizon - 14, 40, Math.PI, 0);
+    ctx.rect(0, 0, w, horizon);
+    ctx.clip();
+
+    const sky = ctx.createLinearGradient(0, 0, 0, horizon);
+    sky.addColorStop(0, '#0f172a');
+    sky.addColorStop(0.55, '#3b1d5a');
+    sky.addColorStop(1, '#f97352');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, horizon);
+
+    // 夕陽與大氣光暈
+    const sunGrad = ctx.createRadialGradient(w * 0.5, horizon - 12, 6, w * 0.5, horizon - 12, 56);
+    sunGrad.addColorStop(0, 'rgba(255, 226, 148, 0.95)');
+    sunGrad.addColorStop(1, 'rgba(255, 115, 70, 0)');
+    ctx.fillStyle = sunGrad;
+    ctx.beginPath();
+    ctx.arc(w * 0.5, horizon - 12, 56, Math.PI, 0);
     ctx.fill();
 
-    // 1.1 「陶朱隱園」雙螺旋旋轉豪宅剪影（陶朱隱園實景地標）
-    const ax = w * 0.25;
+    // 1.1 「陶朱隱園」雙螺旋寫實綠植建築（左側遠景）
+    const ax = w * 0.22;
     for (let fl = 0; fl < 9; fl += 1) {
-      const fy = horizon - 7 - fl * 6.5;
-      const shift = Math.sin((fl / 8) * Math.PI) * 7 - 3;
-      const fw = 30 - Math.abs(4 - fl) * 1.1;
-      ctx.fillStyle = '#18102d';
-      ctx.fillRect(ax - fw / 2 + shift, fy, fw, 5.5);
-      ctx.fillStyle = fl % 2 === 0 ? '#4ade80' : '#00e5ff';
-      ctx.fillRect(ax - fw / 2 + shift + 2, fy + 1.5, 4, 2.5);
-      ctx.fillRect(ax + fw / 2 + shift - 6, fy + 1.5, 4, 2.5);
+      const fy = horizon - 6 - fl * 6.5;
+      const shift = Math.sin((fl / 8) * Math.PI) * 6 - 2;
+      const fw = 32 - Math.abs(4 - fl) * 1.2;
+      ctx.fillStyle = '#182235';
+      ctx.fillRect(ax - fw / 2 + shift, fy, fw, 5.4);
+      ctx.fillStyle = fl % 2 === 0 ? '#4ade80' : '#38bdf8';
+      ctx.fillRect(ax - fw / 2 + shift + 2, fy + 1.5, 5, 2.2);
+      ctx.fillRect(ax + fw / 2 + shift - 7, fy + 1.5, 5, 2.2);
     }
 
-    // 1.2 「富邦 A25 電通大樓」玻璃摩天樓剪影
-    const fx = w * 0.67;
-    ctx.fillStyle = '#140c29';
-    ctx.fillRect(fx - 15, horizon - 74, 30, 74);
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.48)';
-    ctx.lineWidth = 1;
-    for (let gy = horizon - 68; gy < horizon - 6; gy += 9) {
+    // 1.2 已完工「富邦信義 A25 總部（Renzo Piano 超白水晶玻璃塔 + 富邦美術館白色群樓）」
+    const fx = w * 0.72;
+    const towerGrad = ctx.createLinearGradient(fx - 18, horizon - 92, fx + 18, horizon);
+    towerGrad.addColorStop(0, '#93c5fd');
+    towerGrad.addColorStop(0.5, '#3b648f');
+    towerGrad.addColorStop(1, '#1e3554');
+    ctx.fillStyle = towerGrad;
+    ctx.fillRect(fx - 17, horizon - 88, 34, 88);
+    // 雙側外露鋼構斜撐桁架
+    ctx.strokeStyle = 'rgba(226, 232, 240, 0.65)';
+    ctx.lineWidth = 1.2;
+    for (let gy = horizon - 84; gy < horizon - 14; gy += 10) {
       ctx.beginPath();
-      ctx.moveTo(fx - 12, gy);
-      ctx.lineTo(fx + 12, gy);
+      ctx.moveTo(fx - 17, gy);
+      ctx.lineTo(fx - 12, gy + 10);
+      ctx.moveTo(fx + 17, gy);
+      ctx.lineTo(fx + 12, gy + 10);
       ctx.stroke();
     }
-    ctx.fillStyle = '#ff52b8';
-    ctx.fillRect(fx - 13, horizon - 76, 26, 3);
+    // 冠頂青綠 Fubon LOGO
+    ctx.strokeStyle = 'rgba(224, 242, 254, 0.8)';
+    ctx.strokeRect(fx - 17, horizon - 92, 34, 6);
+    ctx.fillStyle = '#00d2ff';
+    ctx.fillRect(fx - 3, horizon - 91, 6, 4);
+    // 低樓層白色富邦美術館
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(fx - 26, horizon - 14, 52, 14);
 
-    // 1.3 台北 101 剪影
-    ctx.fillStyle = '#150826';
-    const tx = w * 0.84;
-    ctx.fillRect(tx - 10, horizon - 72, 20, 72);
-    ctx.fillRect(tx - 14, horizon - 54, 28, 12);
-    ctx.fillRect(tx - 13, horizon - 36, 26, 12);
-    ctx.fillRect(tx - 2, horizon - 88, 4, 18);
+    // 1.3 台北 101 寫實剪影
+    ctx.fillStyle = '#141a30';
+    const tx = w * 0.89;
+    ctx.fillRect(tx - 11, horizon - 78, 22, 78);
+    ctx.fillRect(tx - 15, horizon - 58, 30, 12);
+    ctx.fillRect(tx - 14, horizon - 40, 28, 12);
+    ctx.fillRect(tx - 2, horizon - 96, 4, 20);
 
-    // 2026 信義區街邊霓虹招牌（位於頂部播報條下方，互不遮擋）
+    // 信義區松仁路高架綠底白框台灣路牌（設於開闊天空，絕不遮擋大樓冠頂）
     const signs = [
-      { x: 0.10, y: 0.25, txt: '大冰奶', c: '#00e5ff' },
-      { x: 0.25, y: 0.15, txt: '陶朱隱園', c: '#4ade80' },
-      { x: 0.67, y: 0.14, txt: '富邦A25電通', c: '#ffd166' },
-      { x: 0.91, y: 0.25, txt: '熱炒', c: '#ff52b8' }
+      { x: 0.14, y: 0.13, txt: '陶朱隱園 · 松勇路', bg: '#0b1628', border: '#4ade80' },
+      { x: 0.48, y: 0.13, txt: '松仁路 · 富邦A25總部', bg: '#006b54', border: '#e2e8f0' }
     ];
-    ctx.font = 'bold 11px sans-serif';
+    ctx.font = 'bold 10.5px sans-serif';
     ctx.textAlign = 'center';
     signs.forEach((s) => {
-      const boxW = Math.max(46, s.txt.length * 12 + 12);
-      ctx.fillStyle = 'rgba(15,8,30,0.88)';
-      ctx.fillRect(w * s.x - boxW / 2, h * s.y - 10, boxW, 18);
-      ctx.strokeStyle = s.c;
+      const boxW = Math.max(94, s.txt.length * 10 + 18);
+      ctx.fillStyle = s.bg;
+      ctx.fillRect(w * s.x - boxW / 2, h * s.y - 9, boxW, 18);
+      ctx.strokeStyle = s.border;
       ctx.lineWidth = 1.4;
-      ctx.strokeRect(w * s.x - boxW / 2, h * s.y - 10, boxW, 18);
-      ctx.fillStyle = s.c;
-      ctx.fillText(s.txt, w * s.x, h * s.y + 3);
+      ctx.strokeRect(w * s.x - boxW / 2, h * s.y - 9, boxW, 18);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(s.txt, w * s.x, h * s.y + 4);
     });
+    ctx.restore();
 
-    // 2. 柏油地面與霓虹路面梯形
-    ctx.fillStyle = '#0d0718';
+    // 2. 寫實台北松仁路柏油路面 + 人行道紅白緣石 + 雙黃線
+    ctx.fillStyle = '#111622';
     ctx.fillRect(0, horizon, w, h - horizon);
 
+    // 左右人行道與路緣
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, horizon, w, h - horizon);
     ctx.beginPath();
     ctx.moveTo(w * 0.42, horizon);
     ctx.lineTo(w * 0.58, horizon);
-    ctx.lineTo(w * 0.88, h);
-    ctx.lineTo(w * 0.12, h);
+    ctx.lineTo(w * 0.90, h);
+    ctx.lineTo(w * 0.10, h);
     ctx.closePath();
     const roadGrad = ctx.createLinearGradient(0, horizon, 0, h);
-    roadGrad.addColorStop(0, '#23133b');
-    roadGrad.addColorStop(1, '#140c24');
+    roadGrad.addColorStop(0, '#1e222d');
+    roadGrad.addColorStop(0.55, '#272c38');
+    roadGrad.addColorStop(1, '#191c26');
     ctx.fillStyle = roadGrad;
     ctx.fill();
 
-    // 道路兩側霓虹護欄線
-    ctx.strokeStyle = '#ff52b8';
-    ctx.lineWidth = 3;
+    // 台灣紅白標線人行道邊緣 + 霓虹微光
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.moveTo(w * 0.42, horizon);
-    ctx.lineTo(w * 0.12, h);
+    ctx.lineTo(w * 0.10, h);
     ctx.moveTo(w * 0.58, horizon);
-    ctx.lineTo(w * 0.88, h);
+    ctx.lineTo(w * 0.90, h);
     ctx.stroke();
 
-    // 虛線車道分隔
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.7)';
+    // 左車道外側雙黃線標線（寫實台北道路）
+    ctx.strokeStyle = '#facc15';
     ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.426, horizon);
+    ctx.lineTo(w * 0.13, h);
+    ctx.moveTo(w * 0.431, horizon);
+    ctx.lineTo(w * 0.145, h);
+    ctx.stroke();
+
+    // 白色車道分隔虛線
+    ctx.strokeStyle = 'rgba(241, 245, 249, 0.85)';
+    ctx.lineWidth = 2.2;
     for (let seg = 0; seg < 8; seg += 1) {
-      const z1 = ((seg + this.roadOffset) / 8);
-      const z2 = Math.min(1, z1 + 0.06);
+      const z1 = (seg + this.roadOffset) / 8;
+      const z2 = Math.min(1, z1 + 0.055);
       const y1 = this._zToY(z1, h);
       const y2 = this._zToY(z2, h);
-      const xL1 = this._laneX(0.5, z1, w);
-      const xL2 = this._laneX(0.5, z2, w);
-      const xR1 = this._laneX(1.5, z1, w);
-      const xR2 = this._laneX(1.5, z2, w);
       ctx.beginPath();
-      ctx.moveTo(xL1, y1); ctx.lineTo(xL2, y2);
-      ctx.moveTo(xR1, y1); ctx.lineTo(xR2, y2);
+      ctx.moveTo(this._laneX(0.5, z1, w), y1);
+      ctx.lineTo(this._laneX(0.5, z2, w), y2);
+      ctx.moveTo(this._laneX(1.5, z1, w), y1);
+      ctx.lineTo(this._laneX(1.5, z2, w), y2);
       ctx.stroke();
     }
 
-    // 3. 排序繪製道具與障礙物
-    const sorted = [...this.entities].sort((a, b) => a.z - b.z);
-    for (const ent of sorted) {
+    // 3. 依 Z 軸由遠而近繪製：2026 Tesla FSD 車流 + 道具/障礙物（零穿模 Z-sorting）
+    const drawList = [
+      ...this.entities.map((ent) => ({ kind: 'entity', z: ent.z, data: ent })),
+      ...this.teslaCars.map((car) => ({ kind: 'tesla', z: car.z, data: car }))
+    ].sort((a, b) => a.z - b.z);
+
+    for (const item of drawList) {
+      if (item.kind === 'tesla') {
+        this._drawTeslaCar(ctx, item.data, w, h);
+        continue;
+      }
+      const ent = item.data;
       const ex = this._laneX(ent.lane, ent.z, w);
       const ey = this._zToY(ent.z, h);
       const scale = 0.35 + ent.z * 0.9;
@@ -404,23 +566,23 @@ export class GrandmaScooterGame {
 
       ctx.save();
       ctx.translate(ex, ey);
-      ctx.fillStyle = ent.isGood ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255, 59, 107, 0.25)';
+      ctx.fillStyle = ent.isGood ? 'rgba(0, 229, 255, 0.22)' : 'rgba(255, 59, 107, 0.26)';
       ctx.beginPath();
       ctx.arc(0, 0, radius + 5, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.strokeStyle = ent.color;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.4;
       ctx.beginPath();
       ctx.arc(0, 0, radius, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.font = `${Math.round(22 * scale)}px sans-serif`;
+      ctx.font = `${Math.round(21 * scale)}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(ent.emoji, 0, 1);
 
-      if (ent.z > 0.35) {
+      if (ent.z > 0.38 && ent.z < 0.85) {
         ctx.font = `bold ${Math.max(10, Math.round(11 * scale))}px sans-serif`;
         ctx.fillStyle = '#ffffff';
         ctx.fillText(ent.label, 0, -radius - 8);
@@ -428,55 +590,96 @@ export class GrandmaScooterGame {
       ctx.restore();
     }
 
-    // 4. 繪製阿嬤與綠色買菜電動車 + 大同電鍋
+    // 4. 繪製 2026 最新款旗艦電動跑旅機車（Gogoro Pulse / SYM DRGBT II 風格）+ 寫實安全帽騎士 + 大同電鍋
     const px = this._laneX(this.visualX, 0.9, w);
     const py = this._zToY(0.9, h);
+    const lean = (this.lane - this.visualX) * 0.14;
     ctx.save();
     ctx.translate(px, py);
+    ctx.rotate(lean);
 
     if (this.shieldTimer > 0) {
       ctx.strokeStyle = '#4ade80';
       ctx.lineWidth = 3;
       ctx.fillStyle = 'rgba(74, 222, 128, 0.16)';
       ctx.beginPath();
-      ctx.arc(0, -14, 42, 0, Math.PI * 2);
+      ctx.arc(0, -18, 46, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     }
 
-    // 影子與霓虹尾燈
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    // 影子
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.beginPath();
-    ctx.ellipse(0, 14, 30, 9, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 15, 24, 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 機車車身
-    ctx.fillStyle = '#38d399';
-    ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = 2;
+    // 2026 寬胎後輪
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(-5, 3, 10, 14);
+
+    // 2026 消光鈦銀 × 翡翠綠空力車殼整流罩
+    const bikeGrad = ctx.createLinearGradient(-20, -18, 20, 10);
+    bikeGrad.addColorStop(0, '#64748b');
+    bikeGrad.addColorStop(0.5, '#10b981');
+    bikeGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = bikeGrad;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.4;
     ctx.beginPath();
-    ctx.roundRect(-20, -16, 40, 26, 10);
+    ctx.moveTo(-16, 4);
+    ctx.lineTo(-22, -11);
+    ctx.lineTo(-10, -21);
+    ctx.lineTo(10, -21);
+    ctx.lineTo(22, -11);
+    ctx.lineTo(16, 4);
+    ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // 雙尾燈
-    ctx.fillStyle = '#ff3b6b';
-    ctx.fillRect(-16, -2, 8, 5);
-    ctx.fillRect(8, -2, 8, 5);
+    // 2026 矩陣式一體尾燈光條
+    ctx.shadowColor = '#ff2a5f';
+    ctx.shadowBlur = 9;
+    ctx.fillStyle = '#ff3864';
+    ctx.fillRect(-16, -12, 32, 3.2);
+    ctx.shadowBlur = 0;
 
-    // 車牌台灣味
+    // 雙側後視鏡與雙手握把（無穿模）
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-14, -22); ctx.lineTo(-23, -29);
+    ctx.moveTo(14, -22); ctx.lineTo(23, -29);
+    ctx.stroke();
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-28, -32, 9, 4);
+    ctx.fillRect(19, -32, 9, 4);
+
+    // 車牌 AMA-666
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-10, 4, 20, 7);
-    ctx.fillStyle = '#111827';
-    ctx.font = 'bold 6px monospace';
+    ctx.fillRect(-10, -3, 20, 8);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 5.5px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('AMA-666', 0, 9.5);
+    ctx.fillText('AMA-666', 0, 3);
 
-    // 阿嬤安全帽與花襯衫 + 菜籃大同電鍋
-    ctx.font = '26px sans-serif';
-    ctx.fillText('👵', 0, -28);
-    ctx.font = '15px sans-serif';
-    ctx.fillText('🍲', 20, -12);
+    // 寫實騎士身軀 + 雙臂穩握把手 + 亮面全罩/3/4安全帽
+    ctx.fillStyle = '#9f1239';
+    ctx.beginPath();
+    ctx.roundRect(-12, -37, 24, 19, 6);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.arc(0, -43, 10.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(-7, -45, 14, 3);
+
+    // 後貨架固定綠色大同電鍋（緊貼車尾架，絕不懸空穿模）
+    ctx.fillStyle = '#16a34a';
+    ctx.fillRect(13, -20, 14, 11);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(12, -23, 16, 3);
     ctx.restore();
 
     // 5. 粒子特效
@@ -491,15 +694,15 @@ export class GrandmaScooterGame {
 
     // 6. 頂部即時播報條
     if (this.bannerTimer > 0 && this.bannerText) {
-      ctx.fillStyle = 'rgba(12, 8, 28, 0.88)';
-      ctx.fillRect(14, 6, w - 28, 26);
+      ctx.fillStyle = 'rgba(10, 14, 28, 0.9)';
+      ctx.fillRect(14, 6, w - 28, 24);
       ctx.strokeStyle = '#ffd166';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(14, 6, w - 28, 26);
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(14, 6, w - 28, 24);
       ctx.fillStyle = '#ffd166';
-      ctx.font = 'bold 12px sans-serif';
+      ctx.font = 'bold 11.5px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(this.bannerText, w / 2, 23);
+      ctx.fillText(this.bannerText, w / 2, 22);
     }
   }
 }

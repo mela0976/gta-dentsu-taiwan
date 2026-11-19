@@ -49,7 +49,7 @@ copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8');
 const storyJs = fs.readFileSync(path.join(ROOT, 'src/story-data.js'), 'utf8');
 const audioJs = fs.readFileSync(path.join(ROOT, 'src/audio-fx.js'), 'utf8')
-  .replace(/export const soundFX =/g, 'const soundFX =')
+  .replace(/export const /g, 'const ')
   .replace(/export default soundFX;/g, '');
 const engineJs = fs.readFileSync(path.join(ROOT, 'src/game-engine.js'), 'utf8')
   .replace(/^import .* from '\.\/story-data\.js';\s*$/gm, '')
@@ -58,6 +58,9 @@ const engineJs = fs.readFileSync(path.join(ROOT, 'src/game-engine.js'), 'utf8')
 const scooterJs = fs.readFileSync(path.join(ROOT, 'src/scooter-minigame.js'), 'utf8')
   .replace(/export class /g, 'class ')
   .replace(/export default GrandmaScooterGame;/g, '');
+const graphicsJs = fs.readFileSync(path.join(ROOT, 'src/ui-graphics.js'), 'utf8')
+  .replace(/export const /g, 'const ')
+  .replace(/export function /g, 'function ');
 const uiJs = fs.readFileSync(path.join(ROOT, 'src/ui-app.js'), 'utf8')
   .replace(/^import\s*\{[\s\S]*?\}\s*from\s*'\.\/[^']+';\s*$/gm, '')
   .replace(/^import\s+\w+\s+from\s*'\.\/[^']+';\s*$/gm, '');
@@ -69,6 +72,7 @@ const standaloneHtml = `<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Grand Theft Agency｜電通台灣一日風雲・決策智慧 2018–2026（單檔版）</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23006b54'/><rect x='2' y='2' width='28' height='28' rx='6' fill='none' stroke='%23ffffff' stroke-width='2'/><text x='16' y='21' text-anchor='middle' font-family='sans-serif' font-size='13' font-weight='bold' fill='%23ffffff'>A25</text></svg>" />
   <style>\n${css}\n  </style>
 </head>
 <body>
@@ -81,6 +85,7 @@ ${cleanStory}
 ${audioJs}
 ${engineJs}
 ${scooterJs}
+${graphicsJs}
 ${uiJs}
 })();
   </script>
