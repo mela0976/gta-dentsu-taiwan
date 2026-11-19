@@ -1,0 +1,121 @@
+{
+  "ok": true,
+  "hard_fail": null,
+  "score": 57,
+  "max_score": 57,
+  "percentage": 100.0,
+  "grade": "EXCELLENT",
+  "checks_passed": 13,
+  "checks_total": 13,
+  "checks": [
+    {
+      "id": 1,
+      "category": "required",
+      "name": "Executive summary exists",
+      "passed": true,
+      "detail": "Found 113 words",
+      "points": 5
+    },
+    {
+      "id": 2,
+      "category": "required",
+      "name": "Problem statement includes user impact",
+      "passed": true,
+      "detail": "User impact found",
+      "points": 5
+    },
+    {
+      "id": 3,
+      "category": "required",
+      "name": "Problem statement includes business impact",
+      "passed": true,
+      "detail": "Business impact found",
+      "points": 5
+    },
+    {
+      "id": 4,
+      "category": "required",
+      "name": "Goals have SMART metrics",
+      "passed": true,
+      "detail": "SMART elements found",
+      "points": 5
+    },
+    {
+      "id": 5,
+      "category": "required",
+      "name": "User stories have acceptance criteria (min 3)",
+      "passed": true,
+      "detail": "Stories: 3, AC counts: [4, 4, 3]",
+      "points": 5
+    },
+    {
+      "id": 6,
+      "category": "required",
+      "name": "Functional requirements are testable",
+      "passed": true,
+      "detail": "All requirements are specific",
+      "points": 5
+    },
+    {
+      "id": 7,
+      "category": "required",
+      "name": "Requirements have priority labels",
+      "passed": true,
+      "detail": "Priority labels found",
+      "points": 5
+    },
+    {
+      "id": 8,
+      "category": "required",
+      "name": "Requirements are numbered (REQ-NNN)",
+      "passed": true,
+      "detail": "Found 7 numbered requirements",
+      "points": 5
+    },
+    {
+      "id": 9,
+      "category": "required",
+      "name": "Technical considerations address architecture",
+      "passed": true,
+      "detail": "Architecture content found",
+      "points": 5
+    },
+    {
+      "id": 10,
+      "category": "taskmaster",
+      "name": "Non-functional requirements have specific targets",
+      "passed": true,
+      "detail": "Specific targets found",
+      "points": 3
+    },
+    {
+      "id": 11,
+      "category": "taskmaster",
+      "name": "Requirements have task breakdown hints",
+      "passed": true,
+      "detail": "Task breakdown hints found",
+      "points": 3
+    },
+    {
+      "id": 12,
+      "category": "taskmaster",
+      "name": "Dependencies identified for task sequencing",
+      "passed": true,
+      "detail": "Dependencies documented",
+      "points": 3
+    },
+    {
+      "id": 13,
+      "category": "taskmaster",
+      "name": "Out of scope explicitly defined",
+      "passed": true,
+      "detail": "Out of scope section found",
+      "points": 3
+    }
+  ],
+  "warnings": [],
+  "vague_penalty": 0,
+  "placeholder_penalty": 0,
+  "placeholders_found": 0,
+  "placeholder_details": []
+}

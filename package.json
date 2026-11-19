@@ -1,0 +1,12 @@
+{
+  "name": "gta-dentsu-taiwan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/game-engine.test.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check-dist.mjs",
+    "serve": "npx --yes http-server dist -p 4321 -c-1"
+  }
+}

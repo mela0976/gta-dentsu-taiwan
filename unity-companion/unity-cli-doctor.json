@@ -1,0 +1,269 @@
+{
+  "success": true,
+  "command": "doctor",
+  "data": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "runtimeVersion": "Rust 1.99.0",
+    "nodeVersion": "Rust 1.99.0",
+    "cliVersion": "1.0.0",
+    "installPath": "/Users/lewis/MacOS/Unity Hub",
+    "logDirectory": "/Users/lewis/Library/Application Support/UnityHub/logs",
+    "checks": [
+      {
+        "id": "binary-on-path",
+        "status": "pass",
+        "messageKey": "cli:DOCTOR_CHECK_PATH_OK"
+      },
+      {
+        "id": "path-duplicates",
+        "status": "pass",
+        "messageKey": "cli:DOCTOR_CHECK_DUPLICATES_NONE"
+      },
+      {
+        "id": "git-credential-helper",
+        "status": "pass",
+        "messageKey": "cli:DOCTOR_CHECK_CREDENTIAL_HELPER_OK",
+        "params": {
+          "helpers": "osxkeychain, !<inline script>"
+        }
+      },
+      {
+        "id": "credential-store",
+        "status": "pass",
+        "messageKey": "cli:DOCTOR_CHECK_CREDENTIAL_STORE_OK",
+        "params": {
+          "backend": "keychain"
+        }
+      },
+      {
+        "id": "credential-store-orphans",
+        "status": "pass",
+        "messageKey": "cli:DOCTOR_CHECK_CREDENTIAL_STORE_ORPHANS_CLEAN"
+      },
+      {
+        "id": "fex-emu",
+        "status": "info",
+        "messageKey": "cli:DOCTOR_CHECK_FEX_SKIPPED"
+      },
+      {
+        "id": "auth-keychain",
+        "status": "warn",
+        "messageKey": "cli:DOCTOR_CHECK_AUTH_KEYCHAIN_DENIED",
+        "hintKey": "cli:DOCTOR_CHECK_AUTH_KEYCHAIN_HINT",
+        "hintParams": {
+          "loginCommand": "unity auth login"
+        }
+      }
+    ],
+    "auth": {
+      "loggedIn": false,
+      "sessionState": "unreadable",
+      "mode": "none",
+      "credentialSource": "none"
+    },
+    "editors": [],
+    "recentLog": [
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:15.721Z\",\"pid\":52596,\"moduleName\":\"CLI\",\"msg\":\"Unity CLI started — version 1.0.0\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:15.724Z\",\"pid\":52596,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation started\",\"context\":{\"command\":\"templates\",\"args\":\"<redacted>\"}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:16.996Z\",\"pid\":52596,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation finished\",\"context\":{\"exitCode\":0,\"elapsedMs\":1274}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:17.005Z\",\"pid\":52601,\"moduleName\":\"CLI\",\"msg\":\"Unity CLI started — version 1.0.0\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:17.007Z\",\"pid\":52601,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation started\",\"context\":{\"command\":\"projects\",\"args\":\"<redacted>\"}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:17.009Z\",\"pid\":52601,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation finished\",\"context\":{\"exitCode\":0,\"elapsedMs\":3}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.667Z\",\"pid\":52624,\"moduleName\":\"CLI\",\"msg\":\"Unity CLI started — version 1.0.0\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.671Z\",\"pid\":52624,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation started\",\"context\":{\"command\":\"editors\",\"args\":\"<redacted>\"}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.673Z\",\"pid\":52624,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation finished\",\"context\":{\"exitCode\":0,\"elapsedMs\":4}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.687Z\",\"pid\":52625,\"moduleName\":\"CLI\",\"msg\":\"Unity CLI started — version 1.0.0\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.690Z\",\"pid\":52625,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation started\",\"context\":{\"command\":\"projects\",\"args\":\"<redacted>\"}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.693Z\",\"pid\":52625,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation finished\",\"context\":{\"exitCode\":0,\"elapsedMs\":5}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.703Z\",\"pid\":52623,\"moduleName\":\"CLI\",\"msg\":\"Unity CLI started — version 1.0.0\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.705Z\",\"pid\":52623,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation started\",\"context\":{\"command\":\"projects create\",\"args\":\"<redacted>\"}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:24:21.707Z\",\"pid\":52623,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation finished\",\"context\":{\"exitCode\":0,\"elapsedMs\":4}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:25:37.315Z\",\"pid\":50765,\"moduleName\":\"AuthBroker\",\"msg\":\"Auth broker is idle; exiting\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:25:37.315Z\",\"pid\":50765,\"moduleName\":\"AuthBroker\",\"msg\":\"Auth broker stopped\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:26:29.312Z\",\"pid\":55727,\"moduleName\":\"CLI\",\"msg\":\"Unity CLI started — version 1.0.0\"}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:26:29.315Z\",\"pid\":55727,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation started\",\"context\":{\"command\":\"projects create <redacted>\",\"args\":\"<redacted>\"}}",
+      "{\"level\":\"info\",\"time\":\"2026-11-19T12:26:29.320Z\",\"pid\":55727,\"moduleName\":\"CLI\",\"msg\":\"CLI invocation finished\",\"context\":{\"exitCode\":6,\"elapsedMs\":7}}"
+    ],
+    "proxy": {
+      "url": null,
+      "source": "none",
+      "authSource": "none",
+      "noProxy": []
+    },
+    "accelerator": {
+      "endpoint": null,
+      "source": "none",
+      "projectMode": null,
+      "projectModeLabel": null,
+      "projectEndpoint": null
+    },
+    "externalComponents": [
+      {
+        "id": "plastic",
+        "kind": "tool",
+        "state": "not-installed",
+        "installed": false,
+        "resolvedFrom": null,
+        "path": null,
+        "source": null
+      },
+      {
+        "id": "licensingClient",
+        "kind": "runtime",
+        "state": "not-installed",
+        "installed": false,
+        "resolvedFrom": null,
+        "path": null,
+        "source": null
+      },
+      {
+        "id": "ugs",
+        "kind": "tool",
+        "state": "not-installed",
+        "installed": false,
+        "resolvedFrom": null,
+        "path": null,
+        "source": null
+      },
+      {
+        "id": "ai",
+        "kind": "tool",
+        "state": "not-installed",
+        "installed": false,
+        "resolvedFrom": null,
+        "path": null,
+        "source": null
+      },
+      {
+        "id": "transform",
+        "kind": "tool",
+        "state": "resolved",
+        "installed": true,
+        "resolvedFrom": "path",
+        "path": "/opt/homebrew/bin/transform",
+        "source": null,
+        "logDirectories": [
+          "/Users/lewis/.transform/logs"
+        ]
+      },
+      {
+        "id": "assetlibrary",
+        "kind": "tool",
+        "state": "not-installed",
+        "installed": false,
+        "resolvedFrom": null,
+        "path": null,
+        "source": null
+      }
+    ],
+    "unrecognizedModuleDirs": [],
+    "vcs": {
+      "authProbed": false,
+      "tools": [
+        {
+          "id": "git",
+          "state": "resolved",
+          "installed": true,
+          "version": "2.54.0",
+          "resolvedFrom": "path",
+          "path": "/usr/bin/git"
+        },
+        {
+          "id": "git-lfs",
+          "state": "not-installed",
+          "installed": false,
+          "version": null,
+          "resolvedFrom": null,
+          "path": null
+        },
+        {
+          "id": "gh",
+          "state": "resolved",
+          "installed": true,
+          "version": "2.87.2",
+          "resolvedFrom": "path",
+          "path": "/opt/homebrew/bin/gh"
+        },
+        {
+          "id": "glab",
+          "state": "not-installed",
+          "installed": false,
+          "version": null,
+          "resolvedFrom": null,
+          "path": null
+        },
+        {
+          "id": "tea",
+          "state": "not-installed",
+          "installed": false,
+          "version": null,
+          "resolvedFrom": null,
+          "path": null
+        },
+        {
+          "id": "bkt",
+          "state": "not-installed",
+          "installed": false,
+          "version": null,
+          "resolvedFrom": null,
+          "path": null
+        },
+        {
+          "id": "az",
+          "state": "not-installed",
+          "installed": false,
+          "version": null,
+          "resolvedFrom": null,
+          "path": null
+        }
+      ],
+      "hosts": [
+        {
+          "host": "github.com",
+          "provider": "github",
+          "displayName": "GitHub",
+          "tier": "tier-a",
+          "tool": "gh",
+          "readiness": null,
+          "access": "none",
+          "credentialHelper": true
+        },
+        {
+          "host": "gitlab.com",
+          "provider": "gitlab",
+          "displayName": "GitLab",
+          "tier": "tier-a",
+          "tool": "glab",
+          "readiness": null,
+          "access": "none",
+          "credentialHelper": true
+        }
+      ]
+    },
+    "ossComponents": {
+      "licenseTextsUrl": "https://spdx.org/licenses/",
+      "components": []
+    },
+    "authBroker": {
+      "seal": {
+        "tier": "mac-keychain",
+        "isHardwareBacked": false,
+        "bindingDigest": "7f9b3d19",
+        "availableTier": null,
+        "skippedTiers": []
+      },
+      "runtime": {
+        "state": "not-running",
+        "address": "/Users/lewis/.unity/run/auth-broker.sock",
+        "addressSource": "WellKnown",
+        "brokerVersion": null,
+        "contract": null,
+        "installMethod": null,
+        "signInRoutesThroughBroker": false
+      }
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

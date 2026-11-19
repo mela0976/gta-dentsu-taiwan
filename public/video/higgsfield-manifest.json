@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-11-19",
+  "workspace": {
+    "plan": "plus",
+    "credits_before": 963.5,
+    "estimated_credits": 105
+  },
+  "output_settings": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5,
+    "generation_resolution": "720p",
+    "codec": "H.264",
+    "audio": "removed",
+    "faststart": true,
+    "max_file_size_bytes": 2500000
+  },
+  "videos": [
+    {
+      "file": "intro-taipei.mp4",
+      "job_id": "982b9f52-8cb6-47e9-b939-04f096ac3f24",
+      "model": "seedance_2_5",
+      "status": "completed",
+      "remote_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3LOoCRB1QRMyYsb0GpgCZNryGu0/hf_20261119_122740_982b9f52-8cb6-47e9-b939-04f096ac3f24.mp4",
+      "local_file_path": "/Users/lewis/Downloads/Dentsu/決策智慧/gta-dentsu-taiwan/public/video/intro-taipei.mp4",
+      "error": null
+    },
+    {
+      "file": "grandma-rescue.mp4",
+      "job_id": "26f8dde9-60a7-4b46-bf48-10c1189b145a",
+      "model": "seedance_2_5",
+      "status": "completed",
+      "remote_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3LOoCRB1QRMyYsb0GpgCZNryGu0/hf_20261119_122741_26f8dde9-60a7-4b46-bf48-10c1189b145a.mp4",
+      "local_file_path": "/Users/lewis/Downloads/Dentsu/決策智慧/gta-dentsu-taiwan/public/video/grandma-rescue.mp4",
+      "error": null
+    },
+    {
+      "file": "boardroom-push.mp4",
+      "job_id": "9dfdfb4e-29c7-4003-81bc-4b4871380c53",
+      "model": "seedance_2_5",
+      "status": "completed",
+      "remote_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3LOoCRB1QRMyYsb0GpgCZNryGu0/hf_20261119_122740_9dfdfb4e-29c7-4003-81bc-4b4871380c53.mp4",
+      "local_file_path": "/Users/lewis/Downloads/Dentsu/決策智慧/gta-dentsu-taiwan/public/video/boardroom-push.mp4",
+      "error": null
+    }
+  ]
+}

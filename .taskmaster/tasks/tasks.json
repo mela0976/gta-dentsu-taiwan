@@ -1,0 +1,526 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Initialize PRD and TaskMaster workflow configuration",
+      "description": "Set up .taskmaster config, strict .gitignore blocking source PDFs/InDesign assets, and validate the comprehensive PRD.",
+      "details": "Initialize gta-dentsu-taiwan/.taskmaster, author .taskmaster/docs/prd.md without placeholders, configure .gitignore to exclude *.pdf, *.indd, *.idml, ZH/, and logs.",
+      "testStrategy": "Run python3 /Users/lewis/.agents/skills/prd-taskmaster/script.py validate-prd --input .taskmaster/docs/prd.md and invoke validation checks ensuring score >= 85% and zero placeholders.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "reachableVia": "file:.taskmaster/docs/prd.md",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create gitignore and project directory layout",
+          "description": "Block all source PDFs and InDesign directories from git tracking.",
+          "status": "done",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Author and validate PRD document",
+          "description": "Write comprehensive PRD covering all 9 books, 4+1 roles, Grandma Mod 1+2+3, and multi-agent pipeline.",
+          "status": "done",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "domain-model",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Initialize PRD and TaskMaster workflow configuration",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Create gitignore and project directory layout",
+          "Subtask completed: Author and validate PRD document"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Generate 9-book 10-slot agency story data via Claude agent",
+      "description": "Produce src/story-data.js mapping 2018-2026 Intelligent Decision books to 10 Taiwanese advertising agency workday chapters, 4+1 roles, People Model twins, and Grandma translations.",
+      "details": "Invoke Claude Code agent to craft vivid Taiwanese agency workplace scenes (scooter commute, boardroom, bento rain, studio, war room, rechao night), authentic yearbook quotes, role desk clues, and Hokkien-Taiwanese Grandma translations.",
+      "testStrategy": "Run node subprocess verification in tests/game-engine.test.mjs asserting 10 chapters, 5 roles, 6 mini-game types, and non-empty grandmaTranslation fields.",
+      "status": "done",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "reachableVia": "file:src/story-data.js",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Author 10-chapter workday scripts and yearbook quotes",
+          "description": "Map 2018-2026 books into 08:30 AM through 11:45 PM agency scenarios.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Author 4+1 role clues, People Model twins, and Grandma proverbs",
+          "description": "Provide role-specific clues, Lisa/Cindy dialogues, and Grandma Mod translations.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "domain-model",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Generate 9-book 10-slot agency story data via Claude agent",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Author 10-chapter workday scripts and yearbook quotes",
+          "Subtask completed: Author 4+1 role clues, People Model twins, and Grandma proverbs"
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "title": "Generate ChatGPT gpt-image 2.6 Taiwanese GTA 6 WebP art assets",
+      "description": "Produce natural Taiwanese hand-painted GTA 6 style role portraits and Taipei workday scene illustrations converted to WebP.",
+      "details": "Generate portraits for Account, Planner, Creative, Media, Grandma Master, Lisa, Cindy and 6 Taipei scene banners; convert all images to optimized .webp under public/images/ via cwebp.",
+      "testStrategy": "Invoke file verification script checking every expected .webp file in public/images/ has non-zero size, valid RIFF WEBP header, and zero PNG/JPG leftovers in dist.",
+      "status": "done",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "reachableVia": "file:public/images/role-grandma.webp",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Generate 4+1 character portraits and People Model avatars",
+          "description": "Create natural Taiwanese office and Grandma Master hand-painted portraits in GTA 6 palette.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Generate 6 Taipei advertising agency workday scene visuals",
+          "description": "Create 16:9 WebP scene visuals for scooter rush, boardroom, bento rain, studio, war room, and rechao.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "domain-model",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Generate ChatGPT gpt-image 2.6 Taiwanese GTA 6 WebP art assets",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Generate 4+1 character portraits and People Model avatars",
+          "Subtask completed: Generate 6 Taipei advertising agency workday scene visuals"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "title": "Generate Higgsfield cutscene MP4 videos via Codex connector",
+      "description": "Invoke Codex agent to trigger connected Higgsfield video generation and assemble compressed looping MP4 cutscenes.",
+      "details": "Use Codex agent with codex_apps__higgsfield to generate intro-taipei.mp4, boardroom-push.mp4, and grandma-rescue.mp4; optimize bitrate with ffmpeg so web loading stays fast.",
+      "testStrategy": "Run ffprobe subprocess inspection verifying valid H.264 MP4 streams under public/video/ and verify HTML5 video playback with Canvas fallback.",
+      "status": "in-progress",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "reachableVia": "file:public/video/intro-taipei.mp4",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Dispatch Codex Higgsfield video generation jobs",
+          "description": "Invoke Codex to generate Taipei GTA neon intro and Grandma rescue cutscenes via Higgsfield.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Transcode and validate cutscene MP4 assets with ffmpeg",
+          "description": "Compress cutscenes for fast web delivery and verify stream metadata.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "wired",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Generate Higgsfield cutscene MP4 videos via Codex connector",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Dispatch Codex Higgsfield video generation jobs",
+          "Subtask completed: Transcode and validate cutscene MP4 assets with ffmpeg"
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "title": "Integrate Unity CLI companion project and C# gameplay controllers",
+      "description": "Use installed Unity CLI (/Users/lewis/.unity/bin/unity) to inspect environment and build Unity companion project scripts mirroring the web simulation.",
+      "details": "Run unity doctor/editors/templates inspection and scaffold unity-companion/ with C# scripts for CampaignManager, GrandmaScooterController, and GTATaiwanHUDController plus Assembly Definition.",
+      "testStrategy": "Invoke /Users/lewis/.unity/bin/unity diagnostics subprocess and verify C# scripts and ProjectSettings manifest exist cleanly under unity-companion/.",
+      "status": "in-progress",
+      "dependencies": [
+        2
+      ],
+      "priority": "medium",
+      "reachableVia": "cli:/Users/lewis/.unity/bin/unity",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Run Unity CLI diagnostics and scaffold unity-companion structure",
+          "description": "Capture Unity CLI doctor/templates output and initialize Packages/manifest.json and ProjectSettings.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Author C# scripts for campaign state, HUD, and Grandma scooter minigame",
+          "description": "Write DecisionWisdomCampaign.cs, GTATaiwanHUDController.cs, and GrandmaScooterController.cs.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "wired",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Integrate Unity CLI companion project and C# gameplay controllers",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Run Unity CLI diagnostics and scaffold unity-companion structure",
+          "Subtask completed: Author C# scripts for campaign state, HUD, and Grandma scooter minigame"
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "title": "Implement pure state machine engine and automated Node test suite",
+      "description": "Build src/game-engine.js managing workday progression, 5-axis stats, Wanted stars, Grandma Tatung rescue, and 6 mini-game evaluators.",
+      "details": "Implement pure immutable/deterministic reducer functions in src/game-engine.js with zero DOM dependencies so Node tests and browser UI share identical scoring and persona logic.",
+      "testStrategy": "Execute node --test tests/game-engine.test.mjs subprocess verifying all 10 chapters, 6 mini-game types, Wanted escalation, and persona rules.",
+      "status": "done",
+      "dependencies": [
+        2
+      ],
+      "priority": "high",
+      "reachableVia": "file:src/game-engine.js",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement chapter reducer, stats, and Wanted star rules",
+          "description": "Handle role selection, reply leans, People Model clues, and Wanted escalation.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Implement 6 mini-game evaluators and persona calculation",
+          "description": "Score pick, slider, swipe, multi, stop, and agent games and compute career review.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "spike",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Implement pure state machine engine and automated Node test suite",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Implement chapter reducer, stats, and Wanted star rules",
+          "Subtask completed: Implement 6 mini-game evaluators and persona calculation"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "title": "Implement Grandma Mod 1+2+3 and Canvas Grandma Scooter Rush",
+      "description": "Build AMA666 cheat code controller, 5-star Tatung rice cooker rescue sequence, Chapter 6 phone call, and 60fps Canvas street minigame.",
+      "details": "Implement src/scooter-minigame.js 3-lane pseudo-3D Taipei neon night market Canvas arcade game with keyboard/touch controls, combo pickups, and hazard collisions.",
+      "testStrategy": "Verify AMA666 cheat activation, 5-star rescue reset in Node tests, and E2E Canvas loop verification in headless/Orca browser.",
+      "status": "done",
+      "dependencies": [
+        6
+      ],
+      "priority": "high",
+      "reachableVia": "file:src/scooter-minigame.js",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement AMA666 cheat listener and Tatung cooker rescue logic",
+          "description": "Unlock Grandma Master character, proverbs panel, and 5-star emergency rescue.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Build 60fps Canvas Grandma Scooter Rush arcade stage",
+          "description": "Render Taipei neon street lanes, collectibles, algorithm hazards, and reward bridge.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "domain-model",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Implement Grandma Mod 1+2+3 and Canvas Grandma Scooter Rush",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Implement AMA666 cheat listener and Tatung cooker rescue logic",
+          "Subtask completed: Build 60fps Canvas Grandma Scooter Rush arcade stage"
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "title": "Build GTA 6 Taiwan HUD, LINE smartphone UI, and Web Audio synthesizer",
+      "description": "Create responsive index.html, src/ui-app.js, and src/audio-fx.js integrating character select, GPS mini-map, LINE phone, 6 mini-games, and cutscenes.",
+      "details": "Implement GTA 6 neon vice-Taipei CSS theme, SVG/Canvas GPS radar mini-map, LINE 99+ interactive phone drawer, video cutscene overlay with skip/mute, and synthesized Taiwanese sound effects.",
+      "testStrategy": "Serve local HTTP server and inspect live desktop (1280x800) and mobile (390x844) views via Orca browser verifying zero console errors and complete playable loop.",
+      "status": "pending",
+      "dependencies": [
+        3,
+        4,
+        6,
+        7
+      ],
+      "priority": "high",
+      "reachableVia": "file:src/ui-app.js",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Build GTA 6 neon HUD, GPS mini-map, and LINE phone UI",
+          "description": "Render Wanted stars, 5 metrics, Taipei map nodes, and People Model chat tabs.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Implement 6 mini-game widgets, cutscene overlay, and Web Audio SFX",
+          "description": "Wire interactive mini-games, Higgsfield MP4 cutscenes, and synthesized sound effects.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "MEDIUM",
+        "tier": "wired",
+        "requiresCDD": true,
+        "requiresResearch": false,
+        "lifecycle": [
+          "planning",
+          "implementation",
+          "testing"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Build GTA 6 Taiwan HUD, LINE smartphone UI, and Web Audio synthesizer",
+          "All automated tests pass with no regressions",
+          "Unit tests cover primary code paths",
+          "Edge cases handled and documented",
+          "Code reviewed or self-reviewed",
+          "Subtask completed: Build GTA 6 neon HUD, GPS mini-map, and LINE phone UI",
+          "Subtask completed: Implement 6 mini-game widgets, cutscene overlay, and Web Audio SFX"
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "title": "Build standalone HTML packager and run full QA + IP leak audit",
+      "description": "Create build and check scripts outputting deployable dist/ plus self-contained standalone HTML and verifying zero leaked PDFs.",
+      "details": "Write scripts/build.mjs to generate dist/ with relative WebP/MP4 assets plus a self-contained single-file standalone HTML, and scripts/check-dist.mjs to block PDFs, InDesign files, or broken links.",
+      "testStrategy": "Run node scripts/build.mjs && node scripts/check-dist.mjs && node --test tests/game-engine.test.mjs and verify E2E gameplay in browser.",
+      "status": "done",
+      "dependencies": [
+        8
+      ],
+      "priority": "high",
+      "reachableVia": "file:scripts/build.mjs",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement build script for dist site and standalone HTML file",
+          "description": "Bundle ES modules and styles into dist/index.html and dist/gta-dentsu-taiwan-standalone.html.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Run full QA test suite, asset check, and Orca browser walkthrough",
+          "description": "Verify all tests pass, check-dist blocks leaks, and browser screenshots render cleanly.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "RESEARCH",
+        "tier": "spike",
+        "requiresCDD": true,
+        "requiresResearch": true,
+        "lifecycle": [
+          "research",
+          "planning",
+          "review"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Build standalone HTML packager and run full QA + IP leak audit",
+          "All automated tests pass with no regressions",
+          "Research findings documented with sources",
+          "Recommendation or decision recorded in task notes",
+          "Trade-offs clearly articulated",
+          "Subtask completed: Implement build script for dist site and standalone HTML file",
+          "Subtask completed: Run full QA test suite, asset check, and Orca browser walkthrough"
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "title": "Configure GitHub Pages + Netlify dual deployment and push live",
+      "description": "Set up netlify.toml, GitHub Actions workflow, initialize git repo with noreply email, push to GitHub under mela0976, and publish live.",
+      "details": "Create netlify.toml and .github/workflows/deploy.yml, audit git status/ls-files for zero source PDFs, create public/configured repo via gh under mela0976, push main, and deploy/verify URLs.",
+      "testStrategy": "Run git ls-files audit, gh workflow/pages status verification, and HTTP curl/browser check against live deployed endpoint.",
+      "status": "done",
+      "dependencies": [
+        5,
+        9
+      ],
+      "priority": "high",
+      "reachableVia": "file:netlify.toml",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create netlify.toml and GitHub Pages workflow",
+          "description": "Configure static build directory, headers, and automatic deployment pipeline.",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "title": "Commit safely, push to GitHub, and verify Netlify/Pages deployment",
+          "description": "Verify clean git tree with noreply author, push to mela0976 repo, and check live deployment.",
+          "status": "pending",
+          "dependencies": [
+            1
+          ]
+        }
+      ],
+      "phaseConfig": {
+        "complexity": "RESEARCH",
+        "tier": "spike",
+        "requiresCDD": true,
+        "requiresResearch": true,
+        "lifecycle": [
+          "research",
+          "planning",
+          "review"
+        ],
+        "cddCardId": null,
+        "acceptanceCriteria": [
+          "Implementation matches requirements described in task: Configure GitHub Pages + Netlify dual deployment and push live",
+          "All automated tests pass with no regressions",
+          "Research findings documented with sources",
+          "Recommendation or decision recorded in task notes",
+          "Trade-offs clearly articulated",
+          "Subtask completed: Create netlify.toml and GitHub Pages workflow",
+          "Subtask completed: Commit safely, push to GitHub, and verify Netlify/Pages deployment"
+        ]
+      }
+    }
+  ]
+}
