@@ -130,6 +130,18 @@ export const GRANDMA_QUIPS = {
   ],
 };
 
+export const GTA6_TAIWAN_ANALYSIS = {
+  title: 'GTA 6 Trailer 1 & 2 × 十年《決策智慧》台灣對照美學',
+  coreParallel: 'GTA 6 雙主角 Lucia（腳踝電子腳鐐限制與「Trust? Trust.」承諾）× Jason（在速食與演算法霓虹街頭求生），正對應電通人從 2018 迷信歸因儀表板、到 2026 年把「人類衡斷力 (Judgment)」握回自己手中的十年轉折。',
+  taiwanMotifs: [
+    '🟢 台灣綠底白字道路牌：松仁路 Songren Rd. / 松勇路 Songyong Rd. / 瑞光路 Ruiguang Rd.，將 Leonida 高速路牌在地化。',
+    '🪟 海棠花壓花玻璃＆鐵窗花：老台北住宅與巷口騎樓光影，化作介面微紋理與雨夜反光。',
+    '🏙️ 富邦 A25 X 型斜撐玻璃帷幕 × 陶豬隱園螺旋豪宅：真實 Google Maps 街景座標 1:1 搬進信義區任務地圖。',
+    '🧋 美而美大冰奶＆機車瀑布：把 Vice City 的街頭車陣換成台北早高峰待轉區與安全帽掛袋。',
+    '🍲 綠色大同電鍋＆熱炒紅塑膠椅：阿嬤菜市場經濟學打破 CFO 只看短期 ROI 的報表牢籠。'
+  ]
+};
+
 export const CHAPTERS = [
   // ───────────── Ch1 · 2018 ─────────────
   {
@@ -142,6 +154,21 @@ export const CHAPTERS = [
     title: '不再是賭注',
     sceneImage: './public/images/scene-morning-scooter.webp',
     cutscene: './public/video/intro-taipei.mp4',
+    googleMap: {
+      lat: 25.0391417,
+      lng: 121.5697704,
+      heading: 120,
+      pitch: 18,
+      roadSign: '松仁路 100 號 · Songren Rd.',
+      realPhoto: './public/images/gmap-morning-scooter.webp',
+      embedQuery: '富邦信義A25園區+台北市信義區松仁路100號',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.0391417,121.5697704&heading=120&pitch=18&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 (0:00 & 1:05) 鐵絲網晨光與 Leonida 越野機車車隊橫越馬路',
+      characterArc: '如同 Lucia 戴著電子腳鐐出獄仍想掌控命運，第一站從歸因儀表板的視覺牢籠掙脫：把機車瀑布與大冰奶的真實客流，和報表上「最後點擊」分開看。',
+      taiwanCraft: '松勇路／松仁路綠底白字路牌、55688 小黃計程車、富邦 A25 X 型白色斜撐結構與對街雙螺旋「陶豬隱園」。',
+    },
     sceneDesc:
       '2026 年的台北早高峰從台北橋一路殺進信義區松仁路。你叼著吐司騎到「富邦 A25 電通大樓」玻璃總部樓下，抬頭就是對街那棟像哥吉拉螺旋扭轉的豪華地標「陶豬隱園（逃豬癮園）」與台北 101。買杯大冰奶配老闆凌晨傳來的 LINE，今天的第一場仗開始了。',
     lineSender: { name: '老闆', role: '集團執行長', badge: 'BOSS' },
@@ -197,6 +224,21 @@ export const CHAPTERS = [
     title: '無限賽局',
     sceneImage: './public/images/scene-boardroom.webp',
     cutscene: './public/video/boardroom-push.mp4',
+    googleMap: {
+      lat: 25.03890,
+      lng: 121.56880,
+      heading: 78,
+      pitch: 22,
+      roadSign: '松高路×松仁路口 · 富邦 A25 仰角',
+      realPhoto: './public/images/gmap-boardroom.webp',
+      embedQuery: '富邦美術館+陶朱隱園+台北市信義區',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.03890,121.56880&heading=78&pitch=22&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 (0:11) & Trailer 2 會客室鐵網玻璃斜射陽光對談（Lucia & 假釋官 / Jason 隔窗凝視）',
+      characterArc: '玻璃帷幕隔開了代理商與客戶：就像 Trailer 2 隔著安全網窗說話的張力，怕被取代就藏一手只會加速信任破產；敢轉型顧問才是長期賽局。',
+      taiwanCraft: '松高路歐風雙頭街燈與花崗岩廊柱映襯富邦 A25 巨型玻璃斜撐、桌上冰美式吸管與會議對講機。',
+    },
     sceneDesc:
       '富邦 A25 電通大樓高層落地窗外，正對著那棟雙螺旋扭轉的「陶豬隱園」與台北 101，2026 信義區晨光穿過百葉窗斜切進會議室。客戶的數位長把簡報投到牆上，每一頁都有「自主」兩個字，這場簡報決定你們還能不能留在名單上。',
     lineSender: { name: '老闆', role: '集團執行長', badge: 'BOSS' },
@@ -252,6 +294,21 @@ export const CHAPTERS = [
     title: '下半場',
     sceneImage: './public/images/scene-bento-rain.webp',
     cutscene: null,
+    googleMap: {
+      lat: 25.04115,
+      lng: 121.56888,
+      heading: 180,
+      pitch: 6,
+      roadSign: '松仁路×忠孝東路五段 · 永吉商圈',
+      realPhoto: './public/images/gmap-bento-rain.webp',
+      embedQuery: '永吉路30巷+台北市信義區',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.04115,121.56888&heading=180&pitch=6&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 2 街角雨水反光與主角低頭看手機確認退路鏡頭',
+      characterArc: '疫情砍半預算下，短視只投成效就像把所有油錢拿去繞原地；沒有品牌記憶底氣，雨過天晴後客人根本認不出你的招牌。',
+      taiwanCraft: '大都會客運綠色公車、55688 台灣大車隊、巷口排骨雞腿便當霓虹與傳統騎樓鐵窗花倒影。',
+    },
     sceneDesc:
       '午後的雨把松仁路巷口洗得發亮，走出富邦 A25 大樓買雞腿便當，遠遠霧氣裡還看得見旋轉豪宅「陶豬隱園」的綠樹陽台。你一手撐傘一手捧手搖飲，財務長訊息跳出來：預算砍半。連雨滴打在安全帽上的聲音都在問你錢怎麼分。',
     lineSender: { name: '老闆', role: '集團執行長', badge: 'BOSS' },
@@ -307,6 +364,21 @@ export const CHAPTERS = [
     title: '穿越 2030',
     sceneImage: './public/images/scene-boardroom.webp',
     cutscene: null,
+    googleMap: {
+      lat: 25.0391417,
+      lng: 121.5697704,
+      heading: 105,
+      pitch: 14,
+      roadSign: '松勇路 68 號對街 · 陶豬隱園窗景',
+      realPhoto: './public/images/gmap-morning-scooter.webp',
+      embedQuery: '陶朱隱園+台北市信義區松勇路68號',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.0391417,121.5697704&heading=105&pitch=14&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 便利商店監視器視角與「無所不在的追蹤鏡頭」',
+      characterArc: '第三方 Cookie 退場就像主角扯掉追蹤器：買來的第三方識別方案越貴，越像被監視的假安全感；顧客自願留下的第一方資料才不會一夕歸零。',
+      taiwanCraft: '茶水間海棠花壓花玻璃隔間、遠眺松勇路雙螺旋陶豬隱園綠植陽台與手搖美式杯。',
+    },
     sceneDesc:
       '富邦 A25 茶水間面向松勇路的窗邊，咖啡機正在嗚嗚作響，你剛按下美式看著對面「陶豬隱園」發呆，平台業務就抱著筆電像抱槍一樣堵在門口：追蹤工具快沒了，現在不買方案，三個月後受眾名單就是一片空白。',
     lineSender: { name: '平台業務', role: '某大平台客戶經理', badge: 'SALES' },
@@ -364,6 +436,21 @@ export const CHAPTERS = [
     title: '複合躍進',
     sceneImage: './public/images/scene-bento-rain.webp',
     cutscene: null,
+    googleMap: {
+      lat: 25.04115,
+      lng: 121.56888,
+      heading: 180,
+      pitch: 6,
+      roadSign: '松仁路下午茶戰區 · 永吉商圈',
+      realPhoto: './public/images/gmap-bento-rain.webp',
+      embedQuery: '富邦信義A25園區+松仁路100號',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.04115,121.56888&heading=180&pitch=6&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 (0:42 @DadBodSquad 遊艇狂歡 / 社群直式短影音海嘯)',
+      characterArc: 'Trailer 1 裡滿螢幕浮誇的社群跟風與愛心數，對照台灣 81% 消費者口頭支持永續、結帳依然比價的 Say-Do Gap：先做到一件真事再發聲，才不會被社群逐條對帳。',
+      taiwanCraft: '炸雞排配少糖珍奶下午茶、PPT／Dcard 輿情對帳截圖文化、信義區斑馬線與富邦 A25 綠色建築玻璃倒影。',
+    },
     sceneDesc:
       '你從松仁路提著下午茶雞排珍奶走進富邦 A25 作戰區，社群小編就衝過來：同業上個月的永續宣告被網友逐條對帳，窗外雨停後「陶豬隱園」上的垂直森林綠植正好對著你的電腦反光。老闆的訊息已經到了：我們也發一篇？',
     lineSender: { name: '老闆', role: '集團執行長', badge: 'BOSS' },
@@ -420,6 +507,21 @@ export const CHAPTERS = [
     sceneImage: './public/images/scene-neihu-studio.webp',
     cutscene: './public/video/grandma-rescue.mp4',
     grandmaCallTrigger: true,
+    googleMap: {
+      lat: 25.07790,
+      lng: 121.57240,
+      heading: 125,
+      pitch: 8,
+      roadSign: '內湖區瑞光路 · Ruiguang Rd.',
+      realPhoto: './public/images/gmap-neihu-studio.webp',
+      embedQuery: '內湖科技園區+瑞光路+台北市內湖區',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.07790,121.57240&heading=125&pitch=8&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 2 老派卡車改造對決高壓霓虹夜景（手作真實感 vs 工業量產）',
+      characterArc: 'AI 能一分鐘生成三十張沒問題的罐頭圖，但真正擊中人心的只有「阿嬤家廚房的味道」。內容免費之後，稀缺的是「鍋氣」與「被記得」。',
+      taiwanCraft: '內湖瑞光路白色道路標線、片場燈架與綠色大同電鍋（不鏽鋼提把）、阿嬤碎花襯衫配安全帽突襲救援。',
+    },
     sceneDesc:
       '傍晚內湖攝影棚的燈全亮，透過棚外高架橋還隱約看得到信義區富邦 A25 與陶豬隱園的夕陽剪影。製作人和攝影師圍著一台螢幕，上面是 AI 一分鐘產出的三十張圖，客戶卻傳訊問：製作費砍一半可以吧？',
     lineSender: { name: '客戶', role: '品牌行銷經理', badge: 'CLIENT' },
@@ -480,6 +582,21 @@ export const CHAPTERS = [
     title: '毒蘋果',
     sceneImage: './public/images/scene-xinyi-overtime.webp',
     cutscene: null,
+    googleMap: {
+      lat: 25.03785,
+      lng: 121.56875,
+      heading: 358,
+      pitch: 18,
+      roadSign: '松仁路×松高路 · 富邦 A25 入口廣場',
+      realPhoto: './public/images/gmap-xinyi-overtime.webp',
+      embedQuery: '台北市信義區松仁路100號',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.03785,121.56875&heading=358&pitch=18&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 (0:58) Lucia & Jason 蒙面推開「Uncle Jack\'s」商店玻璃門（掌握通路貨架與收銀台）',
+      characterArc: 'RMN 通路就像握有貨架、會員與結帳收銀台的店家——數字漂亮卻由球員兼裁判算給你；沒有獨立第三方對照，你就成了通路的打工仔。',
+      taiwanCraft: '信義區人行道石磚廣場、外送排骨便當紙盒與紅白條紋塑膠袋、玻璃帷幕映出的陶豬隱園夜燈。',
+    },
     sceneDesc:
       '2026 年的信義區晚上七點半，松仁路上的「富邦 A25 電通大樓」和對街亮著綠光的「陶豬隱園」像兩座霓虹水族箱。外送員把排骨飯送到一樓櫃檯，成長長順手推來一份通路 RMN 提案：曝光到結帳數字乾淨得像剛擦過的玻璃。',
     lineSender: { name: '成長長', role: '集團成長長 (CGO)', badge: 'CGO' },
@@ -535,6 +652,21 @@ export const CHAPTERS = [
     title: '自動打仗',
     sceneImage: './public/images/scene-xinyi-overtime.webp',
     cutscene: null,
+    googleMap: {
+      lat: 25.0391417,
+      lng: 121.5697704,
+      heading: 120,
+      pitch: 18,
+      roadSign: '松仁路夜車 · 掠過陶豬隱園',
+      realPhoto: './public/images/gmap-morning-scooter.webp',
+      embedQuery: '松仁路+陶朱隱園+台北市信義區',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.0391417,121.5697704&heading=120&pitch=18&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 2 深夜卡車拖行金庫沿街噴出火花狂飆鏡頭',
+      characterArc: '演算法自動優化就像拖著金庫失控飆車：ROAS 儀表板看似滿分冒火花，實則不斷收割原本就會買的老客、把新客比率磨到見骨，全靠人類及時踩煞車。',
+      taiwanCraft: '黃色計程車車載廣播聲、松仁路夜班公車專用道標線、車窗倒映的台北 101 塔尖與陶豬隱園螺旋燈光。',
+    },
     sceneDesc:
       '你坐上黃色計程車沿著松仁路趕回富邦 A25，車窗外「陶豬隱園」旋轉外牆與 101 霓虹一路倒退。司機在聽廣播，你的手機螢幕卻亮得刺眼：自動優化跑了兩週，報表每天創新高，可是你心裡有個聲音一直說「怪怪的」。',
     lineSender: { name: '平台業務', role: '某大平台客戶經理', badge: 'SALES' },
@@ -590,6 +722,21 @@ export const CHAPTERS = [
     title: '真實距離',
     sceneImage: './public/images/scene-rechao-night.webp',
     cutscene: null,
+    googleMap: {
+      lat: 25.04488,
+      lng: 121.55125,
+      heading: 95,
+      pitch: 4,
+      roadSign: '市民大道四段 · Civic Blvd. 宵夜熱炒',
+      realPhoto: './public/images/gmap-rechao-night.webp',
+      embedQuery: '市民大道四段+台北市大安區',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.04488,121.55125&heading=95&pitch=4&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 霓虹酒吧「Make It Rain」熱鬧夜生活與便利店貨架對比',
+      characterArc: 'Agentic AI 時代每款商品都被代理程式化作價格與規格清單；只有像熱炒店兄弟「這瓶好喝」的真實口碑與偏心品牌記憶，才走得出貨架比較表。',
+      taiwanCraft: '紅燈籠熱炒招牌、紅色塑膠圓凳、綠色玻璃台啤瓶、高架橋下整排機車尾燈與超商玻璃冰櫃。',
+    },
     sceneDesc:
       '信義區宵夜場鍋氣沖天，抬頭就是富邦 A25 與陶豬隱園的霓虹剪影。老闆把手機推到你面前：現在大家叫 AI 幫忙挑東西。你走進超商打開飲料冰櫃看著三瓶飲料，突然想起 People Model 裡 Lisa 說過的那句話。',
     lineSender: { name: '老闆', role: '集團執行長', badge: 'BOSS' },
@@ -646,6 +793,21 @@ export const CHAPTERS = [
     sceneImage: './public/images/scene-xinyi-overtime.webp',
     cutscene: null,
     finale: true,
+    googleMap: {
+      lat: 25.0391417,
+      lng: 121.5697704,
+      heading: 120,
+      pitch: 18,
+      roadSign: '松仁路 100 號頂層戰情室 · 富邦 A25',
+      realPhoto: './public/images/gmap-boardroom.webp',
+      embedQuery: '富邦信義A25大樓+台北101',
+      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=25.0391417,121.5697704&heading=120&pitch=18&fov=90',
+    },
+    gta6Analysis: {
+      trailerScene: 'GTA 6 Trailer 1 (1:15) Lucia & Jason 旅館床邊凝視：「Trust? — Trust.」終局宣誓',
+      characterArc: '全片最核心的那句「Trust? Trust.」揭開《決策智慧》十年終章答案：當自動引擎對老客訂高價、報表依然滿分時，沒有演算法能替你扛道德與商業責任——判斷永遠不能外包。',
+      taiwanCraft: '富邦 A25 頂層海棠花紋玻璃會議室、倒數微光的台北 101 與陶豬隱園夜景、桌上一碗熱騰騰的大同電鍋滷肉飯。',
+    },
     sceneDesc:
       '2026 年的最後一刻接近午夜，富邦 A25 電通大樓頂層戰情室只剩你和財務長。窗外對街「陶豬隱園」與台北 101 閃著最後的倒數微光，剛剛卻有人發現：那台自動引擎，對老客定了比較高的價。你要把這個判斷交給誰？',
     lineSender: { name: '財務長', role: '集團財務長 (CFO)', badge: 'CFO' },

@@ -1,5 +1,5 @@
 // 主介面控制器：GTA 6 台灣風格《決策智慧：電通台灣一日風雲》
-import { ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, CHAPTERS, SCOOTER_CONFIG } from './story-data.js';
+import { ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, GTA6_TAIWAN_ANALYSIS, CHAPTERS, SCOOTER_CONFIG } from './story-data.js';
 import {
   CHEAT_CODE,
   createInitialState,
@@ -62,6 +62,8 @@ class GtaDentsuApp {
     this.stopFinished = false;
     this.cheatBuffer = '';
     this.highlightTarget = null; // 'clue' | 'phone' | null
+    this.sceneViewMode = 'gta'; // 'gta' | 'gmap_photo' | 'gmap_live'
+    this.radarMode = 'radar'; // 'radar' | 'gmap'
 
     window.addEventListener('keydown', (e) => this._handleGlobalKey(e));
     this.render();
@@ -604,22 +606,79 @@ class GtaDentsuApp {
     const ch = getCurrentChapter(this.state);
     const role = getRole(this.state.roleId);
     const clue = ch.roleClues[role.id] || ch.roleClues.planner;
+    const gm = ch.googleMap || {};
 
-    // 1. 2026 台北場景主視覺卡＋真實世界場景互動熱點
-    const sceneCard = el('div', { class: 'panel scene-card' }, [
+    let bannerMedia;
+    if (this.sceneViewMode === 'gmap_live' && gm.embedQuery) {
+      bannerMedia = el('iframe', {
+        class: 'scene-gmap-iframe',
+        src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=k&hl=zh-TW&z=18&output=embed`,
+        title: `Google Maps 真實衛星圖：${ch.location}`,
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade'
+      });
+    } else if (this.sceneViewMode === 'gmap_photo' && gm.realPhoto) {
+      bannerMedia = el('img', {
+        src: gm.realPhoto,
+        alt: `Google Maps 真實街景：${gm.roadSign || ch.location}`,
+        onerror: (e) => { e.target.style.display = 'none'; }
+      });
+    } else {
+      bannerMedia = el('img', {
+        src: ch.sceneImage,
+        alt: ch.location,
+        onerror: (e) => { e.target.style.display = 'none'; }
+      });
+    }
+
+    const subtitleText = this.sceneViewMode === 'gmap_photo'
+      ? `📷 Google Maps 真實街景 · ${gm.roadSign || ch.location}`
+      : (this.sceneViewMode === 'gmap_live'
+        ? ''
+        : `${ch.lineSender.name}：「${ch.lineMessage}」`);
+
+    // 1. 2026 台北場景主視覺卡＋Google Maps 真實街景切換＋台灣綠牌道路名
+    const sceneCard = el('div', { class: 'panel scene-card tw-glass-accent' }, [
       el('div', { class: 'scene-banner-wrap' }, [
-        el('img', {
-          src: ch.sceneImage,
-          alt: ch.location,
-          onerror: (e) => { e.target.style.display = 'none'; }
+        bannerMedia,
+        gm.roadSign
+          ? el('div', { class: 'tw-road-sign', text: gm.roadSign })
+          : null,
+        subtitleText
+          ? el('div', { class: 'scene-subtitle', text: subtitleText })
+          : null
+      ]),
+      el('div', { class: 'scene-mode-bar' }, [
+        el('button', {
+          class: `mode-chip${this.sceneViewMode === 'gta' ? ' is-active' : ''}`,
+          text: '🎬 GTA6劇照',
+          onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gta'; this.render(); }
         }),
-        el('div', { class: 'scene-subtitle', text: `${ch.lineSender.name}：「${ch.lineMessage}」` })
+        el('button', {
+          class: `mode-chip${this.sceneViewMode === 'gmap_photo' ? ' is-active' : ''}`,
+          text: '📷 真實街景',
+          onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gmap_photo'; this.render(); }
+        }),
+        el('button', {
+          class: `mode-chip${this.sceneViewMode === 'gmap_live' ? ' is-active' : ''}`,
+          text: '🛰️ 衛星地圖',
+          onClick: () => { soundFX.playClick(); this.sceneViewMode = 'gmap_live'; this.render(); }
+        }),
+        gm.streetViewUrl
+          ? el('a', {
+              class: 'mode-chip',
+              href: gm.streetViewUrl,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              text: '↗ 360°街景'
+            })
+          : null
       ]),
       el('div', { class: 'scene-hotspots' }, [
         el('button', {
           class: 'hotspot-chip',
           title: '點擊查看你的專屬桌上線索',
-          text: '🕵️ 桌上線索',
+          text: '🕵️ 線索',
           onClick: () => this._focusHelper('clue')
         }),
         el('button', {
@@ -630,9 +689,9 @@ class GtaDentsuApp {
         }),
         el('button', {
           class: 'hotspot-chip',
-          title: '切換到阿嬤翻譯機聽一句人話',
-          text: '👵 阿嬤話',
-          onClick: () => this._focusHelper('phone', 'grandma')
+          title: '對照 GTA 6 預告片橋段、角色動機與台灣設計元素',
+          text: '🎬 GTA6解析',
+          onClick: () => this._focusHelper('phone', 'gta6')
         }),
         el('button', {
           class: 'hotspot-chip is-scooter',
@@ -644,12 +703,12 @@ class GtaDentsuApp {
       el('div', { class: 'scene-banner-overlay' }, [
         el('div', {}, [
           el('div', { style: 'font-size:11px;font-weight:800;color:var(--gold);', text: `${ch.book} · ${ch.timeSlot}` }),
-          el('div', { style: 'font-size:13px;font-weight:800;', text: ch.location })
+          el('div', { style: 'font-size:12.5px;font-weight:800;', text: ch.location })
         ]),
         ch.cutscene
           ? el('button', {
               class: 'btn-ghost',
-              style: 'min-height:32px;padding:4px 10px;font-size:12px;',
+              style: 'min-height:30px;padding:3px 9px;font-size:11.5px;',
               text: '🎬 播動畫',
               onClick: () => {
                 this.activeCutsceneSrc = ch.cutscene;
@@ -660,26 +719,43 @@ class GtaDentsuApp {
       ])
     ]);
 
-    // 2. 2026 台北 GPS 雷達小地圖（富邦 A25 / 陶豬隱園 / 101）
+    // 2. 2026 台北 GPS 雷達／Google Maps 雙模切換小地圖
     const miniMap = el('div', { class: 'minimap-box' }, [
-      el('div', { style: 'display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--cyan);margin-bottom:4px;' }, [
-        el('span', { text: '2026 信義 GPS · 松仁路富邦 A25 × 陶豬隱園' }),
-        el('span', { text: `站點 ${ch.id}/10` })
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:var(--cyan);margin-bottom:4px;gap:6px;' }, [
+        el('span', { text: `2026 信義 GPS · 站點 ${ch.id}/10` }),
+        el('button', {
+          class: 'mode-chip',
+          style: 'min-height:22px;padding:1px 7px;font-size:10.5px;',
+          text: this.radarMode === 'radar' ? '🗺️ 切Google地圖' : '📡 切GTA雷達',
+          onClick: () => {
+            soundFX.playClick();
+            this.radarMode = this.radarMode === 'radar' ? 'gmap' : 'radar';
+            this.render();
+          }
+        })
       ]),
-      this._buildTaipeiMiniMapSvg(ch)
+      this.radarMode === 'gmap' && gm.embedQuery
+        ? el('iframe', {
+            class: 'minimap-gmap-iframe',
+            src: `https://maps.google.com/maps?q=${encodeURIComponent(gm.embedQuery)}&t=m&hl=zh-TW&z=16&output=embed`,
+            title: 'Google Maps 小地圖',
+            loading: 'lazy',
+            referrerpolicy: 'no-referrer-when-downgrade'
+          })
+        : this._buildTaipeiMiniMapSvg(ch)
     ]);
 
     // 3. 職能獨家線索 ＋ 絕招
     const clueCard = el('div', {
       id: 'clue-card-panel',
-      class: `panel${this.highlightTarget === 'clue' ? ' is-highlighted' : ''}`,
-      style: `border-color:${role.color};display:flex;flex-direction:column;gap:8px;`
+      class: `panel tw-iron-grille${this.highlightTarget === 'clue' ? ' is-highlighted' : ''}`,
+      style: `border-color:${role.color};display:flex;flex-direction:column;gap:6px;`
     }, [
-      el('div', { style: `font-size:13px;font-weight:800;color:${role.color};`, text: `🕵️ ${role.name}・桌上獨家線索` }),
-      el('div', { style: 'font-size:14px;color:#f5efff;', text: clue }),
+      el('div', { style: `font-size:12.5px;font-weight:800;color:${role.color};`, text: `🕵️ ${role.name}・桌上獨家線索` }),
+      el('div', { style: 'font-size:13.5px;color:#f5efff;', text: clue }),
       el('button', {
         class: 'btn-cyan',
-        style: 'min-height:40px;padding:8px 14px;font-size:14px;',
+        style: 'min-height:36px;padding:6px 12px;font-size:13px;',
         disabled: this.state.roleSpecialUsedThisChapter,
         text: this.state.roleSpecialUsedThisChapter ? `✓ 本章已用 ${role.specialName}` : `⚡ 發動絕招：${role.specialName}`,
         onClick: () => {
@@ -784,12 +860,12 @@ class GtaDentsuApp {
       }),
       el('button', {
         class: `phone-tab${this.phoneTab === 'people' ? ' is-active' : ''}`,
-        text: '🧠 讀心術',
+        text: '🧠 讀心',
         onClick: () => { this.phoneTab = 'people'; this.render(); }
       }),
       el('button', {
         class: `phone-tab${this.phoneTab === 'grandma' ? ' is-active' : ''}`,
-        text: '👵 阿嬤翻譯',
+        text: '👵 阿嬤',
         onClick: () => {
           this.phoneTab = 'grandma';
           if (!this.state.grandmaUnlocked) {
@@ -798,6 +874,11 @@ class GtaDentsuApp {
             this.render();
           }
         }
+      }),
+      el('button', {
+        class: `phone-tab${this.phoneTab === 'gta6' ? ' is-active' : ''}`,
+        text: '🎬 GTA6',
+        onClick: () => { soundFX.playClick(); this.phoneTab = 'gta6'; this.render(); }
       })
     ]);
 
@@ -809,13 +890,13 @@ class GtaDentsuApp {
           ? 'msg-bubble is-grandma'
           : (m.badge === 'BOSS' || m.badge === 'CFO' ? 'msg-bubble is-boss' : 'msg-bubble');
         return el('div', { class: cls }, [
-          el('div', { style: 'font-size:12px;font-weight:800;color:var(--gold);margin-bottom:2px;', text: `${m.from} · ${m.time} [${m.badge}]` }),
+          el('div', { style: 'font-size:11.5px;font-weight:800;color:var(--gold);margin-bottom:2px;', text: `${m.from} · ${m.time} [${m.badge}]` }),
           el('div', { text: m.text })
         ]);
       }));
     } else if (this.phoneTab === 'people') {
-      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:8px;' }, [
-        el('div', { style: 'font-size:13px;color:var(--muted);', text: '電通 2026《People Model》數位分身，點擊即可即時追問：' }),
+      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' }, [
+        el('div', { style: 'font-size:12px;color:var(--muted);', text: '電通 2026《People Model》數位分身，點擊即可即時追問：' }),
         ...['lisa', 'cindy'].map((tid) => {
           const twin = PEOPLE_MODEL_TWINS[tid];
           const asked = this.state.askedTwins.includes(tid);
@@ -828,21 +909,29 @@ class GtaDentsuApp {
           }, [
             el('img', { class: 'twin-avatar', src: twin.image, alt: twin.name, onerror: (e) => { e.target.style.display = 'none'; } }),
             el('div', {}, [
-              el('div', { style: 'font-size:14px;font-weight:800;color:var(--cyan);', text: twin.name }),
+              el('div', { style: 'font-size:13px;font-weight:800;color:var(--cyan);', text: twin.name }),
               el('div', {
-                style: 'font-size:13px;color:#efeafd;',
-                text: asked ? `「${ch.peopleModel[tid]}」` : `點擊詢問（+${tid === 'lisa' || tid === 'cindy' ? '250 分 / 衡斷力+2' : ''}）`
+                style: 'font-size:12px;color:#efeafd;',
+                text: asked ? `「${ch.peopleModel[tid]}」` : '點擊詢問（+250 分 / 衡斷力+2）'
               })
             ])
           ]);
         })
       ]);
+    } else if (this.phoneTab === 'gta6') {
+      const g6 = ch.gta6Analysis || {};
+      bodyNode = el('div', { class: 'chat-scroll gta6-analysis-card' }, [
+        el('div', { style: 'font-size:11.5px;font-weight:800;color:var(--cyan);', text: `🎬 ${g6.trailerScene || GTA6_TAIWAN_ANALYSIS.title}` }),
+        el('div', { style: 'font-size:12px;color:#efeafd;', text: `🎭 Lucia × Jason 角色映射：${g6.characterArc || GTA6_TAIWAN_ANALYSIS.coreParallel}` }),
+        el('div', { style: 'font-size:12px;color:var(--gold);', text: `🇹🇼 台灣設計元素：${g6.taiwanCraft || GTA6_TAIWAN_ANALYSIS.taiwanMotifs[0]}` })
+      ]);
     } else {
-      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:10px;' }, [
-        el('div', { class: 'rescue-toast', text: ch.grandmaQuip }),
-        el('div', { style: 'font-size:13px;color:var(--gold);', text: `☎️ ${ch.grandmaPhoneCall.title}：「${ch.grandmaPhoneCall.text}」` }),
+      bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:8px;' }, [
+        el('div', { class: 'rescue-toast', style: 'font-size:13px;padding:8px 10px;', text: ch.grandmaQuip }),
+        el('div', { style: 'font-size:12px;color:var(--gold);', text: `☎️ ${ch.grandmaPhoneCall.title}：「${ch.grandmaPhoneCall.text}」` }),
         el('button', {
           class: 'btn-gold',
+          style: 'min-height:36px;font-size:13px;padding:6px 10px;',
           text: '🍲 呼叫阿嬤大同電鍋（清通緝星＋補滿體力）',
           onClick: () => this._triggerCheatCode(true)
         })
@@ -851,11 +940,11 @@ class GtaDentsuApp {
 
     return el('section', {
       id: 'phone-card-panel',
-      class: `phone-frame${this.highlightTarget === 'phone' ? ' is-highlighted' : ''}`
+      class: `phone-frame tw-glass-accent${this.highlightTarget === 'phone' ? ' is-highlighted' : ''}`
     }, [
       el('div', { style: 'display:flex;justify-content:space-between;align-items:center;' }, [
-        el('span', { style: 'font-size:13px;font-weight:800;color:var(--pink);', text: '📱 iFruit Taiwan · LINE 99+' }),
-        el('span', { style: 'font-size:12px;color:var(--muted);', text: '5G 富邦 A25 基地台' })
+        el('span', { style: 'font-size:12.5px;font-weight:800;color:var(--pink);', text: '📱 iFruit Taiwan · LINE 99+' }),
+        el('span', { style: 'font-size:11px;color:var(--muted);', text: '5G 富邦 A25 基地台' })
       ]),
       tabs,
       bodyNode
@@ -951,6 +1040,13 @@ class GtaDentsuApp {
         el('div', { style: 'font-size:clamp(17px,1.8vw,21px);font-weight:900;color:#ffffff;', text: `「${ch.takeaway}」` }),
         el('div', { style: 'font-size:13px;color:var(--muted);margin-top:4px;', text: `出處：${ch.book} ${ch.source}` })
       ]),
+      ch.gta6Analysis
+        ? el('div', { class: 'panel tw-glass-accent', style: 'border-color:rgba(255,79,163,0.45);display:flex;flex-direction:column;gap:4px;' }, [
+            el('div', { style: 'font-size:12px;font-weight:800;color:var(--pink);', text: `🎬 GTA 6 × 台灣設計美學｜${ch.gta6Analysis.trailerScene}` }),
+            el('div', { style: 'font-size:13px;color:#efeafd;', text: `🎭 ${ch.gta6Analysis.characterArc}` }),
+            el('div', { style: 'font-size:12.5px;color:var(--gold);', text: `🇹🇼 在地元素：${ch.gta6Analysis.taiwanCraft}` })
+          ])
+        : null,
       el('div', { class: 'rescue-toast', text: `👵 ${ch.grandmaQuip}` }),
       el('div', { style: 'display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;' }, [
         el('button', {

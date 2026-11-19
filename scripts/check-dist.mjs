@@ -17,7 +17,13 @@ const REQUIRED_IMAGES = [
   'scene-bento-rain.webp',
   'scene-neihu-studio.webp',
   'scene-xinyi-overtime.webp',
-  'scene-rechao-night.webp'
+  'scene-rechao-night.webp',
+  'gmap-morning-scooter.webp',
+  'gmap-boardroom.webp',
+  'gmap-bento-rain.webp',
+  'gmap-neihu-studio.webp',
+  'gmap-xinyi-overtime.webp',
+  'gmap-rechao-night.webp'
 ];
 
 const REQUIRED_VIDEOS = [
