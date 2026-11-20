@@ -2,6 +2,9 @@
 // 零 DOM 相依，可在 Node 測試與瀏覽器前端共用。
 
 import { ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, CHAPTERS, PERSONAS } from './story-data.js';
+import { ROLE_ROUTE_META, getChapterForRole } from './role-stories.js';
+
+export { ROLE_ROUTE_META, getChapterForRole };
 
 export const CHEAT_CODE = GRANDMA_QUIPS.cheatCode || 'AMA666';
 
@@ -48,7 +51,7 @@ export function getRole(roleId) {
 }
 
 export function getCurrentChapter(state) {
-  return CHAPTERS[state.chapterIndex] || CHAPTERS[0];
+  return getChapterForRole(state.chapterIndex, state.roleId);
 }
 
 export function selectRole(state, roleId) {
@@ -56,7 +59,7 @@ export function selectRole(state, roleId) {
     return state;
   }
   const role = getRole(roleId);
-  const firstCh = CHAPTERS[0];
+  const firstCh = getChapterForRole(0, role.id);
   return {
     ...state,
     phase: firstCh.cutscene ? 'cutscene' : 'scene',
@@ -493,7 +496,7 @@ export function advanceChapter(state) {
   if (nextIndex >= CHAPTERS.length) {
     return { ...state, phase: 'review' };
   }
-  const nextCh = CHAPTERS[nextIndex];
+  const nextCh = getChapterForRole(nextIndex, state.roleId);
   return {
     ...state,
     phase: nextCh.cutscene ? 'cutscene' : 'scene',

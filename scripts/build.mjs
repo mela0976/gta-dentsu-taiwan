@@ -48,11 +48,16 @@ copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 // Build standalone single-file HTML bundle (no external CSS/JS module requests, loads ./public assets if beside dist)
 const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8');
 const storyJs = fs.readFileSync(path.join(ROOT, 'src/story-data.js'), 'utf8');
+const roleStoriesJs = fs.readFileSync(path.join(ROOT, 'src/role-stories.js'), 'utf8')
+  .replace(/^import\s*\{[\s\S]*?\}\s*from\s*'\.\/[^']+';\s*$/gm, '')
+  .replace(/export const /g, 'const ')
+  .replace(/export function /g, 'function ');
 const audioJs = fs.readFileSync(path.join(ROOT, 'src/audio-fx.js'), 'utf8')
   .replace(/export const /g, 'const ')
   .replace(/export default soundFX;/g, '');
 const engineJs = fs.readFileSync(path.join(ROOT, 'src/game-engine.js'), 'utf8')
-  .replace(/^import .* from '\.\/story-data\.js';\s*$/gm, '')
+  .replace(/^import\s*\{[\s\S]*?\}\s*from\s*'\.\/[^']+';\s*$/gm, '')
+  .replace(/^export\s*\{[^}]*\};\s*$/gm, '')
   .replace(/export const /g, 'const ')
   .replace(/export function /g, 'function ');
 const scooterJs = fs.readFileSync(path.join(ROOT, 'src/scooter-minigame.js'), 'utf8')
@@ -82,6 +87,7 @@ const standaloneHtml = `<!DOCTYPE html>
 (() => {
 'use strict';
 ${cleanStory}
+${roleStoriesJs}
 ${audioJs}
 ${engineJs}
 ${scooterJs}

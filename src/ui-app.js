@@ -2,6 +2,7 @@
 import { ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, GTA6_TAIWAN_ANALYSIS, CHAPTERS, SCOOTER_CONFIG } from './story-data.js';
 import {
   CHEAT_CODE,
+  ROLE_ROUTE_META,
   createInitialState,
   getRole,
   getCurrentChapter,
@@ -21,6 +22,95 @@ import { RADIO_STATIONS, soundFX } from './audio-fx.js';
 import { SVG_GTA_TAIWAN_CREST, SVG_IRON_GRILLE_CORNER, SVG_TEMPLE_STAMP_PASSED, SVG_IFRUIT_CHASSIS_TOP, SVG_RADAR_COMPASS_RING, SVG_ROAD_SIGN_BADGE, getStatIconSvg, SVG_TESLA_FSD_HUD_OVERLAY, SVG_FUBON_A25_WIKI_BLUEPRINT } from './ui-graphics.js';
 
 const STORAGE_KEY = 'gta_dentsu_taiwan_v1';
+const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
+
+const WELCOME_SLIDES = [
+  {
+    kicker: '迎新簡報 1／3 · 五位角色＝五條不同劇情與考題',
+    title: '歡迎來到松仁路富邦 A25！不同職能有專屬故事與題目',
+    lead: '這不是單一路線的問答。你選哪個電通台灣職能打卡上班，接下來十個時段的危機簡訊、角色視角與實務測驗都會完全不同！',
+    cards: [
+      { title: '💼 業務領航總監', body: '客戶談判 × 年度續約線：攻防採購砍價與合約拆彈題庫。' },
+      { title: '🧠 品牌策略與洞察師', body: '經典《決策智慧》全景主線：專攻消費心理與長期賽局。' },
+      { title: '🎨 創意與內容總監', body: '片場靈魂 × 拒絕罐頭線：守護作品偏心度與視覺主權。' },
+      { title: '📊 媒體數據獵人 ＆ 👵 滿級阿嬤', body: '媒體線拆穿黑箱報表；輸入 AMA666 解鎖阿嬤菜市場經濟學題庫！' }
+    ]
+  },
+  {
+    kicker: '迎新簡報 2／3 · 認識戰情指標、通緝星與阿嬤電鍋救援',
+    title: '頂部五項數值表與「通緝星」怎麼看？',
+    lead: '每次回覆老闆與處理現場突發，都會影響頂部五條霓虹能力計，以及右上角的 CFO／慣老闆通緝星級：',
+    cards: [
+      { title: '🔥 肝指數 ＆ 🎤 嘴砲力', body: '爆肝加班或體力歸零會觸發急難；只靠話術唬過老闆會升嘴砲卻傷信任。' },
+      { title: '📈 真增量 ＆ 🛡️ 品牌信任', body: '區分「本來就會買」跟「真的帶進來」的新客，並守住客人對品牌的喜愛。' },
+      { title: '⚖️ 人類衡斷力（決勝關鍵）', body: 'AI 可以代工內容與出價，但「該不該做」的最終判斷力決定你的十年考績。' },
+      { title: '⭐ 通緝星與 AMA666 救援', body: '忤逆短視 KPI 會升星；累積滿 5 顆星將召喚阿嬤騎車提大同電鍋來補滿體力！' }
+    ]
+  },
+  {
+    kicker: '迎新簡報 3／3 · 每站 4 步破關流程與快捷鍵教學',
+    title: '上場後怎麼一步步操作？記住「看 ➔ 問 ➔ 回 ➔ 測」',
+    lead: '點擊下方啟動導覽後，系統會直接帶你逛一遍真正的遊戲介面與按鈕位置！',
+    cards: [
+      { title: '① 先看現場、雷達與專屬線索', body: '畫面左欄有 3D 實景與 360° 街景切換、台北站點雷達，以及你這角色的獨家線索與每站一次 ⚡ 絕招。' },
+      { title: '② 滑開 iFruit 手機偷問同事', body: '右下手機點「🧠 讀心」偷聽 Lisa 與 Cindy 吐槽、「👵 阿嬤」聽 VoAI 春枝台味翻譯並多賺積分！' },
+      { title: '③ 臨場回覆 ＆ 專屬實務小互動', body: '在右側選 4 個回覆之一（或按鍵盤 1–4），接著完成滑桿、左右滑卡、複選或緊急煞車題。' },
+      { title: '⌨️ 超方便鍵盤快捷鍵', body: '選回覆按 1–4、左右滑卡片按 ⬅ / ➡、切車道按 A / D、過場或結果頁按 Space / Enter、隨時按 Esc 關彈窗。' }
+    ]
+  }
+];
+
+const HUD_TOUR_STEPS = [
+  {
+    phase: 'role',
+    selector: '.role-grid',
+    place: 'top',
+    title: '步驟 1／7｜挑選你的電通職能（5 位角色＝5 套劇情與題目）',
+    body: '點擊任一張識別證即可進入松仁路富邦 A25：業務、策略、創意、媒體與隱藏阿嬤各自擁有截然不同的現場劇情、LINE 對話難題與專屬實務題庫；解鎖「AMA666」就能試玩阿嬤菜市場霸主線！'
+  },
+  {
+    phase: 'scene',
+    selector: '.hud-bar',
+    place: 'bottom',
+    title: '步驟 2／7｜頂部戰情儀表板：五維數值、通緝星與電台語音',
+    body: '上方隨時顯示你的總積分、五大能力指數與慣老闆通緝星級；右側按鈕可切換 3 台 GTA 車載電台、開關全角色 VoAI 台灣語音播報、一鍵開「🛵 電動車×FSD」加分或切換靜音。'
+  },
+  {
+    phase: 'scene',
+    selector: '.scene-card',
+    place: 'right',
+    title: '步驟 3／7｜現場實景：切換 3D 劇照 / 360° 街景 / A25 實拍',
+    body: '左上畫面可自由切換「3D 劇照 / 360° 街景 / A25 實拍 / Google 街景」與「Tesla FSD 輔助駕駛視角」，也可隨時點「🎬 重播動畫」重看含人物配音與環境音效的過場影片。'
+  },
+  {
+    phase: 'scene',
+    selector: '#clue-card-panel',
+    place: 'right',
+    title: '步驟 4／7｜角色專屬桌上線索 ＆ 每站一次「⚡ 發動絕招」',
+    body: '左下角會列出只有你所選職能看得到的內幕情報，幫助你看穿報表陷阱；每進到新時段，還可以免費點一次綠色絕招按鈕補強屬性或消星。'
+  },
+  {
+    phase: 'scene',
+    selector: '#phone-card-panel',
+    place: 'left',
+    title: '步驟 5／7｜iFruit 戰情手機（LINE / 🧠 讀心 / 👵 阿嬤 / GTA6）',
+    body: '右下手機超關鍵：點「🧠 讀心」追問 Lisa 與 Cindy 真心話能加分兼拿線索；點「👵 阿嬤」可聽 VoAI 春枝台味翻譯及呼叫大同電鍋清通緝星。'
+  },
+  {
+    phase: 'scene',
+    selector: '.main-stage',
+    place: 'left',
+    title: '步驟 6／7｜看懂專屬劇情並回覆 LINE（點擊或按 1–4）',
+    body: '右上主視窗會跳出目前角色專屬的現場劇情與 LINE 危機訊息（可點 🔊 重聽語音），挑出下方 4 個臨場回覆之一就能進入你這角色的專屬實務考題！'
+  },
+  {
+    phase: 'scene',
+    selector: '.bottom-guide-bar',
+    place: 'top',
+    title: '步驟 7／7｜底部即時操作列，隨時給你下一步提示',
+    body: '畫面最下方會依照當前關卡階段自動更新操作建議與捷徑；未來任何時候想重溫介紹，都可以點這裡的「🧭 介面導覽」再次喚出導覽。'
+  }
+];
 
 // 五項指標：state.stats 欄位 → 標籤 / Codex 圖示 / 霓虹色
 const HUD_STATS = [
@@ -95,12 +185,21 @@ class GtaDentsuApp {
     this._mapsJsPromise = null;
     this._lastSpokenChapterPhase = '';
     this._prevStation = null;
+    this.welcomeDialogOpen = false;
+    this.welcomeSlide = 0;
+    this.tourActive = false;
+    this.tourStepIndex = 0;
+    this.tourDone = this._loadTourDone();
+    this.tourUserInitiated = false;
+    this._tourHighlightEl = null;
+    this._tourInvokerEl = null;
 
     // 全螢幕動態場景氛圍背景（放在 #app 之外，render 時只換圖）
     this.backdrop = el('div', { class: 'ambient-backdrop', 'aria-hidden': 'true' });
     this.veil = el('div', { class: 'ambient-veil', 'aria-hidden': 'true' });
     document.body.prepend(this.veil);
     document.body.prepend(this.backdrop);
+    this._mountTourOverlays();
 
     soundFX.onVoiceChange = () => this._syncVoiceIndicator();
     const startAudio = () => {
@@ -261,6 +360,350 @@ class GtaDentsuApp {
     }
   }
 
+  _loadTourDone() {
+    try {
+      return localStorage.getItem(TOUR_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  _saveTourDone(done = true) {
+    this.tourDone = Boolean(done);
+    try {
+      localStorage.setItem(TOUR_STORAGE_KEY, done ? '1' : '0');
+    } catch {}
+  }
+
+  _mountTourOverlays() {
+    if (typeof document === 'undefined') return;
+    if (!this.welcomeDialog) {
+      const dlg = document.createElement('dialog');
+      dlg.className = 'tour-modal';
+      dlg.setAttribute('aria-labelledby', 'welcome-tour-title');
+      dlg.setAttribute('closedby', 'any');
+
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        const outside = (e) => {
+          const r = dlg.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        let pressedOutside = false;
+        dlg.addEventListener('pointerdown', (e) => { pressedOutside = outside(e); });
+        dlg.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e)) dlg.close(); });
+      }
+      dlg.addEventListener('close', () => {
+        dlg.returnValue = '';
+        this.welcomeDialogOpen = false;
+      });
+      document.body.appendChild(dlg);
+      this.welcomeDialog = dlg;
+    }
+
+    if (!this.hudTourPopover) {
+      const pop = document.createElement('dialog');
+      pop.id = 'hud-tour-popover';
+      pop.className = 'hud-tour-popover';
+      pop.setAttribute('popover', 'manual');
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-labelledby', 'hud-tour-title');
+      pop.addEventListener('toggle', (e) => {
+        if (e.newState === 'closed' && this.tourActive && this._tourUserClosing) {
+          this._tourUserClosing = false;
+          this._finishHudTour(true);
+        }
+      });
+      document.body.appendChild(pop);
+      this.hudTourPopover = pop;
+    }
+  }
+
+  _openWelcomeTour(slide = 0, invokerEl = null) {
+    this._tourInvokerEl = invokerEl || document.activeElement;
+    this.welcomeSlide = Math.max(0, Math.min(WELCOME_SLIDES.length - 1, slide));
+    this.welcomeDialogOpen = true;
+    this._stopHudTour(false);
+    this._renderWelcomeDialog();
+    if (this.welcomeDialog && !this.welcomeDialog.open) {
+      if (typeof this.welcomeDialog.showModal === 'function') {
+        this.welcomeDialog.showModal();
+      } else {
+        this.welcomeDialog.setAttribute('open', '');
+      }
+    }
+  }
+
+  _closeWelcomeTour() {
+    this.welcomeDialogOpen = false;
+    if (this.welcomeDialog?.open) {
+      this.welcomeDialog.close();
+    }
+  }
+
+  _renderWelcomeDialog() {
+    const dlg = this.welcomeDialog;
+    if (!dlg) return;
+    dlg.innerHTML = '';
+    const slide = WELCOME_SLIDES[this.welcomeSlide] || WELCOME_SLIDES[0];
+    const isLast = this.welcomeSlide === WELCOME_SLIDES.length - 1;
+
+    const primaryBtn = el('button', {
+      type: 'button',
+      class: 'btn-primary',
+      autofocus: 'true',
+      text: isLast ? '🚀 前往選角並啟動現場介面導覽 ➔' : `下一步（${this.welcomeSlide + 2}／${WELCOME_SLIDES.length}）➔`,
+      onClick: () => {
+        soundFX.playClick();
+        if (!isLast) {
+          this.welcomeSlide += 1;
+          this._renderWelcomeDialog();
+          dlg.querySelector('.btn-primary')?.focus();
+        } else {
+          this._closeWelcomeTour();
+          soundFX.startBGM();
+          this.tourUserInitiated = true;
+          this.tourActive = true;
+          this.tourStepIndex = 0;
+          this._setState({ ...this.state, phase: 'role' });
+        }
+      }
+    });
+
+    const body = el('div', { class: 'tour-modal-inner' }, [
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;' }, [
+        el('div', { class: 'gta-kicker', text: slide.kicker }),
+        el('div', { style: 'display:flex;align-items:center;gap:10px;' }, [
+          el('div', { class: 'tour-dots', 'aria-hidden': 'true' }, WELCOME_SLIDES.map((_, idx) =>
+            el('span', { class: `tour-dot${idx === this.welcomeSlide ? ' is-active' : ''}` })
+          )),
+          el('form', { method: 'dialog', style: 'margin:0;' }, [
+            el('button', {
+              type: 'submit',
+              class: 'btn-ghost',
+              style: 'min-height:36px;padding:4px 10px;font-size:13px;',
+              text: '✕ 關閉 (Esc)',
+              onClick: () => soundFX.playClick()
+            })
+          ])
+        ])
+      ]),
+      el('h2', { id: 'welcome-tour-title', style: 'margin:0;font-size:clamp(19px,2vw,24px);color:var(--gold);', text: slide.title }),
+      el('p', { style: 'margin:0;font-size:14.5px;color:#efeafd;line-height:1.45;', text: slide.lead }),
+      el('div', { class: 'tour-card-grid' }, slide.cards.map((c) =>
+        el('div', { class: 'tour-mini-card' }, [
+          el('b', { text: c.title }),
+          el('span', { text: c.body })
+        ])
+      )),
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-top:4px;' }, [
+        el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;' }, [
+          this.welcomeSlide > 0
+            ? el('button', {
+                type: 'button',
+                class: 'btn-ghost',
+                style: 'min-height:40px;padding:6px 12px;font-size:13.5px;',
+                text: '← 上一步',
+                onClick: () => {
+                  soundFX.playClick();
+                  this.welcomeSlide -= 1;
+                  this._renderWelcomeDialog();
+                }
+              })
+            : null,
+          el('button', {
+            type: 'button',
+            class: 'btn-ghost',
+            style: 'min-height:40px;padding:6px 12px;font-size:13.5px;',
+            text: '跳過教學直接開始',
+            onClick: () => {
+              soundFX.playClick();
+              this._saveTourDone(true);
+              this._closeWelcomeTour();
+            }
+          })
+        ]),
+        primaryBtn
+      ])
+    ]);
+
+    dlg.appendChild(body);
+  }
+
+  _startHudTour(fromPhase = null, invokerEl = null) {
+    this._tourInvokerEl = invokerEl || document.activeElement;
+    this.tourUserInitiated = true;
+    this.tourActive = true;
+    const phase = fromPhase || this.state.phase;
+    if (phase === 'role') {
+      this.tourStepIndex = 0;
+      this._syncHudTourOverlay();
+    } else if (phase === 'scene') {
+      this.tourStepIndex = 1;
+      this._syncHudTourOverlay();
+    } else if (phase === 'title') {
+      this._openWelcomeTour(0, invokerEl);
+    } else {
+      this.tourStepIndex = 1;
+      this._setState({ ...this.state, phase: 'scene' });
+    }
+  }
+
+  _advanceHudTour(delta = 1) {
+    const nextIdx = this.tourStepIndex + delta;
+    if (nextIdx >= HUD_TOUR_STEPS.length) {
+      this._finishHudTour(true);
+      return;
+    }
+    if (nextIdx === 0 && this.state.phase === 'scene') {
+      this.tourStepIndex = 0;
+      this.tourUserInitiated = true;
+      this._setState({ ...this.state, phase: 'role' });
+      return;
+    }
+    if (this.tourStepIndex === 0 && nextIdx === 1 && this.state.phase === 'role') {
+      // 用策略洞察師示範進場並直接進入 Ch1 現場展示第 2/7 步
+      this.tourStepIndex = 1;
+      this.tourUserInitiated = true;
+      soundFX.playMissionPassed();
+      const next = selectRole(this.state, this.state.roleId || 'planner');
+      this._setState({ ...next, phase: 'scene' });
+      return;
+    }
+    this.tourStepIndex = Math.max(0, nextIdx);
+    this.tourUserInitiated = true;
+    this._syncHudTourOverlay();
+  }
+
+  _hideHudPopoverNode() {
+    if (this._tourHighlightEl) {
+      this._tourHighlightEl.classList.remove('tour-spotlight-target');
+      this._tourHighlightEl = null;
+    }
+    const pop = this.hudTourPopover;
+    if (!pop) return;
+    if (pop.matches(':popover-open') || pop.matches('.\\:popover-open')) {
+      try {
+        pop.hidePopover();
+      } catch {}
+    }
+    pop.removeAttribute('open');
+  }
+
+  _finishHudTour(restoreFocus = true) {
+    this.tourActive = false;
+    this._saveTourDone(true);
+    const prevTarget = this._tourHighlightEl || this._tourInvokerEl;
+    this._hideHudPopoverNode();
+    if (restoreFocus && prevTarget && prevTarget.isConnected) {
+      const focusable = prevTarget.matches('button,a,input,[tabindex]')
+        ? prevTarget
+        : (prevTarget.querySelector('button,a,input,[tabindex]:not([tabindex="-1"])') || this._tourInvokerEl);
+      if (focusable && typeof focusable.focus === 'function') {
+        try { focusable.focus(); } catch {}
+      }
+    }
+  }
+
+  _stopHudTour(markDone = false) {
+    if (markDone) this._saveTourDone(true);
+    this.tourActive = false;
+    this._hideHudPopoverNode();
+  }
+
+  _syncHudTourOverlay() {
+    const pop = this.hudTourPopover;
+    if (!pop) return;
+    if (!this.tourActive || this.welcomeDialogOpen || this.streetViewModalOpen || this.scooterModalOpen || this.ch6CallModalOpen) {
+      this._hideHudPopoverNode();
+      return;
+    }
+
+    const step = HUD_TOUR_STEPS[this.tourStepIndex];
+    if (!step || this.state.phase !== step.phase) {
+      this._hideHudPopoverNode();
+      return;
+    }
+
+    const target = document.querySelector(step.selector);
+    if (!target) {
+      this._hideHudPopoverNode();
+      return;
+    }
+
+    if (this._tourHighlightEl && this._tourHighlightEl !== target) {
+      this._tourHighlightEl.classList.remove('tour-spotlight-target');
+    }
+    target.classList.add('tour-spotlight-target');
+    this._tourHighlightEl = target;
+
+    pop.dataset.place = step.place || 'bottom';
+    pop.innerHTML = '';
+    const isLast = this.tourStepIndex === HUD_TOUR_STEPS.length - 1;
+    const hideBtn = el('button', {
+      type: 'button',
+      class: 'btn-ghost',
+      style: 'min-height:32px;padding:3px 9px;font-size:12px;',
+      popovertarget: 'hud-tour-popover',
+      popovertargetaction: 'hide',
+      text: '跳過導覽',
+      onClick: () => {
+        soundFX.playClick();
+        this._tourUserClosing = true;
+        this._finishHudTour(true);
+      }
+    });
+    const nextBtn = el('button', {
+      type: 'button',
+      class: 'btn-primary',
+      style: 'min-height:36px;padding:6px 12px;font-size:13px;',
+      text: isLast ? '✅ 我學會了，開始決策！' : (this.tourStepIndex === 0 ? '先看現場操作導覽 ➔' : '下一步 ➔'),
+      onClick: () => {
+        soundFX.playClick();
+        if (isLast) {
+          this._finishHudTour(true);
+        } else {
+          this._advanceHudTour(1);
+        }
+      }
+    });
+
+    pop.appendChild(el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;' }, [
+      el('span', { class: 'gta-kicker', text: `介面導覽 ${this.tourStepIndex + 1}／${HUD_TOUR_STEPS.length}` }),
+      hideBtn
+    ]));
+    pop.appendChild(el('h3', { id: 'hud-tour-title', text: step.title }));
+    pop.appendChild(el('p', { text: step.body }));
+    pop.appendChild(el('div', { class: 'hud-tour-actions' }, [
+      this.tourStepIndex > 0
+        ? el('button', {
+            type: 'button',
+            class: 'btn-ghost',
+            style: 'min-height:36px;padding:4px 10px;font-size:12.5px;',
+            text: '← 上一步',
+            onClick: () => {
+              soundFX.playClick();
+              this._advanceHudTour(-1);
+            }
+          })
+        : el('span', { style: 'font-size:12px;color:var(--cyan);', text: '💡 也可以直接點擊左方任一職能卡' }),
+      nextBtn
+    ]));
+
+    try {
+      if (typeof pop.showPopover === 'function') {
+        if (!pop.matches(':popover-open')) pop.showPopover();
+      } else {
+        pop.setAttribute('open', '');
+      }
+    } catch {
+      pop.setAttribute('open', '');
+    }
+
+    if (this.tourUserInitiated) {
+      nextBtn.focus();
+    }
+  }
+
   _setState(next) {
     if (this.state.phase === 'cutscene' && next.phase !== 'cutscene') {
       soundFX.setCutscenePlaying(false);
@@ -306,6 +749,12 @@ class GtaDentsuApp {
   }
 
   _handleGlobalKey(e) {
+    if (this.welcomeDialog?.open) return;
+    if (this.tourActive && e.key === 'Escape') {
+      e.preventDefault();
+      this._finishHudTour(true);
+      return;
+    }
     const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
@@ -455,6 +904,9 @@ class GtaDentsuApp {
   }
 
   _pickReply(idx) {
+    if (this.tourActive) {
+      this._finishHudTour(false);
+    }
     const prevWanted = this.state.wantedStars;
     const prevRescues = this.state.grandmaRescues;
     const next = chooseReply(this.state, idx);
@@ -566,6 +1018,7 @@ class GtaDentsuApp {
     this.root.appendChild(this._renderBottomGuideBar());
     this._onPhaseEnter();
     this._syncVoiceIndicator();
+    this._syncHudTourOverlay();
   }
 
   _startShift() {
@@ -597,11 +1050,25 @@ class GtaDentsuApp {
         text: '08:30 從台北橋殺進信義區松仁路「富邦 A25 電通大樓」，對面就是旋轉地標「陶朱隱園」與 101。九本《決策智慧》濃縮成十個高壓時段，看你怎麼用真實判斷力破局！'
       }),
       el('div', { class: 'hero-badges' }, [
-        el('span', { class: 'pill', text: '🛵 10 個台北代理商一日時段' }),
+        el('span', { class: 'pill', text: '🎭 5 位角色＝5 套劇情＆題庫' }),
         el('span', { class: 'pill', text: '🧠 People Model（Lisa & Cindy）' }),
         el('span', { class: 'pill', text: '📻 3 台 GTA 車載電台' }),
         el('span', { class: 'pill', text: '🎙️ 台灣語音播報' }),
         el('span', { class: 'pill pill-gold', text: this.state.grandmaUnlocked ? '👵 隱藏阿嬤已解鎖 ✓' : '👵 隱藏阿嬤模組' })
+      ]),
+      el('div', { class: 'quickstart-strip', role: 'list', 'aria-label': '快速上手三步驟' }, [
+        el('div', { class: 'quickstart-step', role: 'listitem' }, [
+          el('b', { text: '① 選職能＝選專屬劇情線' }),
+          el('span', { text: '業務・策略・創意・數據・阿嬤題庫全不同' })
+        ]),
+        el('div', { class: 'quickstart-step', role: 'listitem' }, [
+          el('b', { text: '② 看線索＋滑開手機問同事' }),
+          el('span', { text: '偷問 Lisa／Cindy／春枝阿嬤再發動絕招' })
+        ]),
+        el('div', { class: 'quickstart-step', role: 'listitem' }, [
+          el('b', { text: '③ 回覆 LINE＋實務小互動' }),
+          el('span', { text: '1–4 快捷鍵破局拿十年間《決策智慧》稱號' })
+        ])
       ]),
       this.state.grandmaUnlocked
         ? el('div', { class: 'rescue-toast', style: 'font-size:13.5px;padding:6px 10px;', text: '🍲 秘技 AMA666 已啟動！隱藏第 5 角色「滿級皇太后・台灣阿嬤」解鎖完成，請點下方打卡上班！' })
@@ -615,6 +1082,14 @@ class GtaDentsuApp {
           class: 'btn-primary',
           text: '打卡上班：選你的電通職能 ➔',
           onClick: () => this._startShift()
+        }),
+        el('button', {
+          class: 'btn-cyan',
+          text: '🧭 一步步新手教學 & 介面導覽',
+          onClick: (e) => {
+            soundFX.playClick();
+            this._openWelcomeTour(0, e.currentTarget);
+          }
         }),
         el('button', {
           class: 'btn-gold',
@@ -683,6 +1158,15 @@ class GtaDentsuApp {
       ]),
       el('div', { class: 'cheat-bar' }, [
         el('button', {
+          class: 'btn-cyan',
+          style: 'min-height:40px;padding:6px 12px;font-size:13.5px;',
+          text: '🧭 7 步介面導覽',
+          onClick: (e) => {
+            soundFX.playClick();
+            this._startHudTour('role', e.currentTarget);
+          }
+        }),
+        el('button', {
           class: 'btn-gold',
           text: this.state.grandmaUnlocked ? '👵 阿嬤模組已解鎖！' : '🧿 撫摸阿嬤平安符 (AMA666)',
           onClick: () => this._triggerCheatCode(true)
@@ -698,12 +1182,16 @@ class GtaDentsuApp {
     const grid = el('div', { class: 'role-grid' }, ROLES.map((role, idx) => {
       const locked = role.id === 'grandma' && !this.state.grandmaUnlocked;
       const cls = `role-card${role.id === 'grandma' ? ' is-grandma' : ''}${locked ? ' is-locked' : ''}`;
+      const route = ROLE_ROUTE_META[role.id] || {};
       return el('button', {
         class: cls,
         disabled: locked,
         onClick: () => {
           soundFX.playMissionPassed();
           this.phoneTab = 'line';
+          if (this.tourActive && this.tourStepIndex === 0) {
+            this.tourStepIndex = 1;
+          }
           const nextState = selectRole(this.state, role.id);
           this._setState(nextState);
           if (role.id === 'grandma' && nextState.phase !== 'cutscene') {
@@ -731,6 +1219,8 @@ class GtaDentsuApp {
         el('div', { class: 'role-info' }, [
           el('h3', { style: `color:${role.color};`, text: role.name }),
           el('p', { class: 'role-dept', text: `${role.dept} · ${role.title}` }),
+          route.routeBadge ? el('span', { class: 'role-route-pill', text: route.routeBadge }) : null,
+          route.routeSummary ? el('p', { class: 'role-route-summary', text: route.routeSummary }) : null,
           el('p', { class: 'role-quote', text: `「${role.quote}」` }),
           el('div', { style: 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;' }, [
             el('span', { class: 'role-special', text: `⚡ ${role.specialName}` }),
@@ -872,11 +1362,14 @@ class GtaDentsuApp {
 
   _renderCutsceneStage() {
     const ch = getCurrentChapter(this.state);
+    const role = getRole(this.state.roleId);
     const src = this.activeCutsceneSrc || ch.cutscene;
     const isGrandmaVideo = String(src).includes('grandma');
+    const subSender = ch.baseLineSender || ch.lineSender;
+    const subMessage = ch.baseLineMessage || ch.lineMessage;
     const subtitleText = isGrandmaVideo
       ? '阿嬤：「你們先不要亂砍預算，阿嬤帶大同電鍋趕過去了！」'
-      : `${ch.lineSender.name}：「${ch.lineMessage}」`;
+      : `${subSender.name}：「${subMessage}」`;
 
     const videoEl = el('video', {
       class: 'cutscene-video',
@@ -959,7 +1452,7 @@ class GtaDentsuApp {
     return el('section', { class: 'panel cutscene-stage', style: 'display:flex;flex-direction:column;gap:14px;border-color:var(--gold);' }, [
       el('div', { class: 'chapter-header' }, [
         el('div', {}, [
-          el('div', { class: 'gta-kicker', text: isGrandmaVideo ? 'HIGGSFIELD CUTSCENE · 阿嬤緊急支援' : `HIGGSFIELD CUTSCENE · ${ch.timeSlot}` }),
+          el('div', { class: 'gta-kicker', text: isGrandmaVideo ? `HIGGSFIELD CUTSCENE · 阿嬤緊急支援（${role.name}）` : `HIGGSFIELD CUTSCENE · ${ch.timeSlot} · ${ch.roleRoute?.routeName || role.name}` }),
           el('h2', { style: 'margin:4px 0 0 0;', text: `${ch.title} — ${ch.location}` })
         ]),
         el('div', { style: 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;' }, [
@@ -1480,7 +1973,7 @@ class GtaDentsuApp {
         el('div', { class: 'gta-kicker', text: `${ch.timeSlot} · ${ch.book} · 《${ch.title}》` }),
         el('h2', { text: ch.location })
       ]),
-      el('div', { class: 'pill', text: `第 ${ch.id}／10 站` })
+      el('div', { class: 'pill', text: `${ch.roleRoute?.routeBadge ? `${ch.roleRoute.routeBadge} · ` : ''}第 ${ch.id}／10 站` })
     ]);
 
     const stepFlow = this._renderStepFlow(phase);
@@ -1513,7 +2006,7 @@ class GtaDentsuApp {
           el('button', {
             class: 'replay-btn',
             'data-voice': 'boss',
-            text: '🔊 聽老闆語音',
+            text: `🔊 聽${ch.lineSender.name}語音`,
             onClick: () => soundFX.speak(ch.lineMessage, 'boss', true)
           })
         ]),
@@ -2133,13 +2626,23 @@ class GtaDentsuApp {
         }),
         el('button', {
           class: 'guide-btn',
+          text: '🧭 新手導覽',
+          onClick: (e) => this._openWelcomeTour(0, e.currentTarget)
+        }),
+        el('button', {
+          class: 'guide-btn',
           text: '👵 一鍵解鎖 AMA666',
           onClick: () => this._triggerCheatCode(true)
         })
       );
     } else if (this.state.phase === 'role') {
-      text = '🪪 操作指示：直接點擊 5 張電通識別證卡片之一就能進富邦 A25 上班；第 5 張阿嬤卡可按右上或下方「一鍵解鎖 AMA666」開啟！';
+      text = '🪪 操作指示：直接點擊 5 張電通識別證之一即可體驗該角色專屬劇情與題目；點右側「🧭 介面導覽」看 7 步介紹！';
       actions.push(
+        el('button', {
+          class: 'guide-btn',
+          text: '🧭 介面導覽',
+          onClick: (e) => this._startHudTour('role', e.currentTarget)
+        }),
         el('button', {
           class: 'guide-btn',
           text: this.state.grandmaUnlocked ? '✓ 阿嬤已解鎖' : '👵 一鍵解鎖 AMA666',
@@ -2162,8 +2665,13 @@ class GtaDentsuApp {
       );
     } else if (this.state.phase === 'scene') {
       const role = getRole(this.state.roleId);
-      text = '📩 操作指示：先看左側「桌上線索」與手機 Lisa/Cindy 讀心術，再點擊右側 4 個臨場回覆之一（或按鍵盤 1–4）回老闆 LINE！';
+      text = '📩 操作指示：先看左側「桌上線索」與手機 Lisa/Cindy 讀心術，再點擊右側 4 個臨場回覆之一（或按鍵盤 1–4）回 LINE！';
       actions.push(
+        el('button', {
+          class: 'guide-btn',
+          text: '🧭 介面導覽',
+          onClick: (e) => this._startHudTour('scene', e.currentTarget)
+        }),
         el('button', { class: 'guide-btn', text: '💡 問同事讀心術', onClick: () => this._focusHelper('phone', 'people', 'lisa') }),
         el('button', { class: 'guide-btn', text: '👵 阿嬤翻譯', onClick: () => this._focusHelper('phone', 'grandma') }),
         el('button', {

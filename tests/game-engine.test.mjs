@@ -6,6 +6,8 @@ import { CHAPTERS, ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, SCOOTER_CONFIG } fr
 import { soundFX, normalizeGrandmaVoiceKey, BGM_MIX_LEVELS, BGM_FILTER_HZ } from '../src/audio-fx.js';
 import {
   createInitialState,
+  ROLE_ROUTE_META,
+  getChapterForRole,
   selectRole,
   activateGrandmaCheat,
   consultTwin,
@@ -178,5 +180,70 @@ test('Voice mix foregrounds dialogue over BGM and covers 42 character VoAI clips
     const absVid = path.join(process.cwd(), 'public/video', vid);
     const buf = fs.readFileSync(absVid);
     assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Cutscene missing embedded AAC audio track: ${vid}`);
+  }
+});
+
+test('All 5 roles have distinct storylines, LINE dilemmas, replies, mini-games across 10 chapters, and full playthroughs', () => {
+  const roleIds = ROLES.map((r) => r.id);
+  assert.equal(roleIds.length, 5);
+
+  for (let i = 0; i < CHAPTERS.length; i += 1) {
+    const scenes = new Set();
+    const messages = new Set();
+    const prompts = new Set();
+    for (const rid of roleIds) {
+      const ch = getChapterForRole(i, rid);
+      assert.equal(ch.replies.length, 4, `${rid} Ch${i + 1} must have 4 replies`);
+      assert.ok(ROLE_ROUTE_META[rid], `Missing ROLE_ROUTE_META for ${rid}`);
+      scenes.add(ch.sceneDesc);
+      messages.add(ch.lineMessage);
+      if (i < 9) {
+        assert.ok(ch.game?.prompt, `${rid} Ch${i + 1} missing game prompt`);
+        prompts.add(ch.game.prompt);
+      }
+      if (i === 5) {
+        assert.equal(ch.game.type, 'swipe');
+        assert.equal(ch.game.cards.length, 4);
+        assert.ok(ch.game.cards[3].includes(ch.grandmaPhoneCall.triggerCardText));
+      }
+    }
+    assert.equal(scenes.size, 5, `Ch${i + 1} expected 5 unique sceneDesc values`);
+    assert.equal(messages.size, 5, `Ch${i + 1} expected 5 unique lineMessage values`);
+    if (i < 9) {
+      assert.equal(prompts.size, 5, `Ch${i + 1} expected 5 unique game prompts`);
+    }
+  }
+
+  // Run full 10-chapter playthrough for every role
+  for (const rid of roleIds) {
+    let state = createInitialState();
+    state = activateGrandmaCheat(state, false);
+    state = selectRole(state, rid);
+    assert.equal(state.roleId, rid);
+    assert.ok(state.phoneLog[0].text.length > 0);
+
+    for (let i = 0; i < 10; i += 1) {
+      if (state.phase === 'cutscene') state = { ...state, phase: 'scene' };
+      const ch = getChapterForRole(i, rid);
+      assert.equal(state.phoneLog[state.phoneLog.length - 1].text, ch.lineMessage);
+      state = chooseReply(state, 2);
+      if (i < 9) {
+        assert.equal(state.phase, 'game');
+        const g = ch.game;
+        let sub = 1;
+        if (g.type === 'slider') sub = g.answer;
+        else if (g.type === 'swipe') sub = g.answers || ['left', 'left', 'left', 'right'];
+        else if (g.type === 'multi') sub = g.answers;
+        else if (g.type === 'stop') sub = g.goodUntilTick - 1;
+        else if (g.type === 'pick') sub = g.answer;
+        else if (g.type === 'agent') sub = 0;
+        state = submitMiniGame(state, sub);
+      }
+      assert.equal(state.phase, 'reveal');
+      state = advanceChapter(state);
+    }
+    assert.equal(state.phase, 'review', `${rid} did not reach review`);
+    assert.equal(state.history.length, 10);
+    assert.ok(determinePersona(state).id);
   }
 });

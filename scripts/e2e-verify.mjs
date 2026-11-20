@@ -194,6 +194,20 @@ async function run() {
       attachErrorWatchers(page, name);
       await page.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
       await checkImagesLoaded(page, `${name}-title`);
+      const titleBounds = await page.evaluate(() => {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const rect = document.querySelector('.hero-actions')?.getBoundingClientRect();
+        return {
+          sw: document.documentElement.scrollWidth,
+          sh: document.documentElement.scrollHeight,
+          vw,
+          vh,
+          actionsBottom: rect ? Math.round(rect.bottom) : 0,
+          guideTop: Math.round(document.querySelector('.bottom-guide-bar')?.getBoundingClientRect()?.top || vh)
+        };
+      });
+      assert.ok(titleBounds.actionsBottom <= titleBounds.guideTop, `${name}: Title actions overlapped guide bar (${titleBounds.actionsBottom} > ${titleBounds.guideTop})`);
 
       // Test AMA666 cheat code unlock + banner feedback + enter role select
       await page.fill('.cheat-input', 'AMA666');
@@ -392,8 +406,70 @@ async function run() {
     if (ssDir) await solo.screenshot({ path: path.join(ssDir, 'e2e-1920-standalone.png') });
     await solo.close();
 
+    // 5. Interactive Step-by-Step Onboarding (<dialog>) & 7-Step Live HUD Tour (popover="manual")
+    const tourPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    attachErrorWatchers(tourPage, 'onboarding-tour');
+    await tourPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    await tourPage.waitForSelector('.quickstart-strip');
+    await tourPage.click('.hero-actions .btn-cyan'); // Open 3-slide Welcome dialog
+    await tourPage.waitForSelector('dialog.tour-modal[open]');
+    await proofreadPage(tourPage, FORBIDDEN_WORDS, 'tour-welcome-1');
+    await tourPage.click('dialog.tour-modal .btn-primary'); // Slide 2
+    await tourPage.waitForSelector('text=迎新簡報 2／3');
+    await tourPage.click('dialog.tour-modal .btn-primary'); // Slide 3
+    await tourPage.waitForSelector('text=迎新簡報 3／3');
+    await tourPage.click('dialog.tour-modal .btn-primary'); // Launch Role Screen Step 1/7
+    await tourPage.waitForSelector('dialog.hud-tour-popover');
+
+    const expectedSelectors = ['.role-grid', '.hud-bar', '.scene-card', '#clue-card-panel', '#phone-card-panel', '.main-stage', '.bottom-guide-bar'];
+    for (let i = 0; i < expectedSelectors.length; i += 1) {
+      const sel = expectedSelectors[i];
+      await tourPage.waitForSelector(`${sel}.tour-spotlight-target`);
+      await proofreadPage(tourPage, FORBIDDEN_WORDS, `tour-step-${i + 1}`);
+      await tourPage.click('dialog.hud-tour-popover .btn-primary');
+    }
+    assert.equal(await tourPage.locator('.tour-spotlight-target').count(), 0, 'Tour spotlight did not clear after finishing Step 7/7');
+    assert.equal(await tourPage.evaluate(() => localStorage.getItem('gta_dentsu_tour_done_v1')), '1', 'Tour completion not saved');
+    await tourPage.close();
+
+    // 6. Verify all 5 roles produce 5 distinct Ch1 storylines, LINE dilemmas, and mini-game prompts in UI
+    const roleDiffPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    attachErrorWatchers(roleDiffPage, 'role-diff');
+    const seenScenes = new Set();
+    const seenMessages = new Set();
+    const seenPrompts = new Set();
+    for (let rIdx = 0; rIdx < 5; rIdx += 1) {
+      await roleDiffPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+      await roleDiffPage.evaluate(() => localStorage.clear());
+      await roleDiffPage.reload({ waitUntil: 'networkidle' });
+      await roleDiffPage.fill('.cheat-input', 'AMA666');
+      await roleDiffPage.click('.plate-box .btn-ghost');
+      await roleDiffPage.click('.hero-actions .btn-primary');
+      await roleDiffPage.waitForSelector('.role-card');
+      await roleDiffPage.locator('.role-card').nth(rIdx).click();
+      await roleDiffPage.waitForSelector('.cutscene-video');
+      await roleDiffPage.click('.chapter-header .btn-primary');
+      await roleDiffPage.waitForSelector('.replies-grid');
+      await proofreadPage(roleDiffPage, FORBIDDEN_WORDS, `role-${rIdx}-ch1-scene`);
+
+      const ch1Scene = await roleDiffPage.locator('.main-stage .chapter-desc').textContent();
+      const ch1Msg = await roleDiffPage.locator('.boss-callout.line-banner div div:nth-child(2)').textContent();
+      seenScenes.add(ch1Scene.trim());
+      seenMessages.add(ch1Msg.trim());
+
+      await roleDiffPage.locator('.reply-btn').first().click();
+      await roleDiffPage.waitForSelector('.paper-grid');
+      const ch1Prompt = await roleDiffPage.locator('.main-stage h3').first().textContent();
+      seenPrompts.add(ch1Prompt.trim());
+      await proofreadPage(roleDiffPage, FORBIDDEN_WORDS, `role-${rIdx}-ch1-game`);
+    }
+    assert.equal(seenScenes.size, 5, `Expected 5 distinct Ch1 scene descriptions across roles, got ${seenScenes.size}`);
+    assert.equal(seenMessages.size, 5, `Expected 5 distinct Ch1 LINE messages across roles, got ${seenMessages.size}`);
+    assert.equal(seenPrompts.size, 5, `Expected 5 distinct Ch1 mini-game prompts across roles, got ${seenPrompts.size}`);
+    await roleDiffPage.close();
+
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
-    console.log('E2E VERIFY PASSED: 1024x720, 1280x800, 1920x1080, 390x844, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
+    console.log('E2E VERIFY PASSED: 1024x720, 1280x800, 1920x1080, 390x844, 3-slide welcome + 7-step HUD tour, 5 distinct role storylines/quizzes, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
   } finally {
     await browser.close();
     server.close();
