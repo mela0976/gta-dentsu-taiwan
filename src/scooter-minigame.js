@@ -96,6 +96,8 @@ export class GrandmaScooterGame {
     this.lastTs = 0;
     this.bannerText = this.labels.initBanner;
     this.bannerTimer = 2.8;
+    this._swipeStartX = null;
+    this._swiped = false;
 
     this._onKeyDown = (e) => {
       if (!this.running) return;
@@ -110,10 +112,39 @@ export class GrandmaScooterGame {
 
     this._onPointerDown = (e) => {
       if (!this.running || !this.canvas) return;
-      const rect = this.canvas.getBoundingClientRect();
-      const relX = (e.clientX - rect.left) / Math.max(1, rect.width);
-      if (relX < 0.42) this.moveLane(-1);
-      else if (relX > 0.58) this.moveLane(1);
+      this._swipeStartX = e.clientX;
+      this._swiped = false;
+    };
+
+    this._onPointerMove = (e) => {
+      if (!this.running || !this.canvas || this._swipeStartX === null) return;
+      const dx = e.clientX - this._swipeStartX;
+      if (Math.abs(dx) >= 28) {
+        this.moveLane(dx < 0 ? -1 : 1);
+        this._swiped = true;
+        this._swipeStartX = e.clientX;
+      }
+    };
+
+    this._onPointerUp = (e) => {
+      if (!this.running || !this.canvas) {
+        this._swipeStartX = null;
+        this._swiped = false;
+        return;
+      }
+      if (!this._swiped && this._swipeStartX !== null) {
+        const rect = this.canvas.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / Math.max(1, rect.width);
+        if (relX < 0.45) this.moveLane(-1);
+        else if (relX > 0.55) this.moveLane(1);
+      }
+      this._swipeStartX = null;
+      this._swiped = false;
+    };
+
+    this._onPointerCancel = () => {
+      this._swipeStartX = null;
+      this._swiped = false;
     };
   }
 
@@ -129,7 +160,12 @@ export class GrandmaScooterGame {
     this.running = true;
     this.lastTs = performance.now();
     window.addEventListener('keydown', this._onKeyDown);
-    if (this.canvas) this.canvas.addEventListener('pointerdown', this._onPointerDown);
+    if (this.canvas) {
+      this.canvas.addEventListener('pointerdown', this._onPointerDown);
+      this.canvas.addEventListener('pointermove', this._onPointerMove);
+      this.canvas.addEventListener('pointerup', this._onPointerUp);
+      this.canvas.addEventListener('pointercancel', this._onPointerCancel);
+    }
     const loop = (ts) => {
       if (!this.running) return;
       const dt = Math.min(0.05, Math.max(0.001, (ts - this.lastTs) / 1000));
@@ -146,7 +182,12 @@ export class GrandmaScooterGame {
   stop(aborted = false) {
     this.running = false;
     window.removeEventListener('keydown', this._onKeyDown);
-    if (this.canvas) this.canvas.removeEventListener('pointerdown', this._onPointerDown);
+    if (this.canvas) {
+      this.canvas.removeEventListener('pointerdown', this._onPointerDown);
+      this.canvas.removeEventListener('pointermove', this._onPointerMove);
+      this.canvas.removeEventListener('pointerup', this._onPointerUp);
+      this.canvas.removeEventListener('pointercancel', this._onPointerCancel);
+    }
     if (this.rafId) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;

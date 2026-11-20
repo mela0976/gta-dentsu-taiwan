@@ -179,7 +179,19 @@ export const UI_STRINGS = {
       soundMuted: '🔇 靜音',
       muteAria: '切換音效',
       restartBtn: '↺ 重開',
-      restartConfirm: '確定要重開？目前進度會清除。'
+      restartConfirm: '確定要重開？目前進度會清除。',
+      mobileToggleOpen: '⚙️ 能力・工具',
+      mobileToggleClose: '✕ 收合',
+      mobileToggleAria: '展開或收合五項數值與工具列'
+    },
+    mobile: {
+      tabAria: '手機畫面分頁切換',
+      tabMission: '🎯 任務',
+      tabScene: '🏙️ 現場',
+      tabPhone: '📱 手機',
+      tabIntel: '🗺️ 情報',
+      scenePeekCta: '看 360° 現場 ➔',
+      swipeTouchHint: '左右滑動卡片或點下方按鈕作答'
     },
     cutscene: {
       kickerGrandma: (roleName) => `HIGGSFIELD CUTSCENE · 阿嬤緊急支援（${roleName}）`,
@@ -599,7 +611,19 @@ export const UI_STRINGS = {
       soundMuted: '🔇 Muted',
       muteAria: 'Toggle sound',
       restartBtn: '↺ Reset',
-      restartConfirm: 'Restart shift and clear current progress?'
+      restartConfirm: 'Restart shift and clear current progress?',
+      mobileToggleOpen: '⚙️ Stats & Tools',
+      mobileToggleClose: '✕ Hide',
+      mobileToggleAria: 'Toggle 5 metrics and toolbar'
+    },
+    mobile: {
+      tabAria: 'Mobile view switcher',
+      tabMission: '🎯 Mission',
+      tabScene: '🏙️ Scene',
+      tabPhone: '📱 Phone',
+      tabIntel: '🗺️ Intel',
+      scenePeekCta: '360° View ➔',
+      swipeTouchHint: 'Swipe card left/right or tap below'
     },
     cutscene: {
       kickerGrandma: (roleName) => `HIGGSFIELD CUTSCENE · GRANDMA RESCUE (${roleName})`,
@@ -1019,7 +1043,19 @@ export const UI_STRINGS = {
       soundMuted: '🔇 消音',
       muteAria: '音声ミュート切替',
       restartBtn: '↺ リセット',
-      restartConfirm: '最初からやり直しますか？現在の進行は消去されます。'
+      restartConfirm: '最初からやり直しますか？現在の進行は消去されます。',
+      mobileToggleOpen: '⚙️ 状態・設定',
+      mobileToggleClose: '✕ 閉じる',
+      mobileToggleAria: '5指標とツールバーを開閉'
+    },
+    mobile: {
+      tabAria: 'モバイル画面タブ切替',
+      tabMission: '🎯 任務',
+      tabScene: '🏙️ 現場',
+      tabPhone: '📱 スマホ',
+      tabIntel: '🗺️ 情報',
+      scenePeekCta: '360° 現場へ ➔',
+      swipeTouchHint: 'カードを左右スワイプまたは下で選択'
     },
     cutscene: {
       kickerGrandma: (roleName) => `HIGGSFIELD CUTSCENE · おばあちゃん緊急出動（${roleName}）`,

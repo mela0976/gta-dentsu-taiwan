@@ -131,6 +131,8 @@ class GtaDentsuApp {
     this.tourUserInitiated = false;
     this._tourHighlightEl = null;
     this._tourInvokerEl = null;
+    this.mobileHudExpanded = false;
+    this.mobilePanel = 'mission'; // 'mission' | 'scene' | 'phone' | 'intel'
 
     // 全螢幕動態場景氛圍背景（放在 #app 之外，render 時只換圖）
     this.backdrop = el('div', { class: 'ambient-backdrop', 'aria-hidden': 'true' });
@@ -632,6 +634,24 @@ class GtaDentsuApp {
       return;
     }
 
+    if (window.innerWidth < 1024) {
+      if (step.selector === '.hud-bar') {
+        this.mobileHudExpanded = true;
+        document.querySelector('.hud-bar')?.classList.add('is-mobile-expanded');
+      } else {
+        const panelForSelector = {
+          '.scene-card': 'scene',
+          '#clue-card-panel': 'intel',
+          '.main-stage': 'mission',
+          '#phone-card-panel': 'phone'
+        }[step.selector];
+        if (panelForSelector) {
+          this.mobilePanel = panelForSelector;
+          document.querySelector('.play-grid')?.setAttribute('data-mobile-panel', panelForSelector);
+        }
+      }
+    }
+
     const target = document.querySelector(step.selector);
     if (!target) {
       this._hideHudPopoverNode();
@@ -643,6 +663,9 @@ class GtaDentsuApp {
     }
     target.classList.add('tour-spotlight-target');
     this._tourHighlightEl = target;
+    if (window.innerWidth < 1024 && typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
     pop.dataset.place = step.place || 'bottom';
     pop.innerHTML = '';
@@ -713,12 +736,20 @@ class GtaDentsuApp {
   }
 
   _setState(next) {
+    const changedView = next.phase !== this.state.phase || next.chapterIndex !== this.state.chapterIndex;
     if (this.state.phase === 'cutscene' && next.phase !== 'cutscene') {
       soundFX.setCutscenePlaying(false);
+    }
+    if (changedView) {
+      this.mobilePanel = 'mission';
+      this.mobileHudExpanded = false;
     }
     this.state = next;
     this._saveState();
     this.render();
+    if (changedView && window.innerWidth < 1024) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }
 
   _leaveCutscene() {
@@ -738,6 +769,8 @@ class GtaDentsuApp {
     this.scooterModalOpen = false;
     this.ch6CallModalOpen = false;
     this.ch6CallDismissed = false;
+    this.mobileHudExpanded = false;
+    this.mobilePanel = 'mission';
     this.sliderVal = null;
     this.swipeIndex = 0;
     this.swipeChoices = [];
@@ -881,6 +914,9 @@ class GtaDentsuApp {
 
   _focusHelper(target, phoneTab = null, twinId = null) {
     this.highlightTarget = target;
+    if (window.innerWidth < 1024) {
+      this.mobilePanel = target === 'clue' ? 'intel' : 'phone';
+    }
     if (phoneTab) this.phoneTab = phoneTab;
     if (twinId && !this.state.askedTwins.includes(twinId)) {
       soundFX.playLinePing();
@@ -1351,7 +1387,7 @@ class GtaDentsuApp {
       ])
     ]);
 
-    return el('header', { class: 'hud-bar' }, [
+    return el('header', { class: `hud-bar${this.mobileHudExpanded ? ' is-mobile-expanded' : ''}` }, [
       el('div', { class: 'hud-identity' }, [
         el('div', { class: 'hud-avatar-frame', 'data-voice': 'any' }, [
           el('img', { src: role.image, alt: role.name, onerror: (e) => { e.target.style.display = 'none'; } })
@@ -1362,6 +1398,24 @@ class GtaDentsuApp {
           el('div', { class: 'hud-name', text: `${role.name}｜${ch.location}` }),
           el('div', { class: 'hud-pips', 'aria-hidden': 'true' }, CHAPTERS.map((c) =>
             el('i', { class: c.id < ch.id ? 'done' : (c.id === ch.id ? 'now' : '') })))
+        ]),
+        el('div', { class: 'hud-mobile-summary' }, [
+          el('div', { class: 'hud-mobile-stats' }, [
+            el('span', { class: 'hud-mobile-score', text: `$${this.state.points.toLocaleString()}` }),
+            el('span', { class: 'hud-mobile-stars', 'aria-label': t('hud.wantedAria', stars), text: starsText })
+          ]),
+          el('button', {
+            type: 'button',
+            class: 'hud-mobile-toggle',
+            'aria-expanded': String(this.mobileHudExpanded),
+            'aria-label': t('hud.mobileToggleAria'),
+            text: this.mobileHudExpanded ? t('hud.mobileToggleClose') : t('hud.mobileToggleOpen'),
+            onClick: () => {
+              soundFX.playClick();
+              this.mobileHudExpanded = !this.mobileHudExpanded;
+              this.render();
+            }
+          })
         ])
       ]),
       el('div', { class: 'hud-meters' }, hudStats.map((m) =>
@@ -1534,7 +1588,7 @@ class GtaDentsuApp {
     if (this._getMapsApiKey() && !this.resolvedPanoInfo[ch.id]) {
       this._lookupLivePano(ch);
     }
-    return el('div', { class: 'play-grid' }, [
+    return el('div', { class: 'play-grid', 'data-mobile-panel': this.mobilePanel }, [
       this._renderLeftColumn(ch),
       this._renderRightColumn(ch)
     ]);
@@ -2127,12 +2181,33 @@ class GtaDentsuApp {
       : null;
 
     if (phase === 'scene') {
+      const mobileScenePeek = el('button', {
+        type: 'button',
+        class: 'mobile-scene-peek',
+        onClick: () => {
+          soundFX.playClick();
+          this.mobilePanel = 'scene';
+          this.mobileHudExpanded = false;
+          this.render();
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      }, [
+        el('img', {
+          src: ch.sceneImage,
+          alt: ch.location,
+          onerror: (e) => { e.target.style.display = 'none'; }
+        }),
+        el('span', { class: 'mobile-scene-peek-meta', text: `📍 ${ch.timeSlot} · ${ch.location}` }),
+        el('span', { class: 'mobile-scene-peek-cta', text: t('mobile.scenePeekCta') })
+      ]);
+
       return el('main', { class: 'panel main-stage is-action-focus' }, [
         actionZoneTag,
         header,
         stepFlow,
         beginnerBanner,
         rescueBanner,
+        mobileScenePeek,
         el('p', { class: 'chapter-desc', text: ch.sceneDesc }),
         el('div', { class: 'boss-callout line-banner' }, [
           el('div', {}, [
@@ -2336,21 +2411,58 @@ class GtaDentsuApp {
 
     if (game.type === 'swipe') {
       const cardText = game.cards[this.swipeIndex] || '';
+      let swipeStartX = null;
+      let swipeMoved = false;
+      const cardEl = el('div', {
+        class: 'swipe-card',
+        style: 'cursor:pointer;',
+        onPointerdown: (e) => {
+          swipeStartX = e.clientX;
+          swipeMoved = false;
+          cardEl.style.transition = 'none';
+        },
+        onPointermove: (e) => {
+          if (swipeStartX === null) return;
+          const dx = e.clientX - swipeStartX;
+          if (Math.abs(dx) > 10) swipeMoved = true;
+          cardEl.style.transform = `translateX(${dx}px) rotate(${(dx * 0.04).toFixed(1)}deg)`;
+        },
+        onPointerup: (e) => {
+          if (swipeStartX === null) return;
+          const dx = e.clientX - swipeStartX;
+          swipeStartX = null;
+          cardEl.style.transition = '';
+          cardEl.style.transform = '';
+          if (Math.abs(dx) >= 48) {
+            swipeMoved = true;
+            this._pickSwipe(dx < 0 ? 'left' : 'right');
+          }
+        },
+        onPointercancel: () => {
+          swipeStartX = null;
+          swipeMoved = false;
+          cardEl.style.transition = '';
+          cardEl.style.transform = '';
+        },
+        onClick: (e) => {
+          if (swipeMoved) {
+            swipeMoved = false;
+            return;
+          }
+          const rect = e.currentTarget.getBoundingClientRect();
+          const isLeft = (e.clientX - rect.left) < rect.width / 2;
+          this._pickSwipe(isLeft ? 'left' : 'right');
+        }
+      }, cardText);
+
       return el('div', { style: 'display:flex;flex-direction:column;gap:10px;' }, [
         el('div', { style: 'display:flex;justify-content:space-between;align-items:center;' }, [
           el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
           el('span', { class: 'pill', text: t('miniGame.swipeCounter', this.swipeIndex + 1, game.cards.length) })
         ]),
         el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: t('miniGame.swipeHint', game.left, game.right) }),
-        el('div', {
-          class: 'swipe-card',
-          style: 'cursor:pointer;',
-          onClick: (e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const isLeft = (e.clientX - rect.left) < rect.width / 2;
-            this._pickSwipe(isLeft ? 'left' : 'right');
-          }
-        }, cardText),
+        cardEl,
+        el('div', { class: 'is-mobile-only', style: 'font-size:12px;color:var(--gold);font-weight:700;text-align:center;', text: t('mobile.swipeTouchHint') }),
         el('div', { class: 'swipe-actions' }, [
           el('button', {
             class: 'btn-cyan',
@@ -2513,6 +2625,22 @@ class GtaDentsuApp {
     const canvas = el('canvas', { class: 'scooter-canvas', width: 640, height: 400 });
     const hudText = el('div', { class: 'pill pill-gold', text: t('scooterModal.ready') });
 
+    let lastSteerPtrTs = 0;
+    const steerBtn = (label, delta) => el('button', {
+      type: 'button',
+      class: 'btn-cyan',
+      text: label,
+      onPointerdown: (e) => {
+        if (e.pointerType === 'mouse') return;
+        lastSteerPtrTs = performance.now();
+        if (this.scooterInstance) this.scooterInstance.moveLane(delta);
+      },
+      onClick: () => {
+        if (performance.now() - lastSteerPtrTs < 350) return;
+        if (this.scooterInstance) this.scooterInstance.moveLane(delta);
+      }
+    });
+
     const modal = el('div', { class: 'modal-backdrop' }, [
       el('div', { class: 'modal-box' }, [
         el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
@@ -2523,18 +2651,11 @@ class GtaDentsuApp {
           hudText
         ]),
         canvas,
-        el('div', { style: 'display:grid;grid-template-columns:1fr 1fr auto;gap:10px;' }, [
+        el('div', { class: 'scooter-controls' }, [
+          steerBtn(t('scooterModal.leftBtn'), -1),
+          steerBtn(t('scooterModal.rightBtn'), 1),
           el('button', {
-            class: 'btn-cyan',
-            text: t('scooterModal.leftBtn'),
-            onClick: () => this.scooterInstance && this.scooterInstance.moveLane(-1)
-          }),
-          el('button', {
-            class: 'btn-cyan',
-            text: t('scooterModal.rightBtn'),
-            onClick: () => this.scooterInstance && this.scooterInstance.moveLane(1)
-          }),
-          el('button', {
+            type: 'button',
             class: 'btn-ghost',
             text: t('scooterModal.closeBtn'),
             onClick: () => this._closeScooterModal(false)
@@ -2866,12 +2987,44 @@ class GtaDentsuApp {
       );
     }
 
-    return el('div', { class: 'bottom-guide-bar', role: 'region', 'aria-label': t('guideBar.aria') }, [
+    const modalOpen = Boolean(this.scooterModalOpen || this.streetViewModalOpen || this.ch6CallModalOpen);
+    const isPlayPhase = !modalOpen && ['scene', 'game', 'reveal'].includes(this.state.phase);
+    const mobileTabBar = isPlayPhase
+      ? el('nav', { class: 'mobile-tab-bar', role: 'tablist', 'aria-label': t('mobile.tabAria') }, [
+          ['mission', t('mobile.tabMission')],
+          ['scene', t('mobile.tabScene')],
+          ['phone', t('mobile.tabPhone')],
+          ['intel', t('mobile.tabIntel')]
+        ].map(([id, label]) => el('button', {
+          type: 'button',
+          role: 'tab',
+          'aria-selected': String(this.mobilePanel === id),
+          class: `mobile-tab-btn${this.mobilePanel === id ? ' is-active' : ''}`,
+          'data-mobile-tab': id,
+          text: label,
+          onClick: () => {
+            soundFX.playClick();
+            this.mobilePanel = id;
+            this.mobileHudExpanded = false;
+            this.render();
+            if (window.innerWidth < 1024) {
+              window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+          }
+        })))
+      : null;
+
+    return el('div', {
+      class: `bottom-guide-bar${modalOpen ? ' is-modal-hidden' : ''}${isPlayPhase ? ' has-mobile-tabs' : ''}`,
+      role: 'region',
+      'aria-label': t('guideBar.aria')
+    }, [
       el('div', { class: 'guide-main' }, [
         el('span', { class: 'guide-badge', text: t('guideBar.badge') }),
         el('span', { class: 'guide-text', text })
       ]),
-      el('div', { class: 'guide-actions' }, actions)
+      el('div', { class: 'guide-actions' }, actions),
+      mobileTabBar
     ]);
   }
 }

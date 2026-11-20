@@ -459,23 +459,134 @@ async function run() {
     await play.waitForSelector('.role-grid');
     await play.close();
 
-    // 3. Mobile 390x844 layout & scroll check
-    const mob = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-    attachErrorWatchers(mob, 'mobile-390');
-    await mob.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
-    await mob.click('.hero-actions .btn-primary');
-    await mob.waitForSelector('.role-card');
-    await mob.click('.role-card');
-    await mob.waitForSelector('.cutscene-video');
-    await mob.click('.chapter-header .btn-primary');
-    await mob.waitForSelector('.play-grid');
-    await mob.waitForSelector('.beginner-coach-banner');
-    await mob.click('.beginner-coach-banner button:has-text("我懂了")');
-    assert.equal(await mob.locator('.beginner-coach-banner').count(), 0, 'Beginner coach dismiss button did not hide banner');
-    await checkImagesLoaded(mob, 'mobile-scene');
-    const mobSw = await mob.evaluate(() => document.documentElement.scrollWidth);
-    assert.ok(mobSw <= 390, `Mobile horizontal overflow: ${mobSw}`);
-    await mob.close();
+    // 3. Mobile responsive checks (320x568, 375x667, 390x844 with touch + trilingual)
+    const mob375 = await browser.newPage({ viewport: { width: 375, height: 667 }, hasTouch: true, isMobile: true });
+    attachErrorWatchers(mob375, 'mobile-375');
+    await mob375.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    const titleMetrics = await mob375.evaluate(() => {
+      const inp = document.querySelector('.cheat-input');
+      const btn = document.querySelector('.hero-actions .btn-primary');
+      return {
+        sw: document.documentElement.scrollWidth,
+        inputFs: inp ? parseFloat(getComputedStyle(inp).fontSize) : 0,
+        startBtnH: btn ? Math.round(btn.getBoundingClientRect().height) : 0
+      };
+    });
+    assert.ok(titleMetrics.sw <= 375, `Mobile 375 title horizontal overflow: ${titleMetrics.sw}`);
+    assert.ok(titleMetrics.inputFs >= 16, `Mobile .cheat-input fontSize too small for iOS Safari: ${titleMetrics.inputFs}px`);
+    assert.ok(titleMetrics.startBtnH >= 44, `Mobile Start CTA touch target too small: ${titleMetrics.startBtnH}px`);
+    if (ssDir) await mob375.screenshot({ path: path.join(ssDir, 'e2e-mobile-375-title.png') });
+
+    await mob375.click('.hero-actions .btn-primary');
+    await mob375.waitForSelector('.role-card');
+    const rolesSw = await mob375.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(rolesSw <= 375, `Mobile 375 roles horizontal overflow: ${rolesSw}`);
+    if (ssDir) await mob375.screenshot({ path: path.join(ssDir, 'e2e-mobile-375-roles.png') });
+
+    await mob375.click('.role-card');
+    await mob375.waitForSelector('.cutscene-video');
+    assert.ok(await mob375.evaluate(() => document.documentElement.scrollWidth <= 375), 'Mobile 375 cutscene overflow');
+    await mob375.click('.chapter-header .btn-primary');
+    await mob375.waitForSelector('.play-grid');
+    await mob375.waitForSelector('.beginner-coach-banner');
+    await mob375.click('.beginner-coach-banner button:has-text("我懂了")');
+    assert.equal(await mob375.locator('.beginner-coach-banner').count(), 0, 'Beginner coach dismiss button did not hide banner');
+    await checkImagesLoaded(mob375, 'mobile-375-scene');
+
+    const hudAndTabs = await mob375.evaluate(() => {
+      const hud = document.querySelector('.hud-bar').getBoundingClientRect();
+      const bar = document.querySelector('.bottom-guide-bar').getBoundingClientRect();
+      const tabs = [...document.querySelectorAll('.mobile-tab-btn')].map((b) => ({
+        id: b.getAttribute('data-mobile-tab'),
+        h: Math.round(b.getBoundingClientRect().height)
+      }));
+      return {
+        sw: document.documentElement.scrollWidth,
+        hudH: Math.round(hud.height),
+        barH: Math.round(bar.height),
+        tabs
+      };
+    });
+    assert.ok(hudAndTabs.sw <= 375, `Mobile 375 mission horizontal overflow: ${hudAndTabs.sw}`);
+    assert.ok(hudAndTabs.hudH <= 86, `Mobile collapsed HUD too tall: ${hudAndTabs.hudH}px`);
+    assert.ok(hudAndTabs.barH <= 78, `Mobile bottom tab bar too tall: ${hudAndTabs.barH}px`);
+    assert.equal(hudAndTabs.tabs.length, 4, 'Expected 4 mobile bottom tabs');
+    for (const tb of hudAndTabs.tabs) {
+      assert.ok(tb.h >= 44, `Mobile tab ${tb.id} below 44px height: ${tb.h}`);
+    }
+    if (ssDir) await mob375.screenshot({ path: path.join(ssDir, 'e2e-mobile-375-mission.png') });
+
+    // Test mobile HUD drawer expand/collapse & 5-meter non-truncation
+    await mob375.click('.hud-mobile-toggle');
+    const expandedHud = await mob375.evaluate(() => ({
+      expanded: document.querySelector('.hud-mobile-toggle')?.getAttribute('aria-expanded'),
+      sw: document.documentElement.scrollWidth,
+      trunc: [...document.querySelectorAll('.hud-meters .meter-label span')]
+        .filter((sp) => sp.scrollWidth > sp.clientWidth + 1)
+        .map((sp) => sp.textContent)
+    }));
+    assert.equal(expandedHud.expanded, 'true', 'Mobile HUD toggle did not expand');
+    assert.ok(expandedHud.sw <= 375, `Expanded mobile HUD caused overflow: ${expandedHud.sw}`);
+    assert.deepEqual(expandedHud.trunc, [], `Expanded mobile HUD meter truncated: ${expandedHud.trunc.join(', ')}`);
+
+    // Test Scooter modal on mobile: bottom bar hides, touch-action:none canvas, >=48px steering buttons
+    await mob375.click('.hud-btn.is-gold');
+    await mob375.waitForSelector('.scooter-canvas');
+    const scooterMob = await mob375.evaluate(() => {
+      const canvas = document.querySelector('.scooter-canvas');
+      const bar = document.querySelector('.bottom-guide-bar');
+      const btns = [...document.querySelectorAll('.scooter-controls .btn-cyan')].map((b) => Math.round(b.getBoundingClientRect().height));
+      return {
+        sw: document.documentElement.scrollWidth,
+        touchAction: canvas ? getComputedStyle(canvas).touchAction : '',
+        barHidden: bar ? getComputedStyle(bar).display === 'none' : false,
+        steerBtnHs: btns
+      };
+    });
+    assert.ok(scooterMob.sw <= 375, `Mobile 375 scooter modal overflow: ${scooterMob.sw}`);
+    assert.equal(scooterMob.touchAction, 'none', `Scooter canvas missing touch-action:none (got ${scooterMob.touchAction})`);
+    assert.equal(scooterMob.barHidden, true, 'Bottom guide bar should hide while mobile modal is open');
+    assert.ok(scooterMob.steerBtnHs.length === 2 && scooterMob.steerBtnHs.every((h) => h >= 48), `Mobile scooter buttons too small: ${scooterMob.steerBtnHs}`);
+    if (ssDir) await mob375.screenshot({ path: path.join(ssDir, 'e2e-mobile-375-scooter.png') });
+    await mob375.click('.scooter-controls .btn-ghost');
+    await mob375.waitForSelector('.mobile-tab-bar');
+
+    // Test 4 mobile tabs & quick scene peek
+    await mob375.click('.mobile-scene-peek');
+    assert.equal(await mob375.getAttribute('.play-grid', 'data-mobile-panel'), 'scene', 'mobile-scene-peek did not switch to scene tab');
+    assert.ok(await mob375.evaluate(() => document.querySelector('.scene-card').offsetParent !== null && document.documentElement.scrollWidth <= 375), 'Mobile scene panel visibility/width check failed');
+    await mob375.click('.mobile-tab-btn[data-mobile-tab="phone"]');
+    assert.ok(await mob375.evaluate(() => document.querySelector('#phone-card-panel').offsetParent !== null && document.documentElement.scrollWidth <= 375), 'Mobile phone tab check failed');
+    await mob375.click('.mobile-tab-btn[data-mobile-tab="intel"]');
+    assert.ok(await mob375.evaluate(() => document.querySelector('#clue-card-panel').offsetParent !== null && document.documentElement.scrollWidth <= 375), 'Mobile intel tab check failed');
+    await mob375.click('.mobile-tab-btn[data-mobile-tab="mission"]');
+    await mob375.locator('.reply-btn').first().click();
+    await mob375.waitForSelector('.paper-card');
+    assert.ok(await mob375.evaluate(() => document.documentElement.scrollWidth <= 375), 'Mobile mini-game horizontal overflow');
+    await mob375.close();
+
+    // Mobile 390x844 across zh / en / ja + Extreme narrow 320x568 sanity check
+    for (const [mTag, mVp, mLang] of [
+      ['390-zh', { width: 390, height: 844 }, 'zh'],
+      ['390-en', { width: 390, height: 844 }, 'en'],
+      ['390-ja', { width: 390, height: 844 }, 'ja'],
+      ['320-zh', { width: 320, height: 568 }, 'zh']
+    ]) {
+      const mPage = await browser.newPage({ viewport: mVp, hasTouch: true, isMobile: true });
+      attachErrorWatchers(mPage, `mobile-${mTag}`);
+      await mPage.goto(`${baseUrl}/index.html?lang=${mLang}`, { waitUntil: 'networkidle' });
+      assert.ok(await mPage.evaluate((vw) => document.documentElement.scrollWidth <= vw, mVp.width), `${mTag} title overflow`);
+      await mPage.click('.hero-actions .btn-primary');
+      await mPage.waitForSelector('.role-card');
+      assert.ok(await mPage.evaluate((vw) => document.documentElement.scrollWidth <= vw, mVp.width), `${mTag} roles overflow`);
+      await mPage.click('.role-card');
+      await mPage.waitForSelector('.cutscene-video');
+      await mPage.click('.chapter-header .btn-primary');
+      await mPage.waitForSelector('.replies-grid');
+      assert.ok(await mPage.evaluate((vw) => document.documentElement.scrollWidth <= vw, mVp.width), `${mTag} mission overflow`);
+      if (mTag === '390-zh' && ssDir) await mPage.screenshot({ path: path.join(ssDir, 'e2e-mobile-390-mission.png') });
+      await mPage.close();
+    }
 
     // 4. Standalone single-file HTML smoke check
     const solo = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
