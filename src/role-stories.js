@@ -6,26 +6,94 @@ export const ROLE_ROUTE_META = {
     routeName: '客戶談判 × 年度續約線',
     routeBadge: '💼 業務談判線',
     routeSummary: '專攻預算攻防、採購比價、續約拆彈與高層談判題庫',
+    routeItinerary: '象山站趕早會 ➔ 品牌總部 ➔ 內湖陪拍 ➔ 午夜保約',
   },
   planner: {
     routeName: '品牌洞察 × 讀心策略線',
     routeBadge: '🧠 策略洞察線',
     routeSummary: '經典《決策智慧》全景主線，聚焦消費心理與長期賽局題庫',
+    routeItinerary: '富邦 A25 ➔ 陶朱窗景 ➔ 瑞光攝影棚 ➔ 頂樓復盤',
   },
   creative: {
     routeName: '片場靈魂 × 拒絕罐頭線',
     routeBadge: '🎨 創意靈魂線',
     routeSummary: '專攻腳本提案、品牌偏心、反 AI 罐頭與視覺主權題庫',
+    routeItinerary: 'A25 靈感牆 ➔ 走廊比稿 ➔ 瑞光片場 ➔ 午夜定剪',
   },
   media: {
     routeName: '媒體採購 × 數據抓鬼線',
     routeBadge: '📊 數據抓鬼線',
     routeSummary: '專攻歸因查帳、媒體排程、黑箱演算法與增量驗證題庫',
+    routeItinerary: '數據戰情室 ➔ 買量後台 ➔ RMN 對帳 ➔ 午夜關閥',
   },
   grandma: {
     routeName: '菜市場經濟學 × 電鍋霸主線',
     routeBadge: '👵 菜市場霸主線',
     routeSummary: '滿級阿嬤用六十年做生意直覺破解科技話術的爆笑神回覆題庫',
+    routeItinerary: '永春早市 ➔ A25 送肉湯 ➔ 內湖救片場 ➔ 頂樓宵夜',
+  },
+};
+
+export const ROLE_ITINERARIES = {
+  account: {
+    1: { timeSlot: '08:15 AM', location: '象山站 2 號出口手扶梯 ➔ 富邦 A25 大廳', title: '採購續約前哨戰', roadSign: '松義路×象山站 · 象山出口', sceneImage: './public/images/scene-morning-scooter.webp', mapPos: [22, 72] },
+    2: { timeSlot: '09:45 AM', location: '快消集團信義總部玻璃會議室', title: '階梯轉型保衛約', roadSign: '松智路×信義總部 · Client HQ', sceneImage: './public/images/scene-boardroom.webp', mapPos: [34, 64] },
+    3: { timeSlot: '12:00 PM', location: '松仁路騎樓便當桌（客戶急電待機中）', title: '腰斬預算救援談判', roadSign: '松仁路 95 巷 · 騎樓急電點', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [44, 68] },
+    4: { timeSlot: '02:15 PM', location: '富邦 A25 十樓業務會客室（合約桌）', title: '拒簽賣身追蹤合約', roadSign: '松勇路北側 · A25 合約會客室', sceneImage: './public/images/scene-boardroom.webp', mapPos: [52, 54] },
+    5: { timeSlot: '04:00 PM', location: '信義微風旁公關危機應對會議桌', title: 'ESG 溢價承諾拆彈', roadSign: '松高路 16 號 · 公關協調桌', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [58, 44] },
+    6: { timeSlot: '05:45 PM', location: '內湖瑞光片場樓梯間（講品牌經理急電）', title: '守住創意定價結構', roadSign: '瑞光路樓梯間 · 製片議價點', sceneImage: './public/images/scene-neihu-studio.webp', mapPos: [78, 24] },
+    7: { timeSlot: '07:15 PM', location: '松高路大型零售總部聯促簽約室', title: '拆開上架費與品牌權', roadSign: '松高路通路總部 · Retail HQ', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [64, 58] },
+    8: { timeSlot: '09:10 PM', location: '信義快車道計程車上（勸阻客戶翻倍盲投）', title: '阻擋盲目加碼收割單', roadSign: '信義路五段 · 計程車勸阻戰', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [50, 74] },
+    9: { timeSlot: '10:30 PM', location: '市民大道四段 VIP 伴手禮席 ➔ 超商', title: '搶下心佔免進比價獄', roadSign: '市民大道四段 · VIP 酒席巷', sceneImage: './public/images/scene-rechao-night.webp', mapPos: [34, 42] },
+    10: { timeSlot: '11:40 PM', location: '富邦 A25 頂樓高層簽呈桌（面對客戶年度結案）', title: '拒簽差別殺熟利潤約', roadSign: '松高路 A25 32F · 簽約決斷桌', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [68, 30] },
+  },
+  planner: {
+    1: { timeSlot: '08:30 AM', location: '台北橋機車瀑布 ➔ 松仁路富邦 A25＆陶朱隱園路口', title: '不再是賭注', roadSign: '松高路 77 號 · 松仁路口', sceneImage: './public/images/scene-morning-scooter.webp', mapPos: [16.4, 61] },
+    2: { timeSlot: '10:00 AM', location: '富邦 A25 電通大樓高層會議室（正對陶朱隱園＆101）', title: '無限賽局', roadSign: '松高路×松仁路口 · 富邦 A25 仰角', sceneImage: './public/images/scene-boardroom.webp', mapPos: [64, 26] },
+    3: { timeSlot: '12:30 PM', location: '富邦 A25 後巷雞腿便當店＆陶朱隱園街角手搖飲', title: '下半場', roadSign: '松仁路×忠孝東路五段 · 永吉商圈', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [50, 57] },
+    4: { timeSlot: '02:00 PM', location: '富邦 A25 電通空中茶水間＆平台業務圍堵', title: '穿越 2030', roadSign: '松勇路 68 號對街 · 陶朱隱園窗景', sceneImage: './public/images/scene-boardroom.webp', mapPos: [60, 40] },
+    5: { timeSlot: '03:45 PM', location: '富邦 A25 電通作戰區・雞排珍奶＆ESG 危機', title: '複合躍進', roadSign: '松仁路下午茶戰區 · 永吉商圈', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [70, 48] },
+    6: { timeSlot: '05:30 PM', location: '內湖廣告攝影棚（遠眺信義區富邦 A25＆陶朱隱園）', title: '賦能進化', roadSign: '內湖區瑞光路 · Ruiguang Rd.', sceneImage: './public/images/scene-neihu-studio.webp', mapPos: [71, 20] },
+    7: { timeSlot: '07:30 PM', location: '富邦 A25 電通大廳加班外送＆陶朱隱園夜景毒蘋果', title: '毒蘋果', roadSign: '松仁路×松高路 · 富邦 A25 入口廣場', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [74.5, 64] },
+    8: { timeSlot: '09:30 PM', location: '松仁路計程車掠過「陶朱隱園」返回富邦 A25', title: '自動打仗', roadSign: '松仁路夜車 · 掠過陶朱隱園', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [78.5, 74.5] },
+    9: { timeSlot: '10:45 PM', location: '松仁路深夜熱炒＆富邦 A25 樓下超商冰櫃實測', title: '真實距離', roadSign: '市民大道四段 · Civic Blvd. 宵夜熱炒', sceneImage: './public/images/scene-rechao-night.webp', mapPos: [53, 49] },
+    10: { timeSlot: '11:45 PM', location: '富邦 A25 電通大樓頂層午夜戰情室（俯瞰陶朱隱園＆101）', title: '衡斷', roadSign: '松高路 77 號頂層戰情室 · 富邦 A25', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [79.5, 65] },
+  },
+  creative: {
+    1: { timeSlot: '09:15 AM', location: '富邦 A25 九樓創意靈感牆＆分鏡工作室', title: '保衛三十秒靈魂', roadSign: '松高路×分鏡牆 · 創意樓層', sceneImage: './public/images/scene-boardroom.webp', mapPos: [48, 46] },
+    2: { timeSlot: '10:40 AM', location: '富邦 A25 十一樓透明長廊與提案簡報間', title: '審美講義公開課', roadSign: '松仁路長廊 · A25 11F Studio', sceneImage: './public/images/scene-boardroom.webp', mapPos: [56, 38] },
+    3: { timeSlot: '01:00 PM', location: '松高路雨窗旁剪輯桌與導演緊急視訊', title: '暴雨裡的單機真情', roadSign: '松高路雨棚 · 臨時剪輯桌', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [36, 52] },
+    4: { timeSlot: '02:40 PM', location: '富邦 A25 數位互動設計工作站', title: '零偷窺純粹好體驗', roadSign: '松仁路體驗室 · UX Lab', sceneImage: './public/images/scene-boardroom.webp', mapPos: [42, 42] },
+    5: { timeSlot: '04:20 PM', location: '富邦 A25 綠能題材腳本提案桌', title: '不寫空洞北極熊口號', roadSign: '松勇路創意桌 · 腳本提案區', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [54, 34] },
+    6: { timeSlot: '06:00 PM', location: '內湖攝影棚主視覺燈箱監看台', title: 'AI 洪流搶救鍋氣靈光', roadSign: '內湖片場 A 棚 · Studio Light', sceneImage: './public/images/scene-neihu-studio.webp', mapPos: [66, 18] },
+    7: { timeSlot: '08:00 PM', location: '富邦 A25 品牌視覺規範防火牆工作區', title: '抵制醜陋黃紅套版框', roadSign: '松仁路設計區 · Brand Guard', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [48, 62] },
+    8: { timeSlot: '09:50 PM', location: '松仁路夜歸後製機房（抓到故事被剪碎）', title: '把微電影還給陌生人', roadSign: '松仁路後期室 · Cut Control', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [56, 70] },
+    9: { timeSlot: '11:05 PM', location: '松仁路深夜超商透明冰櫃＆設計貨架區', title: '讓機器繞開的偏心設計', roadSign: '松仁路超商 · Shelf Lab', sceneImage: './public/images/scene-rechao-night.webp', mapPos: [40, 56] },
+    10: { timeSlot: '11:55 PM', location: '富邦 A25 頂樓玻璃前（拒美化殺熟操作面）', title: '拒絕用美感包裝暗黑秤', roadSign: 'A25 頂層倒數窗 · 設計良知線', sceneImage: './public/images/scene-boardroom.webp', mapPos: [62, 22] },
+  },
+  media: {
+    1: { timeSlot: '08:00 AM', location: '富邦 A25 八樓媒體數據戰情室', title: '拆穿八倍歸因幻象', roadSign: '松仁路 101 巷口 · 戰情中心', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [68, 52] },
+    2: { timeSlot: '09:30 AM', location: '富邦 A25 媒體採購結構復盤室', title: '告別手續費依賴', roadSign: '松高路北側 · Media Ops Room', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [72, 42] },
+    3: { timeSlot: '12:15 PM', location: '忠孝東路五段騎樓即時競價後台', title: '趁冷市掃品牌低價位', roadSign: '忠孝東五騎樓 · RTB 即時後台', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [62, 62] },
+    4: { timeSlot: '01:45 PM', location: '富邦 A25 DSP 受眾採購審核席', title: '第一方真名單築池', roadSign: '松高路七樓 · 受眾數據席', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [74, 48] },
+    5: { timeSlot: '03:30 PM', location: '富邦 A25 綠色關鍵字競價觀察室', title: '避開環保字海天價坑', roadSign: '松仁路觀察席 · Keyword Desk', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [64, 36] },
+    6: { timeSlot: '05:15 PM', location: '內湖片場角落 DCO 動態素材後台區', title: '用數據替精品創意撐腰', roadSign: '內湖瑞光網科 · DCO Bench', sceneImage: './public/images/scene-neihu-studio.webp', mapPos: [83, 26] },
+    7: { timeSlot: '07:00 PM', location: '富邦 A25 Clean Room 獨立對帳席', title: '戳破球員兼裁判帳本', roadSign: '松智路數據角 · Clean Room', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [78, 56] },
+    8: { timeSlot: '09:00 PM', location: '信義區雨夜 iPad 自動出價監控車上', title: '設定排除搶救真新客', roadSign: '莊敬路夜雨車道 · Algo Watch', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [81, 68] },
+    9: { timeSlot: '10:20 PM', location: '市民大道 GEO／AI 推薦權重宵夜辯論桌', title: '語料被找到、人名被指名', roadSign: '延吉街宵夜席 · GEO Debate', sceneImage: './public/images/scene-rechao-night.webp', mapPos: [46, 44] },
+    10: { timeSlot: '11:30 PM', location: '富邦 A25 頂樓演算法原碼審計終端機', title: '親手關掉老客加價權重', roadSign: 'A25 頂層機房 · Algo Killswitch', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [74, 24] },
+  },
+  grandma: {
+    1: { timeSlot: '06:30 AM', location: '永春早市虎林街攤位 ➔ 騎車上松仁路 A25', title: '菜攤算盤敲醒少年', roadSign: '虎林街×忠孝東五 · 永春早市', sceneImage: './public/images/scene-morning-scooter.webp', mapPos: [82, 66] },
+    2: { timeSlot: '09:00 AM', location: '永春老麵攤打包控肉 ➔ 富邦 A25 高層門外', title: '師傅不怕教出百徒', roadSign: '松山路×永春市場 · 師徒老攤', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [76, 56] },
+    3: { timeSlot: '11:45 AM', location: '松德路熱湯騎樓躲雨 ➔ 連絡肉攤阿明', title: '颱風天照點招牌燈', roadSign: '松德路騎樓 · 市場老鄰居攤', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [68, 72] },
+    4: { timeSlot: '01:30 PM', location: '虎林街巷口紅茶攤 ➔ A25 茶水間走道', title: '奉茶贏過偷窺名冊', roadSign: '虎林街紅茶桌 · 熟客聯誼座', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [79, 54] },
+    5: { timeSlot: '03:15 PM', location: '永吉路 30 巷下午茶攤前 ➔ 有機青農攤位', title: '荷包誠實才賣得動菜', roadSign: '永吉路 30 巷 · 下午茶＆菜攤', sceneImage: './public/images/scene-bento-rain.webp', mapPos: [72, 46] },
+    6: { timeSlot: '05:00 PM', location: '瑞光路急煞路口 ➔ 提大同電鍋衝進攝影棚', title: '滷肉飯壓軸救場大暴走', roadSign: '瑞光路急轉彎 · 電鍋救場線', sceneImage: './public/images/scene-neihu-studio.webp', mapPos: [84, 20] },
+    7: { timeSlot: '06:45 PM', location: '富邦 A25 一樓收件櫃台（提便當盒對房東帳）', title: '黑皮小本子查大房東', roadSign: 'A25 一樓大廳 · 自己記帳桌', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [62, 66] },
+    8: { timeSlot: '08:45 PM', location: '松仁路小黃後座（檢視自動喊客大聲公）', title: '停掉只吵熟客的大喇叭', roadSign: '松仁路轉角 · 喊客喇叭檢查點', sceneImage: './public/images/scene-xinyi-overtime.webp', mapPos: [70, 76] },
+    9: { timeSlot: '10:00 PM', location: '安和路熱炒宵夜＆乖孫手機冰櫃實測', title: '鄰居一句話贏過電腦', roadSign: '安和路宵夜巷 · 鄰居口碑攤', sceneImage: './public/images/scene-rechao-night.webp', mapPos: [32, 54] },
+    10: { timeSlot: '11:20 PM', location: '富邦 A25 頂層宵夜鍋邊（拆穿加價電子秤）', title: '砸掉歪秤：良心不外包', roadSign: 'A25 頂樓電鍋桌 · 誠實電子秤', sceneImage: './public/images/scene-rechao-night.webp', mapPos: [64, 38] },
   },
 };
 
@@ -91,7 +159,7 @@ export const ROLE_CHAPTER_VARIANTS = {
   account: {
     1: {
       sceneDesc:
-        '【業務談判視角】早上 8:30 你還在捷運象山站手扶梯上回訊息，富邦 A25 大廳還沒踏進去，大客戶採購協理已經把「ROI 不到 5 倍不續約」的砍價信寄到信箱，要你十點前給續約方案。',
+        '【業務談判視角】早上 8:15 你還在捷運象山站 2 號出口手扶梯上回訊息，富邦 A25 大廳還沒踏進去，大客戶採購協理已經把「ROI 不到 5 倍不續約」的砍價信寄到信箱，要你十點前給續約方案。',
       lineSender: { name: '採購協理', role: '大客戶年度議價窗口', badge: 'PROCUREMENT' },
       lineMessage: '你們上季 ROAS 報告數字超美，但品牌宣傳預算看不出直接轉換，明年預算只簽看得到成效的那包好嗎？',
       replies: [
@@ -116,7 +184,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     2: {
       sceneDesc:
-        '【業務談判視角】上午十點走進富邦 A25 會議室，客戶品牌副總關上玻璃門直白開口：總部打算明年把投手全部收編回內部建置（In-house），你們到底還要簽什麼服務費？',
+        '【業務談判視角】上午 9:45 走進快消集團信義總部會議室，客戶品牌副總關上玻璃門直白開口：總部打算明年把投手全部收編回內部建置（In-house），你們到底還要簽什麼服務費？',
       lineSender: { name: '客戶品牌副總', role: '快消集團行銷高層', badge: 'VP' },
       lineMessage: '明年我們自己養媒體團隊了，你們還要跟我們簽顧問約嗎？開個價吧。',
       replies: [
@@ -141,7 +209,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     3: {
       sceneDesc:
-        '【業務談判視角】中午雨下得又急又冷，你剛打開松仁路巷口便當盒蓋，大客戶緊急致電：財務長下令下半年度廣告費全部對折，還要保留雙十一促銷預算，下午兩點前給調整表。',
+        '【業務談判視角】中午 12:00 雨下得又急又冷，你剛在松仁路騎樓打開便當盒蓋，大客戶緊急致電：財務長下令下半年度廣告費全部對折，還要保留雙十一促銷預算，下午兩點前給調整表。',
       lineSender: { name: '客戶行銷總監', role: '美妝零售客戶', badge: 'CLIENT' },
       lineMessage: '總部剛通知我們Q3預算直接砍一半，品牌檔期先全抽掉保促銷轉換吧？',
       replies: [
@@ -166,7 +234,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     4: {
       sceneDesc:
-        '【業務談判視角】下午兩點茶水間門口，平台業務正拿著「一鍵認回所有訪客」的年度加值合約要你幫客戶代簽，還暗示只要客戶加購就能算進你本季達標獎金。',
+        '【業務談判視角】下午 2:15 十樓會客室門口，平台業務正拿著「一鍵認回所有訪客」的年度加值合約要你幫客戶代簽，還暗示只要客戶加購就能算進你本季達標獎金。',
       lineSender: { name: '聯播網大客戶經理', role: '廣告科技廠商', badge: 'SALES' },
       lineMessage: '這個全網 ID 追蹤外掛只要客戶加簽 150 萬，受眾名單立刻回來，獎金也算你們帳上，簽嗎？',
       replies: [
@@ -193,7 +261,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     5: {
       sceneDesc:
-        '【業務談判視角】下午三點四十五分剛分完雞排珍奶，公關部門急叩：客戶想搭 ESG 風潮推出加價兩成「綠色永續聯名版」，要業務立刻拍胸脯保證銷量翻倍。',
+        '【業務談判視角】下午 4:00 微風旁公關桌前，公關部門急叩：客戶想搭 ESG 風潮推出加價兩成「綠色永續聯名版」，要業務立刻拍胸脯保證銷量翻倍。',
       lineSender: { name: '公關業務窗口', role: '永續專案負責人', badge: 'PR' },
       lineMessage: '客戶想推貴 20% 的永續減碳版包裝，要我們在提案寫保證賣爆，這業績你要扛嗎？',
       replies: [
@@ -218,7 +286,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     6: {
       sceneDesc:
-        '【業務談判視角】傍晚內湖攝影棚飄出滷肉飯前夕，你正在樓梯間壓低聲音跟品牌經理講電話：客戶看隔壁家開始用 AI 做圖，要求把年度製作費砍半。',
+        '【業務談判視角】傍晚 5:45 內湖瑞光片場樓梯間飄出滷肉飯前夕，你正在樓梯間壓低聲音跟品牌經理講電話：客戶看隔壁家開始用 AI 做圖，要求把年度製作費砍半。',
       lineSender: { name: '客戶行銷經理', role: '快消品牌客戶', badge: 'CLIENT' },
       lineMessage: '我看友商整套改用 AI 產片製作費只要一半，我們今年這筆製作合約直接對砍好嗎？',
       replies: [
@@ -245,7 +313,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     7: {
       sceneDesc:
-        '【業務談判視角】晚上七點半松仁路大樓玻璃映出紅燈海，通路商把明年「聯合促銷＋站內廣告」綁定成一份年約推給你：不買滿五百萬站內版位，貨架位置就得往後排。',
+        '【業務談判視角】晚上 7:15 松高路大型零售總部簽約室映出紅燈海，通路商把明年「聯合促銷＋站內廣告」綁定成一份年約推給你：不買滿五百萬站內版位，貨架位置就得往後排。',
       lineSender: { name: '通路採購主管', role: '大型零售平台代表', badge: 'RETAIL' },
       lineMessage: '你們若把預算全簽進我們通路 RMN 聯名包，年底結帳單數字絕對最漂亮，進貨位置也能保第一排喔。',
       replies: [
@@ -270,7 +338,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     8: {
       sceneDesc:
-        '【業務談判視角】晚上九點半你剛搭上計程車準備回家，客戶LINE卻響不停：「自從切全自動優化之後，這兩週單價變好低、報表創歷史新高，下週高層會直接宣布年度大成功！」',
+        '【業務談判視角】晚上 9:10 你剛搭上信義快計程車準備回家，客戶LINE卻響不停：「自從切全自動優化之後，這兩週單價變好低、報表創歷史新高，下週高層會直接宣布年度大成功！」',
       lineSender: { name: '客戶數位副理', role: '執行窗口', badge: 'CLIENT' },
       lineMessage: '全自動投放跑兩週報表好看到老闆都想發獎金了！要不要建議他直接把預算翻倍灌進去？',
       replies: [
@@ -295,7 +363,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     9: {
       sceneDesc:
-        '【業務談判視角】晚上十點四十五分市民大道熱炒剛散席，你要幫明年 VIP 客戶挑選伴手禮順便測試《AI 購物代理》推薦邏輯：當 AI 只看價格與評分規格，你怎麼幫品牌不被比價洗掉？',
+        '【業務談判視角】晚上 10:30 市民大道 VIP 席剛散會走進超商，你要幫明年 VIP 客戶挑選伴手禮順便測試《AI 購物代理》推薦邏輯：當 AI 只看價格與評分規格，你怎麼幫品牌不被比價洗掉？',
       lineSender: { name: '老闆（業務線）', role: '集團執行長', badge: 'BOSS' },
       lineMessage: '明年連企業採購都叫 AI 先比三家規格了。我們該勸客戶搶 AI 推薦欄位，還是繼續養品牌？',
       replies: [
@@ -320,7 +388,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     10: {
       sceneDesc:
-        '【業務談判視角】跨年倒數前十五分鐘的富邦 A25 頂層戰情室，大客戶一年多收老客差價卻讓年終達成率破 120% 的機密剛在你眼前攤開。財務長看著你，這張簽呈你要簽嗎？',
+        '【業務談判視角】晚上 11:40 跨年前的富邦 A25 頂層高層簽呈桌，大客戶一年多收老客差價卻讓年終達成率破 120% 的機密剛在你眼前攤開。財務長看著你，這張簽呈你要簽嗎？',
       lineSender: { name: '財務長（談判桌）', role: '集團財務長 (CFO)', badge: 'CFO' },
       lineMessage: '那台差別定價引擎替大客戶多賺了三千萬也讓我們抽佣破表。下季合約要繼續打包它嗎？',
       replies: [
@@ -336,7 +404,7 @@ export const ROLE_CHAPTER_VARIANTS = {
   creative: {
     1: {
       sceneDesc:
-        '【創意靈魂視角】早上 8:30 你帶著還在微調的腳本分鏡板進富邦 A25，對街陶朱隱園玻璃外牆正反射金黃日出。業務主管衝過來說大老闆要取消三十秒品牌電影，把錢全改做五秒跳過片尾導購卡。',
+        '【創意靈魂視角】早上 9:15 你帶著還在微調的腳本分鏡板走進富邦 A25 九樓靈感牆，對街陶朱隱園玻璃外牆正反射金黃日出。業務主管衝過來說大老闆要取消三十秒品牌電影，把錢全改做五秒跳過片尾導購卡。',
       lineSender: { name: '創意群總監', role: 'ECD 創意指揮官', badge: 'CREATIVE' },
       lineMessage: '老闆嫌品牌電影看不到最後點擊成效，要把 30 秒好劇本剪成純折扣比價卡，你讓嗎？',
       replies: [
@@ -361,7 +429,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     2: {
       sceneDesc:
-        '【創意靈魂視角】上午十點站在富邦 A25 透明走廊盡頭，客戶想在內部養十人剪片組淘汰外部創意團隊，桌上還攤著星展銀行轉型案例集。你們還願不願意把審美心法寫成標準講義教對方？',
+        '【創意靈魂視角】上午 10:40 站在富邦 A25 十一樓透明走廊盡頭，客戶想在內部養十人剪片組淘汰外部創意團隊，桌上還攤著星展銀行轉型案例集。你們還願不願意把審美心法寫成標準講義教對方？',
       lineSender: { name: '資深文案', role: '創意組戰友', badge: 'COPY' },
       lineMessage: '客戶想自己成立內容部門，要我們交出所有創意發想模板跟攝影規範，教出去我們不會失業嗎？',
       replies: [
@@ -386,7 +454,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     3: {
       sceneDesc:
-        '【創意靈魂視角】中午大雨傾盆打在富邦 A25 窗框上，剛吃完便當就收到消息：客戶因為砍預算想直接拿兩年前舊片重配旁白交差，整年度停拍任何新品牌內容。',
+        '【創意靈魂視角】下午 1:00 大雨傾盆打在松高路剪輯桌窗框上，剛吃完便當就收到消息：客戶因為砍預算想直接拿兩年前舊片重配旁白交差，整年度停拍任何新品牌內容。',
       lineSender: { name: '藝術指導', role: '視覺設計總監', badge: 'ART' },
       lineMessage: '預算只剩一半，客戶乾脆叫我們拿前年的庫存素材重剪配個折價語音就過一年，真的要接嗎？',
       replies: [
@@ -411,7 +479,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     4: {
       sceneDesc:
-        '【創意靈魂視角】下午兩點茶水間剛煮好黑咖啡，網頁開發廠商送來一份超華麗 H5 互動站企劃——一開網頁要先強制用戶綁定帳號定位加上分享五百名好友追蹤許可才給看影片。',
+        '【創意靈魂視角】下午 2:40 數位互動工作站剛煮好黑咖啡，網頁開發廠商送來一份超華麗 H5 互動站企劃——一開網頁要先強制用戶綁定帳號定位加上分享五百名好友追蹤許可才給看影片。',
       lineSender: { name: '互動前端總監', role: '數位體驗主管', badge: 'TECH' },
       lineMessage: '互動官網只要加一道「同意全網追蹤授權」才能看彩蛋片，客戶就能收集超多明細，要加上去嗎？',
       replies: [
@@ -438,7 +506,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     5: {
       sceneDesc:
-        '【創意靈魂視角】下午三點四十五分剛分著吃雞排，提案桌上擺著客戶發來的綠能季腳本需求——滿滿兩頁大字報空喊「一起拯救地球吧」，完全不敢碰產品本身的價格和實力。',
+        '【創意靈魂視角】下午 4:20 提案桌上剛鋪開客戶發來的綠能題材腳本需求——滿滿兩頁大字報空喊「一起拯救地球吧」，完全不敢碰產品本身的價格和實力。',
       lineSender: { name: '企劃創意搭檔', role: '資深創意總監', badge: 'ACD' },
       lineMessage: '客戶這支 ESG 廣告腳本只想要模特兒在草地奔跑喊愛地球口號，我們就順水推舟交稿嗎？',
       replies: [
@@ -463,7 +531,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     6: {
       sceneDesc:
-        '【創意靈魂視角】傍晚五點半內湖攝影棚裡打光師正拆燈箱，會議室電視上閃過三十張 AI 算出來的茶飲料主視覺——色彩零瑕疵、構圖滿分，卻像同一間醫院走廊印出來的海報。',
+        '【創意靈魂視角】傍晚 6:00 內湖攝影棚裡打光師正拆燈箱，會議室電視上閃過三十張 AI 算出來的茶飲料主視覺——色彩零瑕疵、構圖滿分，卻像同一間醫院走廊印出來的海報。',
       lineSender: { name: '廣告片導演', role: '外包製片夥伴', badge: 'DIRECTOR' },
       lineMessage: 'AI 一秒生出來這三十句廣告金句文筆都超工整，客戶說以後文案全交 AI、我們只要當潤稿小弟，能服氣嗎？',
       replies: [
@@ -490,7 +558,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     7: {
       sceneDesc:
-        '【創意靈魂視角】晚上七點半松仁路大樓燈光微亮，客戶傳來購物網給的站內套版圖框：字體被強制固定成亮黃閃光促銷標、我們苦心攝影的品牌調性被迫壓在紅白大甩賣標籤後面。',
+        '【創意靈魂視角】晚上 8:00 富邦 A25 設計工作區燈光微亮，客戶傳來購物網給的站內套版圖框：字體被強制固定成亮黃閃光促銷標、我們苦心攝影的品牌調性被迫壓在紅白大甩賣標籤後面。',
       lineSender: { name: '品牌視覺設計師', role: '資深設計指導', badge: 'DESIGN' },
       lineMessage: '通路商說進了他們 RMN 系統版面都要套公版黃紅特價框，美感完全不給留白。全部妥協嗎？',
       replies: [
@@ -515,7 +583,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     8: {
       sceneDesc:
-        '【創意靈魂視角】晚上九點半搭車趕回松仁路辦公室，剛發現後台演算法為了衝點擊率，把你拍的三十秒極美微電影全拿去裁切成三秒「搶購大字閃光卡」餵給早就會買的老客戶看。',
+        '【創意靈魂視角】晚上 9:50 剛進松仁路後製剪接機房，剛發現後台演算法為了衝點擊率，把你拍的三十秒極美微電影全拿去裁切成三秒「搶購大字閃光卡」餵給早就會買的老客戶看。',
       lineSender: { name: '資深剪輯師', role: '後期製作主管', badge: 'EDITOR' },
       lineMessage: '演算法系統自動測試後把你那支品牌故事線全砍掉，只保留會點購買的三秒白底價格閃燈版，要喊停嗎？',
       replies: [
@@ -540,7 +608,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     9: {
       sceneDesc:
-        '【創意靈魂視角】晚上十點四十五分熱炒聚餐後你走進超商盯著冰櫃思考新任務：未來連消費者口渴都交給手機裡 AI 幫忙下單，創意人設計包裝和命名到底還有誰看？',
+        '【創意靈魂視角】晚上 11:05 宵夜後你走進松仁路深夜超商盯著冰櫃思考新任務：未來連消費者口渴都交給手機裡 AI 幫忙下單，創意人設計包裝和命名到底還有誰看？',
       lineSender: { name: '品牌創意長', role: '全球創作導師', badge: 'CCO' },
       lineMessage: '當 2026 的人們都叫 AI 照成分價格表幫挑飲料，我們還需要把設計和品牌文化做這麼有靈魂嗎？',
       replies: [
@@ -565,7 +633,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     10: {
       sceneDesc:
-        '【創意靈魂視角】跨年最後十五分鐘站在富邦 A25 窗前看陶朱隱園亮起倒數光柱，同事突然傳來內部簡報：那台暗中多收老客戶錢的演算法，竟然還包裝成「VIP 尊榮視覺禮遇介面」準備叫創意組美化上線！',
+        '【創意靈魂視角】晚上 11:55 跨年最後五分鐘站在富邦 A25 頂樓玻璃前看陶朱隱園亮起倒數光柱，同事突然傳來內部簡報：那台暗中多收老客戶錢的演算法，竟然還包裝成「VIP 尊榮視覺禮遇介面」準備叫創意組美化上線！',
       lineSender: { name: 'UX 設計主管', role: '數位體驗部門', badge: 'UX' },
       lineMessage: '高層想用漂亮的「專享貴賓動態價」介面包裝差別抬價引擎，叫我們三天後出美編稿，做不做？',
       replies: [
@@ -581,7 +649,7 @@ export const ROLE_CHAPTER_VARIANTS = {
   media: {
     1: {
       sceneDesc:
-        '【媒體數據視角】早上 8:30 你帶著整箱媒體採購原始檔走進富邦 A25，一開後台立刻抓出怪事：那套標榜 ROAS 八倍的神級報表，把九成五已經加入書籤天天買的老客戶全算成最後點擊功勞！',
+        '【媒體數據視角】早上 8:00 你帶著整箱媒體採購原始檔走進富邦 A25 八樓數據戰情室，一開後台立刻抓出怪事：那套標榜 ROAS 八倍的神級報表，把九成五已經加入書籤天天買的老客戶全算成最後點擊功勞！',
       lineSender: { name: '數據分析師', role: '追蹤與成效監測', badge: 'DATA' },
       lineMessage: '老闆看到報告寫歸因轉換八倍開心到不行，要把品牌電視和戶外看板預算全砍來加碼這套工具，我們拆穿嗎？',
       replies: [
@@ -606,7 +674,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     2: {
       sceneDesc:
-        '【媒體數據視角】上午十點在富邦 A25 戰情室盯著今年集團營收結構表：光媒體採購手續費就撐起近半部門運作。現在大客戶打算自己申請帳戶收編團隊，你要靠什麼吃飯？',
+        '【媒體數據視角】上午 9:30 在富邦 A25 媒體採購復盤室盯著今年集團營收結構表：光媒體採購手續費就撐起近半部門運作。現在大客戶打算自己申請帳戶收編團隊，你要靠什麼吃飯？',
       lineSender: { name: '媒體採購主管', role: 'Buying & Ops 主管', badge: 'BUYING' },
       lineMessage: '大客戶準備自己去媒體原廠開帳戶自操，我們手上的媒體採購量一掉就斷炊了，這堂課還要教嗎？',
       replies: [
@@ -631,7 +699,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     3: {
       sceneDesc:
-        '【媒體數據視角】中午大雨滴答砸在松仁路雨棚上，剛點開最新即時競價後台就傻眼：因為經濟低迷大家都只留成效單，長曝光大版位成本跌成白菜價完全沒人搶。',
+        '【媒體數據視角】中午 12:15 大雨滴答砸在忠孝東路五段騎樓雨棚上，剛點開最新即時競價後台就傻眼：因為經濟低迷大家都只留成效單，長曝光大版位成本跌成白菜價完全沒人搶。',
       lineSender: { name: '成效操盤手', role: 'Biddable Media 團隊', badge: 'BID' },
       lineMessage: '總部剛把下季預算全砍半，所有競品也全躲進關鍵字與導購收割了，我們排期還要留品牌版位嗎？',
       replies: [
@@ -656,7 +724,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     4: {
       sceneDesc:
-        '【媒體數據視角】下午兩點茶水間門口，資料販子與平台業務正極力推銷一包三千萬筆的「全網行為交叉灰名單」：說只要倒進 DSP 後台就能神準認出誰剛逛過誰家官網。',
+        '【媒體數據視角】下午 1:45 DSP 受眾採購審核席門口，資料販子與平台業務正極力推銷一包三千萬筆的「全網行為交叉灰名單」：說只要倒進 DSP 後台就能神準認出誰剛逛過誰家官網。',
       lineSender: { name: '受眾系統供應商', role: 'DMP/DSP 廠商', badge: 'TECH' },
       lineMessage: '第三方 Cookie 快死透了！我們這包跨裝置黑盒比對名單精準率九成五，每月租只要二十萬，匯入投放吧？',
       replies: [
@@ -683,7 +751,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     5: {
       sceneDesc:
-        '【媒體數據視角】下午三點四十五分喝完少糖珍奶，媒體排期表剛送來客戶永續專案大單：業務要媒體把「環保關鍵字」與「綠色新聞頻道」競價開到全市場最高，確保每分鐘都被看見。',
+        '【媒體數據視角】下午 3:30 關鍵字觀察席剛喝完少糖珍奶，媒體排期表剛送來客戶永續大單：業務要媒體把「環保關鍵字」與「綠色新聞頻道」競價開到全市場最高，確保每分鐘都被看見。',
       lineSender: { name: '採購專案經理', role: '整合媒體規劃', badge: 'PLANNER' },
       lineMessage: '同業全部在狂買 ESG 相關頻道版位害單價漲了三倍！我們還要跟進搶同一個議題關鍵字嗎？',
       replies: [
@@ -708,7 +776,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     6: {
       sceneDesc:
-        '【媒體數據視角】傍晚五點半內湖攝影棚還在趕鏡，你打開 A/B 測試報表盯著客戶拿 AI 一分鐘洗出的三十支素材版位數據：每一支點擊率都在 1.2% 左右浮動，沒有半支突破。',
+        '【媒體數據視角】傍晚 5:15 內湖片場角落 DCO 後台區還在趕鏡，你打開 A/B 測試報表盯著客戶拿 AI 一分鐘洗出的三十支素材版位數據：每一支點擊率都在 1.2% 左右浮動，沒有半支突破。',
       lineSender: { name: '動態素材優化系統', role: 'DCO 後台報告', badge: 'DCO' },
       lineMessage: 'AI 幫系統一分鐘換了三十組圖片文案跑完，全部點擊都黏在同一水平沒拉出贏家，要把創意費砍半交給系統洗嗎？',
       replies: [
@@ -735,7 +803,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     7: {
       sceneDesc:
-        '【媒體數據視角】晚上七點半松仁路大樓玻璃映著雨夜紅綠燈，你看著成長長推進來的通路 RMN 報表直冒冷汗——上面清一色寫著 100% Viewability，但完全拒絕提供原始用戶對照紀錄帶出場核帳。',
+        '【媒體數據視角】晚上 7:00 松智路 Clean Room 對帳席窗外映著雨夜紅綠燈，你看著成長長推進來的通路 RMN 報表直冒冷汗——上面清一色寫著 100% Viewability，但完全拒絕提供原始用戶對照紀錄帶出場核帳。',
       lineSender: { name: '通路媒體窗', role: 'Retail Media Ops', badge: 'RMN' },
       lineMessage: '我們平台內建「站內曝光直結收銀結帳」歸因報表，保證數字漂亮零落差，還不趕快把外部品牌廣告費全移進來？',
       replies: [
@@ -760,7 +828,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     8: {
       sceneDesc:
-        '【媒體數據視角】晚上九點半計程車奔過松仁路夜雨霓虹，你的 iPad 正在跑自動擴量演算法監控——系統顯示 ROAS 衝到 14 倍歷史巔峰，可你把分層報表拉開一看：新客觸及比率正逐秒墜崖！',
+        '【媒體數據視角】晚上 9:00 計程車奔過莊敬路夜雨霓虹，你的 iPad 正在跑自動擴量演算法監控——系統顯示 ROAS 衝到 14 倍歷史巔峰，可你把分層報表拉開一看：新客觸及比率正逐秒墜崖！',
       lineSender: { name: '原廠演算法客服', role: '大平台優化團隊', badge: 'SALES' },
       lineMessage: '放手讓全自動機器學習打仗吧！現在 ROAS 天天破新高，人工設排除受眾只會綁死機器賺錢！',
       replies: [
@@ -785,7 +853,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     9: {
       sceneDesc:
-        '【媒體數據視角】晚上十點四十五分在市民大道熱炒店點完菜，大家正爭論明年第一季媒體配置：如果未來一半商品是AI個人代理人幫用戶去電商抓取推薦，媒體還需要投認知型大曝光嗎？',
+        '【媒體數據視角】晚上 10:20 在延吉街宵夜席點完菜，大家正爭論明年第一季媒體配置：如果未來一半商品是AI個人代理人幫用戶去電商抓取推薦，媒體還需要投認知型大曝光嗎？',
       lineSender: { name: '搜尋優化架構師', role: 'GEO / AIO 專家', badge: 'SEARCH' },
       lineMessage: '明年用戶全問 AI 買哪個了，我們乾脆把大曝光砍光、預算全拿去搶 AI 搜尋推薦權重跟低價商品庫不就好了？',
       replies: [
@@ -810,7 +878,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     10: {
       sceneDesc:
-        '【媒體數據視角】跨年最後十五分鐘富邦 A25 頂層螢幕一覽無遺：你順手點進那套運作十年的「智慧動態定價＋出價雙系統」後台程式碼深層，竟然赫然抓到一個寫死加價係數——專挑三年忠誠回購客把結帳價拉高一成五！',
+        '【媒體數據視角】晚上 11:30 跨年前半小時富邦 A25 頂樓演算法機房螢幕一覽無遺：你順手點進那套運作十年的「智慧動態定價＋出價雙系統」後台程式碼深層，竟然赫然抓到一個寫死加價係數——專挑三年忠誠回購客把結帳價拉高一成五！',
       lineSender: { name: '財務長（審計席）', role: '集團財務長 (CFO)', badge: 'CFO' },
       lineMessage: '那段對老主顧加價 15% 的黑箱權重就是我們毛利漂亮的秘密。下季媒體模型已經對齊這份帳本了，關掉會整盤下修，你關嗎？',
       replies: [
@@ -826,7 +894,7 @@ export const ROLE_CHAPTER_VARIANTS = {
   grandma: {
     1: {
       sceneDesc:
-        '【阿嬤霸主視角】早上 8:30 你騎著薄荷綠買菜車載著大同電鍋繞過陶朱隱園進富邦 A25 大廳。才停好車，幾個穿西裝的小朋友就圍過來炫耀一台新買的「算出誰發功勞給攤位」電腦！',
+        '【阿嬤霸主視角】清晨 6:30 永春早市剛收第一輪青菜，你騎著薄荷綠買菜車載著大同電鍋殺進松仁路富邦 A25 大廳。才停好車，幾個穿西裝的小朋友就圍過來炫耀一台新買的「算出誰發功勞給攤位」電腦！',
       lineSender: { name: '電通執行長（請益）', role: '集團執行長', badge: 'BOSS' },
       lineMessage: '阿嬤早安！我們剛買新歸因報表能算出每塊錢功勞，明年直接把市場門口大招牌拆掉省預算好不好？',
       replies: [
@@ -851,7 +919,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     2: {
       sceneDesc:
-        '【阿嬤霸主視角】上午十點全公司大老闆在富邦 A25 會議室悶著頭吵不停，原來那家大銀行徒弟學會買菜擺攤後想要自己開分店。你端一鍋剛燉好的控肉推門進去。',
+        '【阿嬤霸主視角】上午 9:00 從永春老麵攤打包剛燉好的控肉推門進富邦 A25 會議室，聽見大老闆們悶著頭吵不停，原來那家大銀行徒弟學會買菜擺攤後想要自己開分店。你端一鍋剛燉好的控肉推門進去。',
       lineSender: { name: '資深總監（求救）', role: '集團執行長', badge: 'BOSS' },
       lineMessage: '阿嬤怎麼辦，我們客戶把行銷招數學完就要自己接手不付我們操作費了，以後不要教他們好不好？',
       replies: [
@@ -876,7 +944,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     3: {
       sceneDesc:
-        '【阿嬤霸主視角】中午颱風外圍雨水掃過信義區，老闆躲在富邦 A25 餐廳一邊愁吃便當一邊哀號景氣不好想要節流，居然盤算把所有攤位招牌跟燈箱全部關掉省電費。',
+        '【阿嬤霸主視角】接近中午 11:45 颱風外圍雨水掃過松德路騎樓，老鄰居肉攤阿明一邊愁吃便當一邊哀號景氣不好想要節流，居然盤算把所有攤位招牌跟燈箱全部關掉省電費。',
       lineSender: { name: '肉攤老闆阿明', role: '菜市場老鄰居', badge: 'MARKET' },
       lineMessage: '阿嬤！最近下雨客人少一半，大家都在講把外面大招牌熄燈拿去賣廢鐵省錢，只剩叫賣大聲公就好，對嗎？',
       replies: [
@@ -901,7 +969,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     4: {
       sceneDesc:
-        '【阿嬤霸主視角】下午兩點茶水間走道，推銷員剛拿著一本小本子偷寫下每個進門買菜阿伯的衣著電話住址，還要阿嬤花大錢買下那本「神算客戶秘密名冊」。',
+        '【阿嬤霸主視角】下午 1:30 從虎林街紅茶攤逛進茶水間走道，推銷員剛拿著一本小本子偷寫下每個進門買菜阿伯的衣著電話住址，還要阿嬤花大錢買下那本「神算客戶秘密名冊」。',
       lineSender: { name: '油滑軟體推銷員', role: '資料系統銷售員', badge: 'SALES' },
       lineMessage: '阿嬤！只要跟我們買這套鏡頭點名機，哪個客人家住幾樓愛吃什麼肉我們都幫你偷記起來追蹤一輩子喔！',
       replies: [
@@ -928,7 +996,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     5: {
       sceneDesc:
-        '【阿嬤霸主視角】下午三點四十五分剛分著吃雞排珍奶，市場裡賣「救地球高級有機葉菜」的小夥子哭喪著臉跑來訴苦：每位大姐嘴巴喊天然真讚，一問價格全部跑去拿隔壁特價三把五十的青江菜！',
+        '【阿嬤霸主視角】下午 3:15 永吉路 30 巷口剛買完點心，市場裡賣「救地球高級有機葉菜」的小夥子哭喪著臉跑來訴苦：每位大姐嘴巴喊天然真讚，一問價格全部跑去拿隔壁特價三把五十的青江菜！',
       lineSender: { name: '有機菜農小夥子', role: '年輕青農', badge: 'FARMER' },
       lineMessage: '阿嬤明明大家新聞上都喊支持永續，我這把有機菜多貼一張大口號賣兩倍價錢居然一把都賣不掉，大家騙人嗎？',
       replies: [
@@ -953,7 +1021,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     6: {
       sceneDesc:
-        '【阿嬤霸主視角】傍晚五點半內湖攝影棚還在忙，剛剛聽到幾個客戶想靠一秒生出一大鍋無味機械文案來替代真實下廚記憶，阿嬤直接把安全帽甩上車頭喊一聲：我現在帶鍋子殺過去！',
+        '【阿嬤霸主視角】傍晚 5:00 騎過瑞光路急轉彎聽到幾個客戶想靠一秒生出一大鍋無味機械文案來替代真實下廚記憶，阿嬤直接把安全帽甩上車頭喊一聲：我現在帶鍋子殺過去！',
       lineSender: { name: '攝影棚製片', role: '內湖片場窗口', badge: 'STUDIO' },
       lineMessage: '阿嬤！客戶嫌拍真正煮飯拍戲太花時間，要用 AI 電腦一分鐘產三十支假煮菜短片頂替預算砍半，你要去現場拆台嗎？',
       replies: [
@@ -980,7 +1048,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     7: {
       sceneDesc:
-        '【阿嬤霸主視角】晚上七點半松仁路大樓霓虹爍爍，剛進富邦 A25 一樓就看小孫子對著通路百貨平台送來的新帳單皺眉——那個市場大房東竟然要求全額包下站內廣告，還說我幫你們打考績包準漂漂亮亮！',
+        '【阿嬤霸主視角】晚上 6:45 提著保溫便當盒走進富邦 A25 一樓收件櫃台，正看小孫子對著通路百貨平台送來的新帳單皺眉——那個市場大房東竟然要求全額包下站內廣告，還說我幫你們打考績包準漂漂亮亮！',
       lineSender: { name: '成長長（請益阿嬤）', role: '集團成長長 (CGO)', badge: 'CGO' },
       lineMessage: '阿嬤！這個超級商場能從攤前路過算到櫃台結帳，報表數字完美得不得了，全部廣告費都交給房東算好不好？',
       replies: [
@@ -1005,7 +1073,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     8: {
       sceneDesc:
-        '【阿嬤霸主視角】晚上九點半搭小黃回 A25 路上，孫子高興展示剛買的自動喊客大聲公：只要聽到熟悉鄰居腳步聲就用最大分貝狂叫「老王今天買肉喔」，帳面上天天狂銷，可整整兩週沒見過一個外地生面孔！',
+        '【阿嬤霸主視角】晚上 8:45 搭小黃轉過松仁路路口回 A25 路上，孫子高興展示剛買的自動喊客大聲公：只要聽到熟悉鄰居腳步聲就用最大分貝狂叫「老王今天買肉喔」，帳面上天天狂銷，可整整兩週沒見過一個外地生面孔！',
       lineSender: { name: '推銷自動機小張', role: '自動喊客機業務', badge: 'SALES' },
       lineMessage: '阿嬤這台自動精準機厲害吧！它發現對著熟悉張媽媽與李伯伯狂吼成交率最高，我們把對面馬路招牌喊停只專攻熟客吧？',
       replies: [
@@ -1030,7 +1098,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     9: {
       sceneDesc:
-        '【阿嬤霸主視角】晚上十點四十五分剛幫孫子點完市民大道熱炒準備熱湯，孫子滑手機問：「以後連孫女去買個茶飲都要叫AI小助理照價錢甜度表格直接抓一瓶出來，我們菜攤名號還有人在意嗎？」',
+        '【阿嬤霸主視角】晚上 10:00 安和路熱炒宵夜剛幫孫子點完熱湯，孫子滑手機問：「以後連孫女去買個茶飲都要叫AI小助理照價錢甜度表格直接抓一瓶出來，我們菜攤名號還有人在意嗎？」',
       lineSender: { name: '孫仔（策略顧問）', role: '乖孫來問路', badge: 'FAMILY' },
       lineMessage: '阿嬤！以後機器人幫大家看價格和營養表自動下單了，我們先花錢打點機器人讓它寫推薦第一名，還是先做讓人流連忘返的口碑？',
       replies: [
@@ -1055,7 +1123,7 @@ export const ROLE_CHAPTER_VARIANTS = {
     },
     10: {
       sceneDesc:
-        '【阿嬤霸主視角】跨年前十五分鐘的富邦 A25 頂樓會議室，所有人看著財務長從背後翻出來那桿傳說中最賺錢的電子彈簧秤——平常秤生客賣一百，碰到最疼你的十年老鄰居居然自動偷加重一成賣一百一！',
+        '【阿嬤霸主視角】晚上 11:20 提著熱豆花走進富邦 A25 頂樓宵夜桌，所有人看著財務長從背後翻出來那桿傳說中最賺錢的電子彈簧秤——平常秤生客賣一百，碰到最疼你的十年老鄰居居然自動偷加重一成賣一百一！',
       lineSender: { name: '財務長（十點半對帳）', role: '集團財務長 (CFO)', badge: 'CFO' },
       lineMessage: '阿嬤您看，這台全自動電子秤就是靠偵測老主顧心甘情願不比價才多偷加價一成五替集團撐起業績，難道要全拆掉嗎？',
       replies: [
@@ -1072,10 +1140,22 @@ export const ROLE_CHAPTER_VARIANTS = {
 export function getChapterForRole(chapterIndex, roleId = 'planner') {
   const base = CHAPTERS[chapterIndex] || CHAPTERS[0];
   const roleKey = ROLE_ROUTE_META[roleId] ? roleId : 'planner';
+  const itinerary = ROLE_ITINERARIES[roleKey]?.[base.id] || {};
   const variant = ROLE_CHAPTER_VARIANTS[roleKey]?.[base.id] || {};
-  return {
+  const merged = {
     ...base,
+    ...itinerary,
     ...variant,
+  };
+  const customRoadSign = variant.roadSign || itinerary.roadSign;
+  return {
+    ...merged,
+    mapPos: variant.mapPos || itinerary.mapPos || base.mapPos,
+    googleMap: {
+      ...base.googleMap,
+      ...(customRoadSign ? { roadSign: customRoadSign } : {}),
+      ...(variant.googleMap || {}),
+    },
     baseLineSender: base.lineSender,
     baseLineMessage: base.lineMessage,
     roleRoute: ROLE_ROUTE_META[roleKey],

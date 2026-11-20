@@ -428,19 +428,6 @@ class SoundEngine {
     }
   }
 
-  _pickZhTwVoice(roleKey) {
-    if (typeof window === 'undefined' || !window.speechSynthesis?.getVoices) return null;
-    const voices = window.speechSynthesis.getVoices() || [];
-    const tw = voices.filter((v) => /zh[-_]?tw|taiwan/i.test(`${v.lang} ${v.name}`));
-    const zh = tw.length ? tw : voices.filter((v) => /zh|cmn|chinese/i.test(`${v.lang} ${v.name}`));
-    if (!zh.length) return null;
-    if (roleKey === 'lisa' || roleKey === 'cindy' || roleKey === 'grandma') {
-      const fem = zh.find((v) => /meijia|hsiaochen|yun|ting|female/i.test(v.name));
-      if (fem) return fem;
-    }
-    return zh[0];
-  }
-
   resolveGrandmaClip(text) {
     return GRANDMA_VOICE_CLIPS[normalizeGrandmaVoiceKey(text)] || null;
   }
@@ -483,56 +470,7 @@ class SoundEngine {
     this._clearSpeechState();
   }
 
-  _speakWithWebSpeech(cleanText, roleKey) {
-    if (typeof window === 'undefined' || !window.speechSynthesis || typeof SpeechSynthesisUtterance === 'undefined') {
-      this._clearSpeechState();
-      return false;
-    }
-
-    const speechBody = String(cleanText)
-      .replace(/[「」『』\[\]【】]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 180);
-    if (!speechBody) {
-      this._clearSpeechState();
-      return false;
-    }
-
-    const profile = VOICE_PROFILES[roleKey] || VOICE_PROFILES.narrator;
-    const utter = new SpeechSynthesisUtterance(speechBody);
-    utter.lang = 'zh-TW';
-    const v = this._pickZhTwVoice(roleKey);
-    if (v) utter.voice = v;
-    utter.rate = profile.rate;
-    utter.pitch = profile.pitch;
-    utter.volume = profile.volume;
-
-    // 立即壓低背景音樂，確保人聲從第一個字就清楚浮現
-    this.speaking = true;
-    this.activeVoiceRole = roleKey;
-    this._updateBgmDucking();
-    if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, roleKey);
-
-    utter.onstart = () => {
-      this.speaking = true;
-      this.activeVoiceRole = roleKey;
-      this._updateBgmDucking();
-    };
-    const finish = () => this._clearSpeechState();
-    utter.onend = finish;
-    utter.onerror = finish;
-
-    try {
-      window.speechSynthesis.speak(utter);
-      return true;
-    } catch {
-      finish();
-      return false;
-    }
-  }
-
-  _playClipFile(clipUrl, clean, roleKey, token) {
+  _playClipFile(clipUrl, _clean, _roleKey, token) {
     const audio = new Audio(clipUrl);
     audio.preload = 'auto';
     audio.volume = 1.0;
@@ -547,19 +485,15 @@ class SoundEngine {
       if (token !== this._audioToken) return;
       this.activeAudio = null;
       this._clearSpeechState();
-      this._speakWithWebSpeech(clean, roleKey);
     };
 
     try {
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch((err) => {
+        playPromise.catch(() => {
           if (token !== this._audioToken) return;
           this.activeAudio = null;
           this._clearSpeechState();
-          if (err?.name !== 'NotAllowedError') {
-            this._speakWithWebSpeech(clean, roleKey);
-          }
         });
       }
       return true;
@@ -584,11 +518,19 @@ class SoundEngine {
     this.stopSpeech();
 
     const clipUrl = this.resolveVoiceClip(clean, roleKey);
+    if (!clipUrl) {
+      // 僅播放工作室真人 VoAI 錄音檔，絕不降級為瀏覽器預設女聲 TTS 呢喃
+      if (roleKey === 'grandma') {
+        this.playTatungCooker();
+      }
+      return false;
+    }
+
     if (roleKey === 'grandma') {
       this.playTatungCooker();
     }
 
-    if (clipUrl && typeof Audio !== 'undefined') {
+    if (typeof Audio !== 'undefined') {
       const token = ++this._audioToken;
       this.speaking = true;
       this.activeVoiceRole = roleKey;
@@ -608,7 +550,7 @@ class SoundEngine {
       }
     }
 
-    return this._speakWithWebSpeech(clean, roleKey);
+    return false;
   }
 }
 

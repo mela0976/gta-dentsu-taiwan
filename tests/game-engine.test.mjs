@@ -183,11 +183,19 @@ test('Voice mix foregrounds dialogue over BGM and covers 42 character VoAI clips
   }
 });
 
-test('All 5 roles have distinct storylines, LINE dilemmas, replies, mini-games across 10 chapters, and full playthroughs', () => {
+test('All 5 roles have distinct itineraries, storylines, LINE dilemmas, replies, mini-games across 10 chapters, and full playthroughs', () => {
   const roleIds = ROLES.map((r) => r.id);
   assert.equal(roleIds.length, 5);
 
+  for (const rid of roleIds) {
+    assert.ok(ROLE_ROUTE_META[rid]?.routeItinerary, `Missing routeItinerary for ${rid}`);
+  }
+
   for (let i = 0; i < CHAPTERS.length; i += 1) {
+    const timeSlots = new Set();
+    const locations = new Set();
+    const titles = new Set();
+    const roadSigns = new Set();
     const scenes = new Set();
     const messages = new Set();
     const prompts = new Set();
@@ -195,6 +203,11 @@ test('All 5 roles have distinct storylines, LINE dilemmas, replies, mini-games a
       const ch = getChapterForRole(i, rid);
       assert.equal(ch.replies.length, 4, `${rid} Ch${i + 1} must have 4 replies`);
       assert.ok(ROLE_ROUTE_META[rid], `Missing ROLE_ROUTE_META for ${rid}`);
+      assert.ok(Array.isArray(ch.mapPos) && ch.mapPos.length === 2, `${rid} Ch${i + 1} missing mapPos [x, y]`);
+      timeSlots.add(ch.timeSlot);
+      locations.add(ch.location);
+      titles.add(ch.title);
+      roadSigns.add(ch.googleMap?.roadSign || '');
       scenes.add(ch.sceneDesc);
       messages.add(ch.lineMessage);
       if (i < 9) {
@@ -207,12 +220,19 @@ test('All 5 roles have distinct storylines, LINE dilemmas, replies, mini-games a
         assert.ok(ch.game.cards[3].includes(ch.grandmaPhoneCall.triggerCardText));
       }
     }
+    assert.equal(timeSlots.size, 5, `Ch${i + 1} expected 5 unique timeSlot values`);
+    assert.equal(locations.size, 5, `Ch${i + 1} expected 5 unique location values`);
+    assert.equal(titles.size, 5, `Ch${i + 1} expected 5 unique title values`);
+    assert.equal(roadSigns.size, 5, `Ch${i + 1} expected 5 unique roadSign values`);
     assert.equal(scenes.size, 5, `Ch${i + 1} expected 5 unique sceneDesc values`);
     assert.equal(messages.size, 5, `Ch${i + 1} expected 5 unique lineMessage values`);
     if (i < 9) {
       assert.equal(prompts.size, 5, `Ch${i + 1} expected 5 unique game prompts`);
     }
   }
+
+  // Verify unmapped lines never trigger fallback browser TTS murmuring
+  assert.equal(soundFX.speak('尚未錄製音檔的角色對話測試絕不觸發背景女聲呢喃', 'boss', true), false);
 
   // Run full 10-chapter playthrough for every role
   for (const rid of roleIds) {
@@ -240,6 +260,8 @@ test('All 5 roles have distinct storylines, LINE dilemmas, replies, mini-games a
         state = submitMiniGame(state, sub);
       }
       assert.equal(state.phase, 'reveal');
+      assert.equal(state.history[state.history.length - 1].timeSlot, ch.timeSlot);
+      assert.equal(state.history[state.history.length - 1].location, ch.location);
       state = advanceChapter(state);
     }
     assert.equal(state.phase, 'review', `${rid} did not reach review`);

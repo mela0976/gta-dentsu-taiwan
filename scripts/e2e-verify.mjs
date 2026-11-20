@@ -105,6 +105,7 @@ async function checkDesktopGeometry(page, label, checkReveal = false) {
     const media = document.querySelector('.scene-media-viewport')?.getBoundingClientRect();
     const controls = document.querySelector('.track-controls')?.getBoundingClientRect();
     const controlOverlap = Boolean(media && controls && controls.top < media.bottom - 1);
+    const leftControlBtns = document.querySelectorAll('.track-controls .ctl-row > button').length;
 
     let takeawayH = null;
     if (wantReveal) {
@@ -119,6 +120,7 @@ async function checkDesktopGeometry(page, label, checkReveal = false) {
       meterOverlap,
       meterTruncated,
       controlsH: controls ? Math.round(controls.height) : 0,
+      leftControlBtns,
       controlOverlap,
       takeawayH
     };
@@ -129,7 +131,8 @@ async function checkDesktopGeometry(page, label, checkReveal = false) {
   assert.equal(geo.meterOverlap, false, `${label}: HUD meters overlapped`);
   assert.deepEqual(geo.meterTruncated, [], `${label}: HUD meter labels truncated: ${geo.meterTruncated.join(', ')}`);
   assert.equal(geo.controlOverlap, false, `${label}: Controls overlapped scene media viewport`);
-  assert.ok(geo.controlsH <= 98, `${label}: track-controls wrapped unexpectedly tall (${geo.controlsH}px)`);
+  assert.ok(geo.leftControlBtns <= 4, `${label}: Too many left control buttons (${geo.leftControlBtns} > 4)`);
+  assert.ok(geo.controlsH <= 64, `${label}: track-controls too tall (${geo.controlsH}px)`);
   if (checkReveal) {
     assert.ok(geo.takeawayH >= 100, `${label}: Takeaway card crushed (${geo.takeawayH}px)`);
   }
@@ -191,6 +194,16 @@ async function run() {
     // 1. Multi-resolution geometry & interactive matrix (1024x720, 1280x800, 1920x1080)
     for (const [w, h, name] of [[1024, 720, 'compact-1024'], [1280, 800, 'laptop-1280'], [1920, 1080, 'fhd-1920']]) {
       const page = await browser.newPage({ viewport: { width: w, height: h } });
+      await page.addInitScript(() => {
+        window.__ttsSpeakCalls = 0;
+        if (window.speechSynthesis && typeof window.speechSynthesis.speak === 'function') {
+          const orig = window.speechSynthesis.speak.bind(window.speechSynthesis);
+          window.speechSynthesis.speak = (...args) => {
+            window.__ttsSpeakCalls += 1;
+            return orig(...args);
+          };
+        }
+      });
       attachErrorWatchers(page, name);
       await page.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
       await checkImagesLoaded(page, `${name}-title`);
@@ -203,11 +216,19 @@ async function run() {
           sh: document.documentElement.scrollHeight,
           vw,
           vh,
+          hasStoryCard: Boolean(document.querySelector('.hero-story-card')),
+          flowSteps: document.querySelectorAll('.quickstart-step').length,
           actionsBottom: rect ? Math.round(rect.bottom) : 0,
           guideTop: Math.round(document.querySelector('.bottom-guide-bar')?.getBoundingClientRect()?.top || vh)
         };
       });
+      assert.equal(titleBounds.hasStoryCard, true, `${name}: Missing rewritten hero story card`);
+      assert.equal(titleBounds.flowSteps, 4, `${name}: Expected 4 numbered play flow steps on Title`);
       assert.ok(titleBounds.actionsBottom <= titleBounds.guideTop, `${name}: Title actions overlapped guide bar (${titleBounds.actionsBottom} > ${titleBounds.guideTop})`);
+
+      if (ssDir && name === 'compact-1024') {
+        await page.screenshot({ path: path.join(ssDir, 'e2e-1024-title.png') });
+      }
 
       // Test AMA666 cheat code unlock + banner feedback + enter role select
       await page.fill('.cheat-input', 'AMA666');
@@ -216,29 +237,42 @@ async function run() {
       await page.click('.hero-actions .btn-primary');
       await page.waitForSelector('.role-grid');
       await checkImagesLoaded(page, `${name}-roles`);
+      if (ssDir && name === 'compact-1024') {
+        await page.screenshot({ path: path.join(ssDir, 'e2e-1024-roles.png') });
+      }
 
       const roleCount = await page.locator('.role-card:not([disabled])').count();
       assert.equal(roleCount, 5, `${name}: Expected all 5 roles unlocked by AMA666, got ${roleCount}`);
+      const roleItineraries = await page.locator('.role-route-itinerary').count();
+      assert.equal(roleItineraries, 5, `${name}: Expected 5 role itinerary previews on role cards`);
 
       await page.click('.role-card');
       await page.waitForSelector('.cutscene-video');
       await page.click('.chapter-header .btn-primary');
       await page.waitForSelector('.play-grid');
+      await page.waitForSelector('.quiz-guide-box');
       await checkImagesLoaded(page, `${name}-scene`);
       await checkDesktopGeometry(page, `${name}-scene`, false);
       if (ssDir && name === 'compact-1024') {
         await page.screenshot({ path: path.join(ssDir, 'e2e-1024-scene.png') });
       }
 
-      // Test scene tabs, FSD toggle, radio, voice, mute, and Escape-closable modals
-      await page.click('button:has-text("A25實拍")');
+      // Test decluttered left scene controls & native #scene-more-views popover
+      await page.click('#more-views-trigger');
+      await page.waitForSelector('#scene-more-views:popover-open');
+      await page.click('#scene-more-views button:has-text("A25實拍")');
       await page.waitForTimeout(120);
       await checkImagesLoaded(page, `${name}-a25photo`);
-      await page.click('button:has-text("Tesla FSD")');
-      await page.waitForSelector('.scene-fsd svg');
-      await page.click('button:has-text("3D劇照")');
 
-      await page.click('button:has-text("放大街景")');
+      await page.click('#more-views-trigger');
+      await page.waitForSelector('#scene-more-views:popover-open');
+      await page.click('#scene-more-views button:has-text("Tesla FSD")');
+      await page.waitForSelector('.scene-fsd svg');
+      await page.click('.track-controls button:has-text("3D劇照")');
+
+      await page.click('#more-views-trigger');
+      await page.waitForSelector('#scene-more-views:popover-open');
+      await page.click('#scene-more-views button:has-text("放大")');
       await page.waitForSelector('.modal-box');
       await page.keyboard.press('Escape');
       assert.equal(await page.locator('.modal-box').count(), 0, `${name}: Escape did not close StreetView modal`);
@@ -258,6 +292,8 @@ async function run() {
       await page.waitForSelector('.stamp-slot');
       await page.waitForTimeout(650);
       await checkDesktopGeometry(page, `${name}-reveal`, true);
+      const ttsCalls = await page.evaluate(() => window.__ttsSpeakCalls || 0);
+      assert.equal(ttsCalls, 0, `${name}: Expected 0 browser Web Speech murmuring calls, got ${ttsCalls}`);
       if (ssDir && (name === 'compact-1024' || name === 'laptop-1280')) {
         await page.screenshot({ path: path.join(ssDir, `e2e-${name}-reveal.png`) });
       }
@@ -421,7 +457,7 @@ async function run() {
     await tourPage.click('dialog.tour-modal .btn-primary'); // Launch Role Screen Step 1/7
     await tourPage.waitForSelector('dialog.hud-tour-popover');
 
-    const expectedSelectors = ['.role-grid', '.hud-bar', '.scene-card', '#clue-card-panel', '#phone-card-panel', '.main-stage', '.bottom-guide-bar'];
+    const expectedSelectors = ['.role-grid', '.hud-bar', '.scene-card', '#clue-card-panel', '.main-stage', '#phone-card-panel', '.bottom-guide-bar'];
     for (let i = 0; i < expectedSelectors.length; i += 1) {
       const sel = expectedSelectors[i];
       await tourPage.waitForSelector(`${sel}.tour-spotlight-target`);
@@ -432,9 +468,11 @@ async function run() {
     assert.equal(await tourPage.evaluate(() => localStorage.getItem('gta_dentsu_tour_done_v1')), '1', 'Tour completion not saved');
     await tourPage.close();
 
-    // 6. Verify all 5 roles produce 5 distinct Ch1 storylines, LINE dilemmas, and mini-game prompts in UI
+    // 6. Verify all 5 roles produce 5 distinct Ch1 itineraries, storylines, LINE dilemmas, and mini-game prompts in UI
     const roleDiffPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     attachErrorWatchers(roleDiffPage, 'role-diff');
+    const seenItineraries = new Set();
+    const seenHeadings = new Set();
     const seenScenes = new Set();
     const seenMessages = new Set();
     const seenPrompts = new Set();
@@ -452,8 +490,12 @@ async function run() {
       await roleDiffPage.waitForSelector('.replies-grid');
       await proofreadPage(roleDiffPage, FORBIDDEN_WORDS, `role-${rIdx}-ch1-scene`);
 
+      const ch1Kicker = await roleDiffPage.locator('.main-stage .chapter-header .gta-kicker').textContent();
+      const ch1Heading = await roleDiffPage.locator('.main-stage .chapter-header h2').textContent();
       const ch1Scene = await roleDiffPage.locator('.main-stage .chapter-desc').textContent();
       const ch1Msg = await roleDiffPage.locator('.boss-callout.line-banner div div:nth-child(2)').textContent();
+      seenItineraries.add(ch1Kicker.trim());
+      seenHeadings.add(ch1Heading.trim());
       seenScenes.add(ch1Scene.trim());
       seenMessages.add(ch1Msg.trim());
 
@@ -463,13 +505,15 @@ async function run() {
       seenPrompts.add(ch1Prompt.trim());
       await proofreadPage(roleDiffPage, FORBIDDEN_WORDS, `role-${rIdx}-ch1-game`);
     }
+    assert.equal(seenItineraries.size, 5, `Expected 5 distinct Ch1 itinerary timeSlots across roles, got ${seenItineraries.size}`);
+    assert.equal(seenHeadings.size, 5, `Expected 5 distinct Ch1 itinerary locations/titles across roles, got ${seenHeadings.size}`);
     assert.equal(seenScenes.size, 5, `Expected 5 distinct Ch1 scene descriptions across roles, got ${seenScenes.size}`);
     assert.equal(seenMessages.size, 5, `Expected 5 distinct Ch1 LINE messages across roles, got ${seenMessages.size}`);
     assert.equal(seenPrompts.size, 5, `Expected 5 distinct Ch1 mini-game prompts across roles, got ${seenPrompts.size}`);
     await roleDiffPage.close();
 
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
-    console.log('E2E VERIFY PASSED: 1024x720, 1280x800, 1920x1080, 390x844, 3-slide welcome + 7-step HUD tour, 5 distinct role storylines/quizzes, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
+    console.log('E2E VERIFY PASSED: 1024x720, 1280x800, 1920x1080, 390x844, 0 Web Speech murmuring, decluttered left controls + #scene-more-views popover, 3-slide welcome + 7-step HUD tour, 5 distinct role itineraries/storylines/quizzes, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
   } finally {
     await browser.close();
     server.close();

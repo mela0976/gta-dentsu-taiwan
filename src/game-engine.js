@@ -274,6 +274,8 @@ export function chooseReply(state, replyIndex) {
     const record = {
       chapterId: ch.id,
       year: ch.year,
+      timeSlot: ch.timeSlot,
+      location: ch.location,
       title: ch.title,
       replyId: rep.id,
       replyText: rep.text,
@@ -440,6 +442,8 @@ export function submitMiniGame(state, submission) {
   const record = {
     chapterId: ch.id,
     year: ch.year,
+    timeSlot: ch.timeSlot,
+    location: ch.location,
     title: ch.title,
     replyId: state.activeReply ? state.activeReply.id : 0,
     replyText: state.activeReply ? state.activeReply.text : '',
