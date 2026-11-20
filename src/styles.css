@@ -809,29 +809,32 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .chapter-header .pill { display: none; }
   .zone-tag.is-ref { padding: 2px 8px; font-size: 11px; }
   .zone-tag.is-action { padding: 2px 8px; font-size: 11px; }
-  .beginner-coach-banner { padding: 4px 8px; font-size: 11.5px; line-height: 1.25; gap: 6px; }
-  .beginner-coach-actions button { min-height: 24px; padding: 2px 7px; font-size: 11px; }
+  .beginner-coach-banner { padding: 3px 8px; font-size: 11px; line-height: 1.22; gap: 6px; }
+  .beginner-coach-actions button { min-height: 22px; padding: 1px 7px; font-size: 10.5px; }
   .step-pill { padding: 2px 6px; font-size: 11.5px; }
   .chapter-header { padding-bottom: 3px; }
-  .chapter-header h2 { margin: 2px 0 0; font-size: 16px; line-height: 1.2; }
-  .main-stage { gap: 4px; padding: 6px 10px; }
+  .chapter-header h2 { margin: 1px 0 0; font-size: 14.5px; line-height: 1.2; }
+  .main-stage { gap: 3px; padding: 6px 10px; }
   .main-stage-inner { gap: 4px; }
   .quiz-guide-box { padding: 4px 8px; gap: 1px; }
   .quiz-guide-badge { font-size: 11px; }
-  .chapter-desc { font-size: 13px; line-height: 1.26; }
-  .boss-callout { font-size: 13px; padding: 4px 8px; line-height: 1.26; }
+  .chapter-desc { font-size: 12.8px; line-height: 1.24; }
+  .boss-callout { font-size: 13px; padding: 4px 8px; line-height: 1.24; }
+  .boss-meta { font-size: 12px; }
+  .replay-btn { min-height: 30px; padding: 2px 8px; font-size: 12px; }
   .takeaway-card { padding: 6px 10px; }
   .takeaway-text { font-size: 15px; line-height: 1.28; padding-right: 124px; }
   .stamp-slot { width: 116px; top: 2px; right: 6px; }
   .gta6-analysis-card { padding: 5px 9px; font-size: 12px; line-height: 1.28; gap: 1px !important; }
   .rescue-toast { padding: 5px 9px; font-size: 13px; line-height: 1.28; }
   .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 36px; padding: 5px 12px; font-size: 14px; }
-  .prompt-line { font-size: 11.5px; line-height: 1.25; }
-  .replies-grid { gap: 5px; }
-  .reply-btn { min-height: 36px; font-size: 13px; padding: 3px 7px; gap: 6px; line-height: 1.22; }
+  .prompt-line { font-size: 11.5px; line-height: 1.22; }
+  .replies-grid { gap: 4px; }
+  .reply-btn { min-height: 35px; font-size: 13px; padding: 3px 7px; gap: 6px; line-height: 1.2; }
   .reply-key { width: 22px; height: 22px; font-size: 12px; }
   .reply-cta { font-size: 10.5px; padding: 1px 5px; }
-  .col-right .chat-scroll { max-height: 46px; }
+  .col-right .chat-scroll { max-height: 36px; }
+  .msg-bubble { padding: 4px 8px; font-size: 12.5px; }
   .phone-frame { padding: 5px 8px; }
   .phone-tab { min-height: 30px; font-size: 12.5px; }
   .clue-text { font-size: 13px; }

@@ -507,8 +507,8 @@ async function run() {
     assert.equal(await tourPage.evaluate(() => localStorage.getItem('gta_dentsu_tour_done_v1')), '1', 'Tour completion not saved');
     await tourPage.close();
 
-    // 6. Verify all 5 roles produce 5 distinct Ch1 itineraries, storylines, LINE dilemmas, and mini-game prompts in UI
-    const roleDiffPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    // 6. Verify all 5 roles produce 5 distinct Ch1 itineraries, storylines, LINE dilemmas, mini-game prompts, and fit all 4 replies cleanly at 1024x720
+    const roleDiffPage = await browser.newPage({ viewport: { width: 1024, height: 720 } });
     attachErrorWatchers(roleDiffPage, 'role-diff');
     const seenItineraries = new Set();
     const seenHeadings = new Set();
@@ -528,6 +528,14 @@ async function run() {
       await roleDiffPage.click('.chapter-header .btn-primary');
       await roleDiffPage.waitForSelector('.replies-grid');
       await proofreadPage(roleDiffPage, FORBIDDEN_WORDS, `role-${rIdx}-ch1-scene`);
+      const roleRepliesVisible = await roleDiffPage.evaluate(() => {
+        const ms = document.querySelector('.main-stage')?.getBoundingClientRect();
+        const btns = [...document.querySelectorAll('.reply-btn')];
+        if (!ms || btns.length !== 4) return { ok: false };
+        const b = btns[3].getBoundingClientRect();
+        return { ok: b.bottom <= ms.bottom + 2, diff: Math.round(b.bottom - ms.bottom) };
+      });
+      assert.equal(roleRepliesVisible.ok, true, `role-${rIdx} at 1024x720: 4th reply clipped (diff=${roleRepliesVisible.diff})`);
 
       const ch1Kicker = await roleDiffPage.locator('.main-stage .chapter-header .gta-kicker').textContent();
       const ch1Heading = await roleDiffPage.locator('.main-stage .chapter-header h2').textContent();

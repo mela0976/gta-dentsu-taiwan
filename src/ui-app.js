@@ -2084,7 +2084,7 @@ class GtaDentsuApp {
     const stepFlow = this._renderStepFlow(phase);
     const beginnerBanner = (this.state.chapterIndex === 0 && phase === 'scene' && !this.beginnerTipDismissed)
       ? el('div', { class: 'beginner-coach-banner', role: 'status' }, [
-          el('span', { style: 'flex:1 1 200px;', text: '🐣 新手提示：看完 LINE 直接點 1–4 回覆就對了（選錯不會死！）；左邊只是小抄卡關再看。' }),
+          el('span', { style: 'flex:1 1 200px;', text: '🐣 新手提示：看完 LINE 直接點 1–4 回覆（選錯不會死！）；左欄線索卡關再看。' }),
           el('div', { class: 'beginner-coach-actions' }, [
             el('button', {
               type: 'button',
