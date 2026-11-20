@@ -48,7 +48,10 @@ const REQUIRED_CHARACTER_CLIPS = [
   ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy.mp3`),
   ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway.mp3`),
   'fsd_on.mp3',
-  'fsd_off.mp3'
+  'fsd_off.mp3',
+  ...['account', 'creative', 'media', 'grandma'].flatMap((role) =>
+    Array.from({ length: 10 }, (_, i) => `role_${role}_ch${i + 1}_line.mp3`)
+  )
 ];
 
 const errors = [];
@@ -107,14 +110,14 @@ for (const vid of REQUIRED_VIDEOS) {
 for (const clip of REQUIRED_GRANDMA_CLIPS) {
   const p = path.join(DIST, 'public/audio/grandma', clip);
   if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
-    errors.push(`Missing or invalid VoAI Grandma MP3 clip: ${clip}`);
+    errors.push(`Missing or invalid Google Gemini TTS Grandma MP3 clip: ${clip}`);
   }
 }
 
 for (const clip of REQUIRED_CHARACTER_CLIPS) {
   const p = path.join(DIST, 'public/audio/voices', clip);
   if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
-    errors.push(`Missing or invalid VoAI character MP3 clip: ${clip}`);
+    errors.push(`Missing or invalid Google Gemini TTS character MP3 clip: ${clip}`);
   }
 }
 
@@ -128,4 +131,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} audio-enabled MP4 cutscenes, ${REQUIRED_GRANDMA_CLIPS.length + REQUIRED_CHARACTER_CLIPS.length} VoAI MP3 clips (36 grandma + 42 character), 0 leaks.`);
+console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} audio-enabled MP4 cutscenes, ${REQUIRED_GRANDMA_CLIPS.length + REQUIRED_CHARACTER_CLIPS.length} Google Gemini TTS MP3 clips (36 grandma + 82 character), 0 leaks.`);

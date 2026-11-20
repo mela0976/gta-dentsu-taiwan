@@ -148,7 +148,47 @@ export const CHARACTER_VOICE_CLIPS = {
   'narrator:AI可以幫人買東西品牌要讓人想買': './public/audio/voices/ch9_takeaway.mp3',
   'narrator:十年前相信數據能取代判斷十年後的結論是判斷不能外包': './public/audio/voices/ch10_takeaway.mp3',
   'fsd:TeslaFSD已接管前方機車十八公尺車距鎖定沿松仁路前進': './public/audio/voices/fsd_on.mp3',
-  'fsd:已切換回手動駕駛': './public/audio/voices/fsd_off.mp3'
+  'fsd:已切換回手動駕駛': './public/audio/voices/fsd_off.mp3',
+  'boss:你們上季ROAS報告數字超美但品牌宣傳預算看不出直接轉換明年預算只簽看得到成效的那包好嗎': './public/audio/voices/role_account_ch1_line.mp3',
+  'boss:明年我們自己養媒體團隊了你們還要跟我們簽顧問約嗎開個價吧': './public/audio/voices/role_account_ch2_line.mp3',
+  'boss:總部剛通知我們Q3預算直接砍一半品牌檔期先全抽掉保促銷轉換吧': './public/audio/voices/role_account_ch3_line.mp3',
+  'boss:這個全網ID追蹤外掛只要客戶加簽150萬受眾名單立刻回來獎金也算你們帳上簽嗎': './public/audio/voices/role_account_ch4_line.mp3',
+  'boss:客戶想推貴20%的永續減碳版包裝要我們在提案寫保證賣爆這業績你要扛嗎': './public/audio/voices/role_account_ch5_line.mp3',
+  'boss:我看友商整套改用AI產片製作費只要一半我們今年這筆製作合約直接對砍好嗎': './public/audio/voices/role_account_ch6_line.mp3',
+  'boss:你們若把預算全簽進我們通路RMN聯名包年底結帳單數字絕對最漂亮進貨位置也能保第一排喔': './public/audio/voices/role_account_ch7_line.mp3',
+  'boss:全自動投放跑兩週報表好看到老闆都想發獎金了要不要建議他直接把預算翻倍灌進去': './public/audio/voices/role_account_ch8_line.mp3',
+  'boss:明年連企業採購都叫AI先比三家規格了我們該勸客戶搶AI推薦欄位還是繼續養品牌': './public/audio/voices/role_account_ch9_line.mp3',
+  'boss:那台差別定價引擎替大客戶多賺了三千萬也讓我們抽佣破表下季合約要繼續打包它嗎': './public/audio/voices/role_account_ch10_line.mp3',
+  'boss:老闆嫌品牌電影看不到最後點擊成效要把30秒好劇本剪成純折扣比價卡你讓嗎': './public/audio/voices/role_creative_ch1_line.mp3',
+  'boss:客戶想自己成立內容部門要我們交出所有創意發想模板跟攝影規範教出去我們不會失業嗎': './public/audio/voices/role_creative_ch2_line.mp3',
+  'boss:預算只剩一半客戶乾脆叫我們拿前年的庫存素材重剪配個折價語音就過一年真的要接嗎': './public/audio/voices/role_creative_ch3_line.mp3',
+  'boss:互動官網只要加一道同意全網追蹤授權才能看彩蛋片客戶就能收集超多明細要加上去嗎': './public/audio/voices/role_creative_ch4_line.mp3',
+  'boss:客戶這支ESG廣告腳本只想要模特兒在草地奔跑喊愛地球口號我們就順水推舟交稿嗎': './public/audio/voices/role_creative_ch5_line.mp3',
+  'boss:AI一秒生出來這三十句廣告金句文筆都超工整客戶說以後文案全交AI我們只要當潤稿小弟能服氣嗎': './public/audio/voices/role_creative_ch6_line.mp3',
+  'boss:通路商說進了他們RMN系統版面都要套公版黃紅特價框美感完全不給留白全部妥協嗎': './public/audio/voices/role_creative_ch7_line.mp3',
+  'boss:演算法系統自動測試後把你那支品牌故事線全砍掉只保留會點購買的三秒白底價格閃燈版要喊停嗎': './public/audio/voices/role_creative_ch8_line.mp3',
+  'boss:當2026的人們都叫AI照成分價格表幫挑飲料我們還需要把設計和品牌文化做這麼有靈魂嗎': './public/audio/voices/role_creative_ch9_line.mp3',
+  'boss:高層想用漂亮的專享貴賓動態價介面包裝差別抬價引擎叫我們三天後出美編稿做不做': './public/audio/voices/role_creative_ch10_line.mp3',
+  'boss:老闆看到報告寫歸因轉換八倍開心到不行要把品牌電視和戶外看板預算全砍來加碼這套工具我們拆穿嗎': './public/audio/voices/role_media_ch1_line.mp3',
+  'boss:大客戶準備自己去媒體原廠開帳戶自操我們手上的媒體採購量一掉就斷炊了這堂課還要教嗎': './public/audio/voices/role_media_ch2_line.mp3',
+  'boss:總部剛把下季預算全砍半所有競品也全躲進關鍵字與導購收割了我們排期還要留品牌版位嗎': './public/audio/voices/role_media_ch3_line.mp3',
+  'boss:第三方Cookie快死透了我們這包跨裝置黑盒比對名單精準率九成五每月租只要二十萬匯入投放吧': './public/audio/voices/role_media_ch4_line.mp3',
+  'boss:同業全部在狂買ESG相關頻道版位害單價漲了三倍我們還要跟進搶同一個議題關鍵字嗎': './public/audio/voices/role_media_ch5_line.mp3',
+  'boss:AI幫系統一分鐘換了三十組圖片文案跑完全部點擊都黏在同一水平沒拉出贏家要把創意費砍半交給系統洗嗎': './public/audio/voices/role_media_ch6_line.mp3',
+  'boss:我們平台內建站內曝光直結收銀結帳歸因報表保證數字漂亮零落差還不趕快把外部品牌廣告費全移進來': './public/audio/voices/role_media_ch7_line.mp3',
+  'boss:放手讓全自動機器學習打仗吧現在ROAS天天破新高人工設排除受眾只會綁死機器賺錢': './public/audio/voices/role_media_ch8_line.mp3',
+  'boss:明年用戶全問AI買哪個了我們乾脆把大曝光砍光預算全拿去搶AI搜尋推薦權重跟低價商品庫不就好了': './public/audio/voices/role_media_ch9_line.mp3',
+  'boss:那段對老主顧加價15%的黑箱權重就是我們毛利漂亮的秘密下季媒體模型已經對齊這份帳本了關掉會整盤下修你關嗎': './public/audio/voices/role_media_ch10_line.mp3',
+  'boss:阿嬤早安我們剛買新歸因報表能算出每塊錢功勞明年直接把市場門口大招牌拆掉省預算好不好': './public/audio/voices/role_grandma_ch1_line.mp3',
+  'boss:阿嬤怎麼辦我們客戶把行銷招數學完就要自己接手不付我們操作費了以後不要教他們好不好': './public/audio/voices/role_grandma_ch2_line.mp3',
+  'boss:阿嬤最近下雨客人少一半大家都在講把外面大招牌熄燈拿去賣廢鐵省錢只剩叫賣大聲公就好對嗎': './public/audio/voices/role_grandma_ch3_line.mp3',
+  'boss:阿嬤只要跟我們買這套鏡頭點名機哪個客人家住幾樓愛吃什麼肉我們都幫你偷記起來追蹤一輩子喔': './public/audio/voices/role_grandma_ch4_line.mp3',
+  'boss:阿嬤明明大家新聞上都喊支持永續我這把有機菜多貼一張大口號賣兩倍價錢居然一把都賣不掉大家騙人嗎': './public/audio/voices/role_grandma_ch5_line.mp3',
+  'boss:阿嬤客戶嫌拍真正煮飯拍戲太花時間要用AI電腦一分鐘產三十支假煮菜短片頂替預算砍半你要去現場拆台嗎': './public/audio/voices/role_grandma_ch6_line.mp3',
+  'boss:阿嬤這個超級商場能從攤前路過算到櫃台結帳報表數字完美得不得了全部廣告費都交給房東算好不好': './public/audio/voices/role_grandma_ch7_line.mp3',
+  'boss:阿嬤這台自動精準機厲害吧它發現對著熟悉張媽媽與李伯伯狂吼成交率最高我們把對面馬路招牌喊停只專攻熟客吧': './public/audio/voices/role_grandma_ch8_line.mp3',
+  'boss:阿嬤以後機器人幫大家看價格和營養表自動下單了我們先花錢打點機器人讓它寫推薦第一名還是先做讓人流連忘返的口碑': './public/audio/voices/role_grandma_ch9_line.mp3',
+  'boss:阿嬤您看這台全自動電子秤就是靠偵測老主顧心甘情願不比價才多偷加價一成五替集團撐起業績難道要全拆掉嗎': './public/audio/voices/role_grandma_ch10_line.mp3'
 };
 
 class SoundEngine {
@@ -519,7 +559,7 @@ class SoundEngine {
 
     const clipUrl = this.resolveVoiceClip(clean, roleKey);
     if (!clipUrl) {
-      // 僅播放工作室真人 VoAI 錄音檔，絕不降級為瀏覽器預設女聲 TTS 呢喃
+      // 僅播放工作室 Google Gemini TTS 錄音檔，絕不降級為瀏覽器預設女聲 TTS 呢喃
       if (roleKey === 'grandma') {
         this.playTatungCooker();
       }

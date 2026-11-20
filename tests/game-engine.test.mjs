@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { CHAPTERS, ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, SCOOTER_CONFIG } from '../src/story-data.js';
+import { ROLE_CHAPTER_VARIANTS } from '../src/role-stories.js';
 import { soundFX, normalizeGrandmaVoiceKey, BGM_MIX_LEVELS, BGM_FILTER_HZ } from '../src/audio-fx.js';
 import {
   createInitialState,
@@ -112,7 +113,7 @@ test('Full 10-chapter playthrough across all 6 mini-game types reaches career re
   assert.equal(persona.id, 'judge');
 });
 
-test('VoAI 春枝 voice clips map and exist for all 36 Grandma lines', () => {
+test('Google Gemini TTS 台灣阿嬤 voice clips map and exist for all 36 Grandma lines', () => {
   const grandmaRole = ROLES.find((r) => r.id === 'grandma');
   assert.ok(grandmaRole?.quote);
 
@@ -128,7 +129,7 @@ test('VoAI 春枝 voice clips map and exist for all 36 Grandma lines', () => {
   const resolvedSet = new Set();
   for (const line of lines) {
     const clip = soundFX.resolveGrandmaClip(line);
-    assert.ok(clip, `Missing VoAI clip mapping for: ${line}`);
+    assert.ok(clip, `Missing Google Gemini TTS clip mapping for: ${line}`);
     resolvedSet.add(clip);
     const absPath = path.join(process.cwd(), clip.replace(/^\.\//, ''));
     assert.ok(fs.existsSync(absPath), `Missing MP3 file: ${absPath}`);
@@ -148,7 +149,7 @@ test('VoAI 春枝 voice clips map and exist for all 36 Grandma lines', () => {
   );
 });
 
-test('Voice mix foregrounds dialogue over BGM and covers 42 character VoAI clips + 3 audio MP4 cutscenes', () => {
+test('Voice mix foregrounds dialogue over BGM and covers 82 character Google Gemini TTS clips + 3 audio MP4 cutscenes', () => {
   assert.ok(BGM_MIX_LEVELS.cutscene > 0 && BGM_MIX_LEVELS.cutscene < BGM_MIX_LEVELS.speaking);
   assert.ok(BGM_MIX_LEVELS.speaking < BGM_MIX_LEVELS.normal);
   assert.ok(BGM_MIX_LEVELS.speaking / BGM_MIX_LEVELS.normal <= 0.2, 'Voice ducking must keep BGM <= 20% of normal gain');
@@ -162,19 +163,22 @@ test('Voice mix foregrounds dialogue over BGM and covers 42 character VoAI clips
     ...CHAPTERS.map((ch) => ['narrator', ch.takeaway]),
     ['fsd', 'Tesla FSD 已接管，前方機車十八公尺，車距鎖定，沿松仁路前進。'],
     ['fsd', '已切換回手動駕駛。'],
+    ...['account', 'creative', 'media', 'grandma'].flatMap((roleId) =>
+      Object.values(ROLE_CHAPTER_VARIANTS[roleId]).map((variant) => ['boss', variant.lineMessage])
+    ),
   ];
-  assert.equal(voiceSpecs.length, 42);
+  assert.equal(voiceSpecs.length, 82);
 
   const uniqueClips = new Set();
   for (const [roleKey, line] of voiceSpecs) {
     const clip = soundFX.resolveVoiceClip(line, roleKey);
-    assert.ok(clip, `Missing VoAI character clip for (${roleKey}): ${line}`);
+    assert.ok(clip, `Missing Google Gemini TTS character clip for (${roleKey}): ${line}`);
     uniqueClips.add(clip);
     const absPath = path.join(process.cwd(), clip.replace(/^\.\//, ''));
     assert.ok(fs.existsSync(absPath), `Missing character MP3: ${absPath}`);
     assert.ok(fs.statSync(absPath).size > 2048, `Truncated character MP3: ${absPath}`);
   }
-  assert.equal(uniqueClips.size, 42);
+  assert.equal(uniqueClips.size, 82);
 
   for (const vid of ['intro-taipei.mp4', 'boardroom-push.mp4', 'grandma-rescue.mp4']) {
     const absVid = path.join(process.cwd(), 'public/video', vid);

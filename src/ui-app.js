@@ -46,7 +46,7 @@ const WELCOME_SLIDES = [
       { title: '🖼️ 左上純淨實景視窗', body: '只保留「3D劇照／360°街景」與「更多視角」收合選單，點開才看 A25 實拍、衛星圖或 FSD 視角。' },
       { title: '🕵️ 左下專屬雷達＆線索', body: '雷達即時標出你這角色的 10 站台北行程，旁邊是職能獨家線索與每站一次 ⚡ 絕招。' },
       { title: '👉 右上引導選題主舞台', body: '依序帶你讀本時段狀況、回老闆 LINE（1–4 快捷鍵），接著進入專屬實務題目。' },
-      { title: '📱 右下 iFruit 戰情手機', body: '點「🧠 讀心」聽 Lisa 與 Cindy 真心話、「👵 阿嬤」聽春枝台味金句或清通緝星。' }
+      { title: '📱 右下 iFruit 戰情手機', body: '點「🧠 讀心」聽 Lisa 與 Cindy 真心話、「👵 阿嬤」聽台灣阿嬤台味金句或清通緝星。' }
     ]
   },
   {
@@ -1242,7 +1242,7 @@ class GtaDentsuApp {
                   class: 'replay-btn',
                   style: 'margin-left:auto;padding:2px 8px;font-size:11px;min-height:24px;',
                   'data-voice': 'grandma',
-                  text: '🔊 試聽春枝名言',
+                  text: '🔊 試聽阿嬤名言',
                   onClick: (e) => {
                     e.stopPropagation();
                     soundFX.speak(role.quote, 'grandma', true);
@@ -1749,7 +1749,7 @@ class GtaDentsuApp {
           ? el('button', {
               class: 'replay-btn',
               'data-voice': 'grandma',
-              text: '🔊 聽春枝阿嬤',
+              text: '🔊 聽台灣阿嬤',
               onClick: () => soundFX.speak(clue, 'grandma', true)
             })
           : null
@@ -1953,7 +1953,7 @@ class GtaDentsuApp {
       ]);
     } else {
       bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' }, [
-        el('div', { style: 'font-size:12px;color:var(--gold);font-weight:800;', text: '🎙️ VoAI 聲優「春枝」台味配音' }),
+        el('div', { style: 'font-size:12px;color:var(--gold);font-weight:800;', text: '🎙️ Google Gemini TTS「台灣阿嬤」台味配音' }),
         el('div', { class: 'rescue-toast', style: 'font-size:14px;padding:6px 10px;', text: ch.grandmaQuip }),
         el('div', { style: 'font-size:13px;color:var(--gold);', text: `☎️ ${ch.grandmaPhoneCall.title}：「${ch.grandmaPhoneCall.text}」` }),
         el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;' }, [
@@ -2230,7 +2230,7 @@ class GtaDentsuApp {
         el('button', {
           class: 'replay-btn',
           'data-voice': 'grandma',
-          text: '🔊 聽春枝阿嬤配音',
+          text: '🔊 聽台灣阿嬤配音',
           onClick: () => soundFX.speak(ch.grandmaQuip, 'grandma', true)
         })
       ]),
@@ -2725,7 +2725,7 @@ class GtaDentsuApp {
         el('button', {
           class: 'btn-cyan',
           'data-voice': 'grandma',
-          text: '🔊 聽春枝阿嬤收工祝福',
+          text: '🔊 聽台灣阿嬤收工祝福',
           onClick: () => soundFX.speak(grandmaQuote, 'grandma', true)
         })
       ])

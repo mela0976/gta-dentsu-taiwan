@@ -170,12 +170,21 @@ async function run() {
   };
 
   try {
-    // 0. Verify all 78 VoAI MP3 clips + 3 audio-enabled MP4 cutscenes serve cleanly over HTTP
+    // 0. Verify all 118 Google Gemini TTS MP3 clips + 3 audio-enabled MP4 cutscenes serve cleanly over HTTP
     const audioChecks = [
       ...['quote', ...Array.from({ length: 5 }, (_, i) => `rescue_${i}`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue`)]
         .map((id) => `/public/audio/grandma/${id}.mp3`),
-      ...[...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway`), 'fsd_on', 'fsd_off']
-        .map((id) => `/public/audio/voices/${id}.mp3`)
+      ...[
+        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line`),
+        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa`),
+        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy`),
+        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway`),
+        'fsd_on',
+        'fsd_off',
+        ...['account', 'creative', 'media', 'grandma'].flatMap((role) =>
+          Array.from({ length: 10 }, (_, i) => `role_${role}_ch${i + 1}_line`)
+        )
+      ].map((id) => `/public/audio/voices/${id}.mp3`)
     ];
     for (const relUrl of audioChecks) {
       const res = await fetch(`${baseUrl}${relUrl}`);
@@ -370,12 +379,12 @@ async function run() {
       await checkImagesLoaded(play, `ch${ch}-scene`);
 
       if (ch === 1) {
-        // Test phone 4 tabs + Lisa/Cindy voice UI + VoAI 春枝 Grandma tab
+        // Test phone 4 tabs + Lisa/Cindy voice UI + Google Gemini TTS Grandma tab
         await play.click('.phone-tab:has-text("讀心")');
         await play.locator('.twin-row').first().click();
         await play.waitForSelector('.replay-btn');
         await play.click('.phone-tab:has-text("阿嬤")');
-        await play.waitForSelector('text=VoAI 聲優「春枝」');
+        await play.waitForSelector('text=Google Gemini TTS「台灣阿嬤」');
         await play.click('button:has-text("重聽金句")');
         await play.click('button:has-text("重聽來電")');
         await play.click('.phone-tab:has-text("GTA6")');
@@ -424,7 +433,7 @@ async function run() {
 
       await play.waitForSelector('.stamp-slot');
       if (ch === 1) {
-        await play.click('button:has-text("聽春枝阿嬤配音")');
+        await play.click('button:has-text("聽台灣阿嬤配音")');
       }
       await proofreadPage(play, FORBIDDEN_WORDS, `ch${ch}-reveal`);
       await play.click('.reveal-actions .btn-primary');

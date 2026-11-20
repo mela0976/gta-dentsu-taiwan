@@ -814,13 +814,16 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .step-pill { padding: 2px 6px; font-size: 11.5px; }
   .chapter-header { padding-bottom: 3px; }
   .chapter-header h2 { margin: 1px 0 0; font-size: 14.5px; line-height: 1.2; }
-  .main-stage { gap: 3px; padding: 6px 10px; }
-  .main-stage-inner { gap: 4px; }
+  .main-stage { gap: 3px; padding: 5px 10px; }
+  .main-stage-inner { gap: 3px; }
   .quiz-guide-box { padding: 4px 8px; gap: 1px; }
   .quiz-guide-badge { font-size: 11px; }
   .chapter-desc { font-size: 12.8px; line-height: 1.24; }
-  .boss-callout { font-size: 13px; padding: 4px 8px; line-height: 1.24; }
-  .boss-meta { font-size: 12px; }
+  .boss-callout { font-size: 12.5px; padding: 3px 8px; line-height: 1.2; }
+  .line-banner { flex-wrap: nowrap; gap: 6px; }
+  .line-banner > div:first-child { flex: 1 1 0; }
+  .line-banner .replay-btn { flex-shrink: 0; white-space: nowrap; min-height: 26px; padding: 2px 7px; font-size: 11.5px; }
+  .boss-meta { font-size: 11.5px; }
   .replay-btn { min-height: 30px; padding: 2px 8px; font-size: 12px; }
   .takeaway-card { padding: 6px 10px; }
   .takeaway-text { font-size: 15px; line-height: 1.28; padding-right: 124px; }
@@ -829,8 +832,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .rescue-toast { padding: 5px 9px; font-size: 13px; line-height: 1.28; }
   .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 36px; padding: 5px 12px; font-size: 14px; }
   .prompt-line { font-size: 11.5px; line-height: 1.22; }
-  .replies-grid { gap: 4px; }
-  .reply-btn { min-height: 35px; font-size: 13px; padding: 3px 7px; gap: 6px; line-height: 1.2; }
+  .replies-grid { gap: 3px; }
+  .reply-btn { min-height: 33px; font-size: 12.8px; padding: 2px 7px; gap: 6px; line-height: 1.18; }
   .reply-key { width: 22px; height: 22px; font-size: 12px; }
   .reply-cta { font-size: 10.5px; padding: 1px 5px; }
   .col-right .chat-scroll { max-height: 36px; }
