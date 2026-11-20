@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { CHAPTERS, ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, SCOOTER_CONFIG } from '../src/story-data.js';
-import { soundFX, normalizeGrandmaVoiceKey } from '../src/audio-fx.js';
+import { soundFX, normalizeGrandmaVoiceKey, BGM_MIX_LEVELS, BGM_FILTER_HZ } from '../src/audio-fx.js';
 import {
   createInitialState,
   selectRole,
@@ -144,4 +144,39 @@ test('VoAI 春枝 voice clips map and exist for all 36 Grandma lines', () => {
     soundFX.resolveGrandmaClip(`👵 ${CHAPTERS[0].grandmaQuip}`),
     soundFX.resolveGrandmaClip(ch1Stripped)
   );
+});
+
+test('Voice mix foregrounds dialogue over BGM and covers 42 character VoAI clips + 3 audio MP4 cutscenes', () => {
+  assert.ok(BGM_MIX_LEVELS.cutscene > 0 && BGM_MIX_LEVELS.cutscene < BGM_MIX_LEVELS.speaking);
+  assert.ok(BGM_MIX_LEVELS.speaking < BGM_MIX_LEVELS.normal);
+  assert.ok(BGM_MIX_LEVELS.speaking / BGM_MIX_LEVELS.normal <= 0.2, 'Voice ducking must keep BGM <= 20% of normal gain');
+  assert.ok(BGM_FILTER_HZ.cutscene > 0 && BGM_FILTER_HZ.cutscene < BGM_FILTER_HZ.speaking);
+  assert.ok(BGM_FILTER_HZ.speaking < BGM_FILTER_HZ.normal);
+
+  const voiceSpecs = [
+    ...CHAPTERS.map((ch) => ['boss', ch.lineMessage]),
+    ...CHAPTERS.map((ch) => ['lisa', ch.peopleModel.lisa]),
+    ...CHAPTERS.map((ch) => ['cindy', ch.peopleModel.cindy]),
+    ...CHAPTERS.map((ch) => ['narrator', ch.takeaway]),
+    ['fsd', 'Tesla FSD 已接管，前方機車十八公尺，車距鎖定，沿松仁路前進。'],
+    ['fsd', '已切換回手動駕駛。'],
+  ];
+  assert.equal(voiceSpecs.length, 42);
+
+  const uniqueClips = new Set();
+  for (const [roleKey, line] of voiceSpecs) {
+    const clip = soundFX.resolveVoiceClip(line, roleKey);
+    assert.ok(clip, `Missing VoAI character clip for (${roleKey}): ${line}`);
+    uniqueClips.add(clip);
+    const absPath = path.join(process.cwd(), clip.replace(/^\.\//, ''));
+    assert.ok(fs.existsSync(absPath), `Missing character MP3: ${absPath}`);
+    assert.ok(fs.statSync(absPath).size > 2048, `Truncated character MP3: ${absPath}`);
+  }
+  assert.equal(uniqueClips.size, 42);
+
+  for (const vid of ['intro-taipei.mp4', 'boardroom-push.mp4', 'grandma-rescue.mp4']) {
+    const absVid = path.join(process.cwd(), 'public/video', vid);
+    const buf = fs.readFileSync(absVid);
+    assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Cutscene missing embedded AAC audio track: ${vid}`);
+  }
 });

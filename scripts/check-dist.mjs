@@ -42,6 +42,15 @@ const REQUIRED_GRANDMA_CLIPS = [
   ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue.mp3`)
 ];
 
+const REQUIRED_CHARACTER_CLIPS = [
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line.mp3`),
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa.mp3`),
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy.mp3`),
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway.mp3`),
+  'fsd_on.mp3',
+  'fsd_off.mp3'
+];
+
 const errors = [];
 
 if (!fs.existsSync(DIST)) {
@@ -87,6 +96,11 @@ for (const vid of REQUIRED_VIDEOS) {
   const p = path.join(DIST, 'public/video', vid);
   if (!fs.existsSync(p) || fs.statSync(p).size < 10240) {
     errors.push(`Missing or invalid MP4 cutscene: ${vid}`);
+  } else {
+    const buf = fs.readFileSync(p);
+    if (!buf.includes('soun') || !buf.includes('mp4a')) {
+      errors.push(`MP4 cutscene missing embedded AAC audio track: ${vid}`);
+    }
   }
 }
 
@@ -94,6 +108,13 @@ for (const clip of REQUIRED_GRANDMA_CLIPS) {
   const p = path.join(DIST, 'public/audio/grandma', clip);
   if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
     errors.push(`Missing or invalid VoAI Grandma MP3 clip: ${clip}`);
+  }
+}
+
+for (const clip of REQUIRED_CHARACTER_CLIPS) {
+  const p = path.join(DIST, 'public/audio/voices', clip);
+  if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
+    errors.push(`Missing or invalid VoAI character MP3 clip: ${clip}`);
   }
 }
 
@@ -107,4 +128,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} Higgsfield MP4 cutscenes, ${REQUIRED_GRANDMA_CLIPS.length} VoAI MP3 clips, 0 leaks.`);
+console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} audio-enabled MP4 cutscenes, ${REQUIRED_GRANDMA_CLIPS.length + REQUIRED_CHARACTER_CLIPS.length} VoAI MP3 clips (36 grandma + 42 character), 0 leaks.`);

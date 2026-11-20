@@ -167,20 +167,25 @@ async function run() {
   };
 
   try {
-    // 0. Verify all 36 VoAI 春枝 MP3 clips serve cleanly over HTTP
-    const grandmaClipIds = [
-      'quote',
-      ...Array.from({ length: 5 }, (_, i) => `rescue_${i}`),
-      ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip`),
-      ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call`),
-      ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue`)
+    // 0. Verify all 78 VoAI MP3 clips + 3 audio-enabled MP4 cutscenes serve cleanly over HTTP
+    const audioChecks = [
+      ...['quote', ...Array.from({ length: 5 }, (_, i) => `rescue_${i}`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue`)]
+        .map((id) => `/public/audio/grandma/${id}.mp3`),
+      ...[...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway`), 'fsd_on', 'fsd_off']
+        .map((id) => `/public/audio/voices/${id}.mp3`)
     ];
-    for (const id of grandmaClipIds) {
-      const res = await fetch(`${baseUrl}/public/audio/grandma/${id}.mp3`);
-      assert.equal(res.status, 200, `Expected HTTP 200 for ${id}.mp3, got ${res.status}`);
-      assert.ok((res.headers.get('content-type') || '').includes('audio/mpeg'), `Bad Content-Type for ${id}.mp3`);
+    for (const relUrl of audioChecks) {
+      const res = await fetch(`${baseUrl}${relUrl}`);
+      assert.equal(res.status, 200, `Expected HTTP 200 for ${relUrl}, got ${res.status}`);
+      assert.ok((res.headers.get('content-type') || '').includes('audio/mpeg'), `Bad Content-Type for ${relUrl}`);
       const buf = Buffer.from(await res.arrayBuffer());
-      assert.ok(buf.length > 2048, `Expected ${id}.mp3 > 2048 bytes, got ${buf.length}`);
+      assert.ok(buf.length > 2048, `Expected ${relUrl} > 2048 bytes, got ${buf.length}`);
+    }
+    for (const vid of ['intro-taipei.mp4', 'boardroom-push.mp4', 'grandma-rescue.mp4']) {
+      const res = await fetch(`${baseUrl}/public/video/${vid}`);
+      assert.equal(res.status, 200, `Expected HTTP 200 for ${vid}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Cutscene missing audio track over HTTP: ${vid}`);
     }
 
     // 1. Multi-resolution geometry & interactive matrix (1024x720, 1280x800, 1920x1080)
@@ -256,6 +261,22 @@ async function run() {
     for (let ch = 1; ch <= 10; ch += 1) {
       const phase = await play.evaluate(() => window.__gtaApp.state.phase);
       if (phase === 'cutscene') {
+        const videoState = await play.evaluate(() => {
+          const v = document.querySelector('.cutscene-video');
+          const sub = document.querySelector('.cutscene-subtitle')?.textContent || '';
+          return {
+            hasMutedAttr: v?.hasAttribute('muted'),
+            volume: v?.volume,
+            subtitle: sub,
+            hasSoundBtn: Boolean(document.querySelector('.cutscene-stage .mode-chip'))
+          };
+        });
+        assert.equal(videoState.hasMutedAttr, false, `ch${ch}: cutscene <video> must not force muted attribute`);
+        assert.equal(videoState.volume, 1, `ch${ch}: cutscene <video> volume must be 1.0`);
+        assert.equal(videoState.hasSoundBtn, true, `ch${ch}: missing cutscene sound control button`);
+        if (ch === 6) {
+          assert.ok(videoState.subtitle.includes('你們先不要亂砍預算'), `ch6: unexpected cutscene subtitle: ${videoState.subtitle}`);
+        }
         await play.click('.chapter-header .btn-primary');
       }
       await play.waitForSelector('.replies-grid');

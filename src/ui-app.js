@@ -262,9 +262,24 @@ class GtaDentsuApp {
   }
 
   _setState(next) {
+    if (this.state.phase === 'cutscene' && next.phase !== 'cutscene') {
+      soundFX.setCutscenePlaying(false);
+    }
     this.state = next;
     this._saveState();
     this.render();
+  }
+
+  _leaveCutscene() {
+    document.querySelectorAll('.cutscene-video').forEach((v) => {
+      try {
+        v.pause();
+      } catch {}
+    });
+    soundFX.setCutscenePlaying(false);
+    this.activeCutsceneSrc = null;
+    soundFX.playLinePing();
+    this._setState(finishCutscene(this.state));
   }
 
   _resetGame() {
@@ -320,9 +335,7 @@ class GtaDentsuApp {
     if (e.key === 'Enter' || e.key === ' ') {
       if (this.state.phase === 'cutscene') {
         e.preventDefault();
-        this.activeCutsceneSrc = null;
-        soundFX.playLinePing();
-        this._setState(finishCutscene(this.state));
+        this._leaveCutscene();
         return;
       }
       if (this.state.phase === 'reveal') {
@@ -691,8 +704,9 @@ class GtaDentsuApp {
         onClick: () => {
           soundFX.playMissionPassed();
           this.phoneTab = 'line';
-          this._setState(selectRole(this.state, role.id));
-          if (role.id === 'grandma') {
+          const nextState = selectRole(this.state, role.id);
+          this._setState(nextState);
+          if (role.id === 'grandma' && nextState.phase !== 'cutscene') {
             soundFX.speak(role.quote, 'grandma', false);
           }
         }
@@ -718,7 +732,30 @@ class GtaDentsuApp {
           el('h3', { style: `color:${role.color};`, text: role.name }),
           el('p', { class: 'role-dept', text: `${role.dept} · ${role.title}` }),
           el('p', { class: 'role-quote', text: `「${role.quote}」` }),
-          el('span', { class: 'role-special', text: `⚡ ${role.specialName}` }),
+          el('div', { style: 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;' }, [
+            el('span', { class: 'role-special', text: `⚡ ${role.specialName}` }),
+            role.id === 'grandma' && !locked
+              ? el('span', {
+                  role: 'button',
+                  tabindex: '0',
+                  class: 'replay-btn',
+                  style: 'margin-left:auto;padding:2px 8px;font-size:11px;min-height:24px;',
+                  'data-voice': 'grandma',
+                  text: '🔊 試聽春枝名言',
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    soundFX.speak(role.quote, 'grandma', true);
+                  },
+                  onKeydown: (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      soundFX.speak(role.quote, 'grandma', true);
+                    }
+                  }
+                })
+              : null
+          ]),
           el('div', { class: 'role-bars' }, HUD_STATS.map((st) =>
             el('div', { class: 'role-bar-row', title: `${st.label} ${role.startingStats[st.key]}` }, [
               htmlNode('role-bar-icon', getStatIconSvg(st.icon)),
@@ -742,6 +779,9 @@ class GtaDentsuApp {
   _toggleMute() {
     this.muted = !this.muted;
     soundFX.setMuted(this.muted);
+    document.querySelectorAll('.cutscene-video').forEach((v) => {
+      v.muted = this.muted;
+    });
     if (!this.muted) soundFX.startBGM();
     document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = this.muted ? '🔇 靜音' : '🔊 音效'; });
   }
@@ -834,25 +874,87 @@ class GtaDentsuApp {
     const ch = getCurrentChapter(this.state);
     const src = this.activeCutsceneSrc || ch.cutscene;
     const isGrandmaVideo = String(src).includes('grandma');
+    const subtitleText = isGrandmaVideo
+      ? '阿嬤：「你們先不要亂砍預算，阿嬤帶大同電鍋趕過去了！」'
+      : `${ch.lineSender.name}：「${ch.lineMessage}」`;
 
     const videoEl = el('video', {
       class: 'cutscene-video',
       src,
-      autoplay: 'true',
-      loop: 'true',
-      muted: 'true',
       playsinline: 'true',
       controls: 'true',
+      preload: 'auto',
       onerror: (e) => {
+        soundFX.setCutscenePlaying(false);
         e.target.style.display = 'none';
       }
     });
+    videoEl.muted = this.muted;
+    videoEl.volume = 1.0;
 
-    const proceed = () => {
-      this.activeCutsceneSrc = null;
-      soundFX.playLinePing();
-      this._setState(finishCutscene(this.state));
+    const soundToggleBtn = el('button', {
+      class: 'mode-chip',
+      text: this.muted ? '🔇 點擊開啟影片聲音' : '🔊 影片人聲＋環境音',
+      onClick: () => {
+        if (videoEl.muted || this.muted) {
+          this.muted = false;
+          soundFX.setMuted(false);
+          document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = '🔊 音效'; });
+          videoEl.muted = false;
+          videoEl.volume = 1.0;
+          videoEl.play().catch(() => {});
+        } else {
+          videoEl.muted = true;
+        }
+        syncAudioUi();
+      }
+    });
+
+    const unlockBtn = el('button', {
+      class: 'btn-gold',
+      style: 'position:absolute;top:14px;right:14px;z-index:3;display:none;min-height:38px;padding:6px 12px;font-size:13px;',
+      text: '🔊 點擊開啟影片人聲與環境音效',
+      onClick: () => {
+        this.muted = false;
+        soundFX.setMuted(false);
+        document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = '🔊 音效'; });
+        videoEl.muted = false;
+        videoEl.volume = 1.0;
+        videoEl.currentTime = 0;
+        videoEl.play().catch(() => {});
+        unlockBtn.style.display = 'none';
+        syncAudioUi();
+      }
+    });
+
+    const syncAudioUi = () => {
+      const activeAudio = !videoEl.paused && !videoEl.muted && !this.muted;
+      soundFX.setCutscenePlaying(activeAudio);
+      soundToggleBtn.textContent = videoEl.muted || this.muted ? '🔇 點擊開啟影片聲音' : '🔊 影片人聲＋環境音';
+      soundToggleBtn.classList.toggle('is-active', !videoEl.muted && !this.muted);
     };
+
+    videoEl.addEventListener('play', syncAudioUi);
+    videoEl.addEventListener('pause', () => soundFX.setCutscenePlaying(false));
+    videoEl.addEventListener('ended', () => soundFX.setCutscenePlaying(false));
+    videoEl.addEventListener('volumechange', syncAudioUi);
+
+    requestAnimationFrame(() => {
+      if (!videoEl.isConnected) return;
+      if (this.muted) {
+        videoEl.play().catch(() => {});
+        return;
+      }
+      const p = videoEl.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {
+          videoEl.muted = true;
+          syncAudioUi();
+          unlockBtn.style.display = 'inline-flex';
+          videoEl.play().catch(() => {});
+        });
+      }
+    });
 
     return el('section', { class: 'panel cutscene-stage', style: 'display:flex;flex-direction:column;gap:14px;border-color:var(--gold);' }, [
       el('div', { class: 'chapter-header' }, [
@@ -860,11 +962,26 @@ class GtaDentsuApp {
           el('div', { class: 'gta-kicker', text: isGrandmaVideo ? 'HIGGSFIELD CUTSCENE · 阿嬤緊急支援' : `HIGGSFIELD CUTSCENE · ${ch.timeSlot}` }),
           el('h2', { style: 'margin:4px 0 0 0;', text: `${ch.title} — ${ch.location}` })
         ]),
-        el('button', { class: 'btn-primary', text: '進入現場 ➔', onClick: proceed })
+        el('div', { style: 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;' }, [
+          soundToggleBtn,
+          el('button', {
+            class: 'mode-chip',
+            text: '↺ 重播影片',
+            onClick: () => {
+              videoEl.currentTime = 0;
+              videoEl.muted = this.muted;
+              videoEl.volume = 1.0;
+              videoEl.play().catch(() => {});
+              syncAudioUi();
+            }
+          }),
+          el('button', { class: 'btn-primary', text: '進入現場 ➔', onClick: () => this._leaveCutscene() })
+        ])
       ]),
       el('div', { class: 'cutscene-stage-wrap' }, [
         videoEl,
-        el('div', { class: 'cutscene-subtitle', text: `${ch.lineSender.name}：「${ch.lineMessage}」` })
+        unlockBtn,
+        el('div', { class: 'cutscene-subtitle', text: subtitleText })
       ]),
       el('p', { class: 'chapter-desc', text: ch.sceneDesc })
     ]);
@@ -2035,16 +2152,12 @@ class GtaDentsuApp {
         })
       );
     } else if (this.state.phase === 'cutscene') {
-      text = '🎬 操作指示：正在播放 2026 台北實景過場動畫，隨時可點「進入現場」或按 Space / Enter 直接開工！';
+      text = '🎬 操作指示：正在播放 2026 台北實景過場動畫（含人物配音與環境音效），隨時可點「進入現場」或按 Space / Enter 直接開工！';
       actions.push(
         el('button', {
           class: 'guide-btn is-primary',
           text: '⏭️ 進入現場 (Space / Enter) ➔',
-          onClick: () => {
-            this.activeCutsceneSrc = null;
-            soundFX.playLinePing();
-            this._setState(finishCutscene(this.state));
-          }
+          onClick: () => this._leaveCutscene()
         })
       );
     } else if (this.state.phase === 'scene') {

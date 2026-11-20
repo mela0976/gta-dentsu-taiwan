@@ -31,21 +31,41 @@ export const RADIO_STATIONS = [
 ];
 
 const VOICE_PROFILES = {
-  narrator: { rate: 1.03, pitch: 0.98, volume: 0.95 },
-  boss: { rate: 1.12, pitch: 0.88, volume: 0.95 },
-  lisa: { rate: 1.13, pitch: 1.18, volume: 0.95 },
-  cindy: { rate: 1.02, pitch: 1.06, volume: 0.95 },
+  narrator: { rate: 1.03, pitch: 0.98, volume: 1.0 },
+  boss: { rate: 1.12, pitch: 0.88, volume: 1.0 },
+  lisa: { rate: 1.13, pitch: 1.18, volume: 1.0 },
+  cindy: { rate: 1.02, pitch: 1.06, volume: 1.0 },
   grandma: { rate: 0.92, pitch: 0.84, volume: 1.0 },
-  fsd: { rate: 1.08, pitch: 1.08, volume: 0.9 }
+  fsd: { rate: 1.08, pitch: 1.08, volume: 1.0 }
 };
 
-export const normalizeGrandmaVoiceKey = (text) =>
+export const BGM_MIX_LEVELS = {
+  normal: 0.14,
+  speaking: 0.022,
+  cutscene: 0.008
+};
+
+export const BGM_FILTER_HZ = {
+  normal: 2100,
+  speaking: 580,
+  cutscene: 420
+};
+
+export const normalizeVoiceKey = (text) =>
   String(text || '')
     .replace(/\uFE0F/g, '')
     .replace(/[📞🔊👵🍲📩⚡🎯🎬🛵🚗⭐🔥🧠🎙☎\[\]【】]/g, '')
     .trim()
-    .replace(/^阿嬤說[:：]?/, '')
     .replace(/[「」『』""“”''‘’（）()，。！？、：；…—\-·\s]/g, '');
+
+export const normalizeGrandmaVoiceKey = (text) =>
+  normalizeVoiceKey(
+    String(text || '')
+      .replace(/\uFE0F/g, '')
+      .replace(/[📞🔊👵🍲📩⚡🎯🎬🛵🚗⭐🔥🧠🎙☎\[\]【】]/g, '')
+      .trim()
+      .replace(/^阿嬤說[:：]?/, '')
+  );
 
 export const GRANDMA_VOICE_CLIPS = {
   '做生意跟煮飯一樣火候到了客人自己會來': './public/audio/grandma/quote.mp3',
@@ -86,16 +106,64 @@ export const GRANDMA_VOICE_CLIPS = {
   '對老主顧多收錢阿嬤這輩子沒這樣做過你自己決定不要推給機器': './public/audio/grandma/ch10_clue.mp3'
 };
 
+export const CHARACTER_VOICE_CLIPS = {
+  'boss:新的歸因工具上線了以後每塊錢都算得出來下一季怎麼投': './public/audio/voices/ch1_line.mp3',
+  'boss:客戶想把投放收回去自己做我們教不教': './public/audio/voices/ch2_line.mp3',
+  'boss:疫情預算砍半剩下的錢怎麼分': './public/audio/voices/ch3_line.mp3',
+  'boss:追蹤工具快沒了要不要買我們的方案把每個人重新認出來': './public/audio/voices/ch4_line.mp3',
+  'boss:大家都在做永續宣告我們也發一篇': './public/audio/voices/ch5_line.mp3',
+  'boss:AI可以做十倍素材製作費砍一半可以吧': './public/audio/voices/ch6_line.mp3',
+  'boss:通路的廣告平台能從曝光追到結帳數字超乾淨品牌預算轉過去': './public/audio/voices/ch7_line.mp3',
+  'boss:開自動優化吧讓AI自己打仗人工調只會拖慢它': './public/audio/voices/ch8_line.mp3',
+  'boss:現在大家叫AI幫忙挑東西我們要先讓AI看見還是先讓人記得': './public/audio/voices/ch9_line.mp3',
+  'boss:那台讓報表漂亮了十年的自動引擎被發現對某些客人定比較高的價關不關': './public/audio/voices/ch10_line.mp3',
+  'lisa:最後點擊我本來就要買那個牌子啊廣告只是剛好在我結帳前出現': './public/audio/voices/ch1_lisa.mp3',
+  'lisa:如果廠商怕被我取代而藏一手我會直接換掉他我又不是沒有選擇': './public/audio/voices/ch2_lisa.mp3',
+  'lisa:我下單前一定會先搜尋常出現在我腦中的牌子我才會點進去': './public/audio/voices/ch3_lisa.mp3',
+  'lisa:我自己都會按拒絕我憑什麼要幫你們被追蹤': './public/audio/voices/ch4_lisa.mp3',
+  'lisa:我當然支持環保但同樣的東西貴一點我還是會去比價這很正常吧': './public/audio/voices/ch5_lisa.mp3',
+  'lisa:我分不出來是不是AI寫的我只在乎有沒有講中我現在的狀態': './public/audio/voices/ch6_lisa.mp3',
+  'lisa:我在那個購物站買東西廣告有沒有看到都沒差反正我都會在裡面買': './public/audio/voices/ch7_lisa.mp3',
+  'lisa:我如果被廣告跟了三天我反而會覺得這牌子有點煩想換掉': './public/audio/voices/ch8_lisa.mp3',
+  'lisa:AI推薦我就會去PTTDcard查有沒有人踩雷沒口碑的我不買': './public/audio/voices/ch9_lisa.mp3',
+  'lisa:如果我發現我是被多收錢的那一群我會直接截圖丟到PTT然後永遠不再回來': './public/audio/voices/ch10_lisa.mp3',
+  'cindy:我沒空看廣告習慣買哪牌就買哪牌你們不要算成是自己的功勞': './public/audio/voices/ch1_cindy.mp3',
+  'cindy:我只想要有人可以直接問不要每次都排隊等你們排程': './public/audio/voices/ch2_cindy.mp3',
+  'cindy:疫情期間我都買熟悉的牌子沒時間研究新的出錯代價太高': './public/audio/voices/ch3_cindy.mp3',
+  'cindy:你問我我會給不要偷看會讓我很不舒服': './public/audio/voices/ch4_cindy.mp3',
+  'cindy:說我愛地球沒問題但小孩的奶粉我只看價格和成分不看標語': './public/audio/voices/ch5_cindy.mp3',
+  'cindy:看起來都差不多我就隨手滑掉了有什麼好記的': './public/audio/voices/ch6_cindy.mp3',
+  'cindy:我只記得是在那裡買的不太記得是哪個牌子反正順手就買了': './public/audio/voices/ch7_cindy.mp3',
+  'cindy:我根本沒看過這個牌子怎麼可能知道它好不好': './public/audio/voices/ch8_cindy.mp3',
+  'cindy:我會請AI幫我挑但如果朋友說她用過覺得好我會直接買朋友推的': './public/audio/voices/ch9_cindy.mp3',
+  'cindy:我只要知道牌子有沒有把我當自己人這種事被爆出來我一定退會員': './public/audio/voices/ch10_cindy.mp3',
+  'narrator:報表漂亮不等於生意變大': './public/audio/voices/ch1_takeaway.mp3',
+  'narrator:典範花了五年董事會只給你一季': './public/audio/voices/ch2_takeaway.mp3',
+  'narrator:量得到的不一定是最有用的': './public/audio/voices/ch3_takeaway.mp3',
+  'narrator:你自己也不想被追蹤': './public/audio/voices/ch4_takeaway.mp3',
+  'narrator:說支持和願意付錢是兩回事': './public/audio/voices/ch5_takeaway.mp3',
+  'narrator:內容不用錢之後稀缺的是被記得': './public/audio/voices/ch6_takeaway.mp3',
+  'narrator:小心球員兼裁判': './public/audio/voices/ch7_takeaway.mp3',
+  'narrator:演算法只放大你本來就打得到的人': './public/audio/voices/ch8_takeaway.mp3',
+  'narrator:AI可以幫人買東西品牌要讓人想買': './public/audio/voices/ch9_takeaway.mp3',
+  'narrator:十年前相信數據能取代判斷十年後的結論是判斷不能外包': './public/audio/voices/ch10_takeaway.mp3',
+  'fsd:TeslaFSD已接管前方機車十八公尺車距鎖定沿松仁路前進': './public/audio/voices/fsd_on.mp3',
+  'fsd:已切換回手動駕駛': './public/audio/voices/fsd_off.mp3'
+};
+
 class SoundEngine {
   constructor() {
     this.ctx = null;
+    this.bgmFilter = null;
     this.bgmMaster = null;
     this.muted = false;
     this.voiceEnabled = true;
     this.speaking = false;
+    this.cutscenePlaying = false;
     this.activeVoiceRole = '';
     this.activeAudio = null;
     this._audioToken = 0;
+    this._speechDelayTimer = null;
     this.bgmTimer = null;
     this.bgmStep = 0;
     this.stationIndex = 0;
@@ -109,8 +177,13 @@ class SoundEngine {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return null;
       this.ctx = new AudioCtx();
+      this.bgmFilter = this.ctx.createBiquadFilter();
+      this.bgmFilter.type = 'lowpass';
+      this.bgmFilter.frequency.setValueAtTime(BGM_FILTER_HZ.normal, this.ctx.currentTime);
+      this.bgmFilter.Q.setValueAtTime(0.7, this.ctx.currentTime);
       this.bgmMaster = this.ctx.createGain();
-      this.bgmMaster.gain.setValueAtTime(0.65, this.ctx.currentTime);
+      this.bgmMaster.gain.setValueAtTime(BGM_MIX_LEVELS.normal, this.ctx.currentTime);
+      this.bgmFilter.connect(this.bgmMaster);
       this.bgmMaster.connect(this.ctx.destination);
     }
     if (this.ctx.state === 'suspended') {
@@ -122,9 +195,39 @@ class SoundEngine {
   _updateBgmDucking() {
     if (!this.ctx || !this.bgmMaster) return;
     const now = this.ctx.currentTime;
-    const target = this.muted ? 0.0001 : (this.speaking ? 0.22 : 0.65);
+    let targetGain = BGM_MIX_LEVELS.normal;
+    let targetHz = BGM_FILTER_HZ.normal;
+    if (this.muted) {
+      targetGain = 0.0001;
+      targetHz = BGM_FILTER_HZ.cutscene;
+    } else if (this.cutscenePlaying) {
+      targetGain = BGM_MIX_LEVELS.cutscene;
+      targetHz = BGM_FILTER_HZ.cutscene;
+    } else if (this.speaking) {
+      targetGain = BGM_MIX_LEVELS.speaking;
+      targetHz = BGM_FILTER_HZ.speaking;
+    }
+
+    const rampSec = this.muted ? 0.03 : (this.cutscenePlaying || this.speaking ? 0.05 : 0.5);
     this.bgmMaster.gain.cancelScheduledValues(now);
-    this.bgmMaster.gain.linearRampToValueAtTime(target, now + 0.12);
+    this.bgmMaster.gain.setValueAtTime(this.bgmMaster.gain.value, now);
+    this.bgmMaster.gain.linearRampToValueAtTime(targetGain, now + rampSec);
+    if (this.bgmFilter) {
+      this.bgmFilter.frequency.cancelScheduledValues(now);
+      this.bgmFilter.frequency.setValueAtTime(this.bgmFilter.frequency.value, now);
+      this.bgmFilter.frequency.exponentialRampToValueAtTime(Math.max(120, targetHz), now + rampSec);
+    }
+  }
+
+  setCutscenePlaying(active) {
+    const next = Boolean(active);
+    if (next && !this.cutscenePlaying) {
+      this.cutscenePlaying = true;
+      this.stopSpeech();
+    } else {
+      this.cutscenePlaying = next;
+    }
+    this._updateBgmDucking();
   }
 
   setMuted(muted) {
@@ -191,10 +294,10 @@ class SoundEngine {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(125, now);
     osc.frequency.exponentialRampToValueAtTime(38, now + 0.11);
-    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.setValueAtTime(0.072, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
     osc.connect(gain);
-    gain.connect(targetNode || this.bgmMaster || ctx.destination);
+    gain.connect(targetNode || this.bgmFilter || this.bgmMaster || ctx.destination);
     osc.start(now);
     osc.stop(now + 0.14);
   }
@@ -215,46 +318,46 @@ class SoundEngine {
     filter.type = 'highpass';
     filter.frequency.setValueAtTime(6200, now);
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.024, now);
+    gain.gain.setValueAtTime(0.016, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
     src.connect(filter);
     filter.connect(gain);
-    gain.connect(targetNode || this.bgmMaster || ctx.destination);
+    gain.connect(targetNode || this.bgmFilter || this.bgmMaster || ctx.destination);
     src.start(now);
   }
 
   playClick() {
-    this._tone(640, 0.06, 'sine', 0.08, 0);
+    this._tone(640, 0.06, 'sine', 0.055, 0);
   }
 
   playLinePing() {
-    this._tone(880, 0.09, 'sine', 0.11, 0);
-    this._tone(1174.66, 0.14, 'sine', 0.1, 0.075);
+    this._tone(880, 0.09, 'sine', 0.075, 0);
+    this._tone(1174.66, 0.14, 'sine', 0.065, 0.075);
   }
 
   playScooterHorn() {
-    this._tone(420, 0.08, 'sawtooth', 0.09, 0);
-    this._tone(440, 0.09, 'sawtooth', 0.09, 0.11);
+    this._tone(420, 0.08, 'sawtooth', 0.06, 0);
+    this._tone(440, 0.09, 'sawtooth', 0.06, 0.11);
   }
 
   playAutopilotChime() {
     // 2026 Tesla FSD Autopilot 雙聲提示音
-    this._tone(587.33, 0.09, 'sine', 0.1, 0);
-    this._tone(880.0, 0.18, 'sine', 0.11, 0.085);
+    this._tone(587.33, 0.09, 'sine', 0.07, 0);
+    this._tone(880.0, 0.18, 'sine', 0.075, 0.085);
   }
 
   playStampImpact() {
     // 宮廟金印「衡斷破局」厚實蓋章震音＋銅鐘泛音
     this._kick(0);
-    this._tone(196, 0.14, 'triangle', 0.12, 0.01);
-    this._tone(523.25, 0.34, 'sine', 0.09, 0.05);
+    this._tone(196, 0.14, 'triangle', 0.08, 0.01);
+    this._tone(523.25, 0.34, 'sine', 0.06, 0.05);
   }
 
   playTatungCooker() {
-    this._tone(150, 0.08, 'square', 0.14, 0);
-    this._tone(523.25, 0.16, 'triangle', 0.12, 0.09);
-    this._tone(659.25, 0.18, 'triangle', 0.12, 0.22);
-    this._tone(783.99, 0.26, 'triangle', 0.13, 0.36);
+    this._tone(150, 0.05, 'square', 0.065, 0);
+    this._tone(523.25, 0.1, 'triangle', 0.055, 0.045);
+    this._tone(659.25, 0.11, 'triangle', 0.055, 0.105);
+    this._tone(783.99, 0.14, 'triangle', 0.06, 0.16);
   }
 
   playWantedSiren() {
@@ -267,7 +370,7 @@ class SoundEngine {
     osc.frequency.setValueAtTime(540, now);
     osc.frequency.linearRampToValueAtTime(860, now + 0.18);
     osc.frequency.linearRampToValueAtTime(520, now + 0.36);
-    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.setValueAtTime(0.055, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
     osc.connect(gain);
     gain.connect(ctx.destination);
@@ -278,17 +381,17 @@ class SoundEngine {
   playMissionPassed() {
     const notes = [392.0, 493.88, 587.33, 783.99];
     notes.forEach((n, idx) => {
-      this._tone(n, 0.28, 'triangle', 0.11, idx * 0.09);
+      this._tone(n, 0.28, 'triangle', 0.07, idx * 0.09);
     });
   }
 
   playPickup(good = true) {
     if (good) {
-      this._tone(659.25, 0.09, 'sine', 0.11, 0);
-      this._tone(987.77, 0.14, 'sine', 0.1, 0.06);
+      this._tone(659.25, 0.09, 'sine', 0.065, 0);
+      this._tone(987.77, 0.14, 'sine', 0.06, 0.06);
     } else {
-      this._tone(210, 0.16, 'sawtooth', 0.11, 0);
-      this._tone(145, 0.22, 'sawtooth', 0.1, 0.08);
+      this._tone(210, 0.16, 'sawtooth', 0.065, 0);
+      this._tone(145, 0.22, 'sawtooth', 0.06, 0.08);
     }
   }
 
@@ -299,16 +402,16 @@ class SoundEngine {
       if (this.muted) return;
       const st = this.getCurrentStation();
       const step = this.bgmStep % st.bass.length;
-      const dest = this.bgmMaster || this.ctx?.destination;
+      const dest = this.bgmFilter || this.bgmMaster || this.ctx?.destination;
 
       const bassFreq = st.bass[step];
-      if (bassFreq) this._tone(bassFreq, 0.2, 'triangle', 0.045, 0, dest);
+      if (bassFreq) this._tone(bassFreq, 0.2, 'triangle', 0.036, 0, dest);
 
       const leadFreq = st.lead[step];
-      if (leadFreq) this._tone(leadFreq, 0.15, st.id === 'lofi' ? 'sine' : 'sawtooth', 0.018, 0.02, dest);
+      if (leadFreq) this._tone(leadFreq, 0.15, st.id === 'lofi' ? 'sine' : 'sawtooth', 0.012, 0.02, dest);
 
       if (step === 0) {
-        st.pad.forEach((pf) => this._tone(pf, 0.65, 'sine', 0.014, 0, dest));
+        st.pad.forEach((pf) => this._tone(pf, 0.65, 'sine', 0.011, 0, dest));
       }
 
       if (step % 2 === 0) this._kick(0, dest);
@@ -342,6 +445,12 @@ class SoundEngine {
     return GRANDMA_VOICE_CLIPS[normalizeGrandmaVoiceKey(text)] || null;
   }
 
+  resolveVoiceClip(text, roleKey = 'narrator') {
+    if (roleKey === 'grandma') return this.resolveGrandmaClip(text);
+    const norm = normalizeVoiceKey(text);
+    return CHARACTER_VOICE_CLIPS[`${roleKey}:${norm}`] || null;
+  }
+
   _clearSpeechState() {
     if (this.speaking || this.activeVoiceRole) {
       this.speaking = false;
@@ -353,6 +462,10 @@ class SoundEngine {
 
   stopSpeech() {
     this._audioToken += 1;
+    if (this._speechDelayTimer) {
+      clearTimeout(this._speechDelayTimer);
+      this._speechDelayTimer = null;
+    }
     if (this.activeAudio) {
       try {
         this.activeAudio.onended = null;
@@ -372,6 +485,7 @@ class SoundEngine {
 
   _speakWithWebSpeech(cleanText, roleKey) {
     if (typeof window === 'undefined' || !window.speechSynthesis || typeof SpeechSynthesisUtterance === 'undefined') {
+      this._clearSpeechState();
       return false;
     }
 
@@ -380,7 +494,10 @@ class SoundEngine {
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, 180);
-    if (!speechBody) return false;
+    if (!speechBody) {
+      this._clearSpeechState();
+      return false;
+    }
 
     const profile = VOICE_PROFILES[roleKey] || VOICE_PROFILES.narrator;
     const utter = new SpeechSynthesisUtterance(speechBody);
@@ -391,11 +508,16 @@ class SoundEngine {
     utter.pitch = profile.pitch;
     utter.volume = profile.volume;
 
+    // 立即壓低背景音樂，確保人聲從第一個字就清楚浮現
+    this.speaking = true;
+    this.activeVoiceRole = roleKey;
+    this._updateBgmDucking();
+    if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, roleKey);
+
     utter.onstart = () => {
       this.speaking = true;
       this.activeVoiceRole = roleKey;
       this._updateBgmDucking();
-      if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, roleKey);
     };
     const finish = () => this._clearSpeechState();
     utter.onend = finish;
@@ -410,9 +532,48 @@ class SoundEngine {
     }
   }
 
+  _playClipFile(clipUrl, clean, roleKey, token) {
+    const audio = new Audio(clipUrl);
+    audio.preload = 'auto';
+    audio.volume = 1.0;
+    this.activeAudio = audio;
+
+    audio.onended = () => {
+      if (token !== this._audioToken) return;
+      this.activeAudio = null;
+      this._clearSpeechState();
+    };
+    audio.onerror = () => {
+      if (token !== this._audioToken) return;
+      this.activeAudio = null;
+      this._clearSpeechState();
+      this._speakWithWebSpeech(clean, roleKey);
+    };
+
+    try {
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch((err) => {
+          if (token !== this._audioToken) return;
+          this.activeAudio = null;
+          this._clearSpeechState();
+          if (err?.name !== 'NotAllowedError') {
+            this._speakWithWebSpeech(clean, roleKey);
+          }
+        });
+      }
+      return true;
+    } catch {
+      this.activeAudio = null;
+      this._clearSpeechState();
+      return false;
+    }
+  }
+
   speak(text, roleKey = 'narrator', forceManual = false) {
     if (!text || this.muted) return false;
     if (!forceManual && !this.voiceEnabled) return false;
+    if (this.cutscenePlaying && !forceManual) return false;
 
     const clean = String(text)
       .replace(/\uFE0F/g, '')
@@ -422,49 +583,28 @@ class SoundEngine {
 
     this.stopSpeech();
 
+    const clipUrl = this.resolveVoiceClip(clean, roleKey);
     if (roleKey === 'grandma') {
       this.playTatungCooker();
-      const clipUrl = this.resolveGrandmaClip(clean);
-      if (clipUrl && typeof Audio !== 'undefined') {
-        const token = ++this._audioToken;
-        const audio = new Audio(clipUrl);
-        audio.preload = 'auto';
-        audio.volume = 1.0;
-        this.activeAudio = audio;
-        this.speaking = true;
-        this.activeVoiceRole = 'grandma';
-        this._updateBgmDucking();
-        if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, 'grandma');
+    }
 
-        audio.onended = () => {
-          if (token !== this._audioToken) return;
-          this.activeAudio = null;
-          this._clearSpeechState();
-        };
-        audio.onerror = () => {
-          if (token !== this._audioToken) return;
-          this.activeAudio = null;
-          this._clearSpeechState();
-          this._speakWithWebSpeech(clean, 'grandma');
-        };
+    if (clipUrl && typeof Audio !== 'undefined') {
+      const token = ++this._audioToken;
+      this.speaking = true;
+      this.activeVoiceRole = roleKey;
+      this._updateBgmDucking();
+      if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, roleKey);
 
-        try {
-          const playPromise = audio.play();
-          if (playPromise && typeof playPromise.catch === 'function') {
-            playPromise.catch((err) => {
-              if (token !== this._audioToken) return;
-              this.activeAudio = null;
-              this._clearSpeechState();
-              if (err?.name !== 'NotAllowedError') {
-                this._speakWithWebSpeech(clean, 'grandma');
-              }
-            });
-          }
-          return true;
-        } catch {
-          this.activeAudio = null;
-          this._clearSpeechState();
-        }
+      if (roleKey === 'grandma') {
+        this._speechDelayTimer = setTimeout(() => {
+          if (token !== this._audioToken) return;
+          this._speechDelayTimer = null;
+          this._playClipFile(clipUrl, clean, roleKey, token);
+        }, 190);
+        return true;
+      }
+      if (this._playClipFile(clipUrl, clean, roleKey, token)) {
+        return true;
       }
     }
 
