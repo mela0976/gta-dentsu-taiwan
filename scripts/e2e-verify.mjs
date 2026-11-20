@@ -210,7 +210,8 @@ async function run() {
       const titleBounds = await page.evaluate(() => {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        const rect = document.querySelector('.hero-actions')?.getBoundingClientRect();
+        const actionsRect = document.querySelector('.hero-actions')?.getBoundingClientRect();
+        const plateRect = document.querySelector('.plate-box.is-optional')?.getBoundingClientRect();
         return {
           sw: document.documentElement.scrollWidth,
           sh: document.documentElement.scrollHeight,
@@ -218,13 +219,18 @@ async function run() {
           vh,
           hasStoryCard: Boolean(document.querySelector('.hero-story-card')),
           flowSteps: document.querySelectorAll('.quickstart-step').length,
-          actionsBottom: rect ? Math.round(rect.bottom) : 0,
+          actionsTop: actionsRect ? Math.round(actionsRect.top) : 0,
+          actionsBottom: actionsRect ? Math.round(actionsRect.bottom) : 0,
+          plateTop: plateRect ? Math.round(plateRect.top) : 0,
+          plateBottom: plateRect ? Math.round(plateRect.bottom) : 0,
           guideTop: Math.round(document.querySelector('.bottom-guide-bar')?.getBoundingClientRect()?.top || vh)
         };
       });
       assert.equal(titleBounds.hasStoryCard, true, `${name}: Missing rewritten hero story card`);
-      assert.equal(titleBounds.flowSteps, 4, `${name}: Expected 4 numbered play flow steps on Title`);
+      assert.equal(titleBounds.flowSteps, 3, `${name}: Expected 3 novice-friendly play flow steps on Title`);
+      assert.ok(titleBounds.plateTop >= titleBounds.actionsBottom - 4, `${name}: Optional AMA666 box must sit below hero-actions`);
       assert.ok(titleBounds.actionsBottom <= titleBounds.guideTop, `${name}: Title actions overlapped guide bar (${titleBounds.actionsBottom} > ${titleBounds.guideTop})`);
+      assert.ok(titleBounds.plateBottom <= titleBounds.guideTop, `${name}: Optional AMA666 box overlapped guide bar (${titleBounds.plateBottom} > ${titleBounds.guideTop})`);
 
       if (ssDir && name === 'compact-1024') {
         await page.screenshot({ path: path.join(ssDir, 'e2e-1024-title.png') });
@@ -243,19 +249,48 @@ async function run() {
 
       const roleCount = await page.locator('.role-card:not([disabled])').count();
       assert.equal(roleCount, 5, `${name}: Expected all 5 roles unlocked by AMA666, got ${roleCount}`);
-      const roleItineraries = await page.locator('.role-route-itinerary').count();
-      assert.equal(roleItineraries, 5, `${name}: Expected 5 role itinerary previews on role cards`);
+      assert.equal(await page.locator('.role-route-itinerary').count(), 5, `${name}: Expected 5 role itinerary previews on role cards`);
+      assert.equal(await page.locator('.role-rec-badge').count(), 1, `${name}: Expected beginner recommended badge on Role Select`);
+      assert.equal(await page.locator('.role-pick-cta').count(), 5, `${name}: Expected 5 clickable footer CTAs on role cards`);
+      const roleOverflow = await page.evaluate(() => ({
+        sw: document.documentElement.scrollWidth > window.innerWidth,
+        sh: document.documentElement.scrollHeight > window.innerHeight + 1
+      }));
+      assert.equal(roleOverflow.sw, false, `${name}: Role select horizontal overflow`);
+      assert.equal(roleOverflow.sh, false, `${name}: Role select vertical overflow`);
 
       await page.click('.role-card');
       await page.waitForSelector('.cutscene-video');
       await page.click('.chapter-header .btn-primary');
       await page.waitForSelector('.play-grid');
       await page.waitForSelector('.quiz-guide-box');
+      await page.waitForSelector('.zone-tag.is-ref');
+      await page.waitForSelector('.zone-tag.is-action');
+      await page.waitForSelector('.main-stage.is-action-focus');
+      await page.waitForSelector('.beginner-coach-banner');
+      assert.equal(await page.locator('.reply-cta').count(), 4, `${name}: Expected 4 clickable affordances on replies`);
+      const repliesVisible = await page.evaluate(() => {
+        const ms = document.querySelector('.main-stage')?.getBoundingClientRect();
+        const btns = [...document.querySelectorAll('.reply-btn')];
+        if (!ms || btns.length !== 4) return { ok: false, reason: 'missing elements' };
+        const lastRect = btns[3].getBoundingClientRect();
+        return {
+          ok: lastRect.bottom <= ms.bottom + 2,
+          lastBottom: Math.round(lastRect.bottom),
+          stageBottom: Math.round(ms.bottom)
+        };
+      });
+      assert.equal(repliesVisible.ok, true, `${name}: Reply buttons 3-4 clipped below fold (${repliesVisible.lastBottom} > ${repliesVisible.stageBottom})`);
       await checkImagesLoaded(page, `${name}-scene`);
       await checkDesktopGeometry(page, `${name}-scene`, false);
       if (ssDir && name === 'compact-1024') {
         await page.screenshot({ path: path.join(ssDir, 'e2e-1024-scene.png') });
       }
+
+      // Test HUD help popover (on-demand beginner metric explainer)
+      await page.click('#hud-help-trigger');
+      await page.waitForSelector('#hud-help-popover:popover-open');
+      await page.keyboard.press('Escape');
 
       // Test decluttered left scene controls & native #scene-more-views popover
       await page.click('#more-views-trigger');
@@ -287,6 +322,7 @@ async function run() {
       assert.ok((await page.locator('.hud-btn.is-radio').textContent()).includes('88.6'), `${name}: Radio did not cycle to FM 88.6`);
 
       await page.click('.reply-btn');
+      assert.equal(await page.evaluate(() => localStorage.getItem('gta_dentsu_beginner_tip_v1')), '1', `${name}: First reply did not dismiss beginner tip`);
       await page.waitForSelector('.paper-card');
       await page.click('.paper-card');
       await page.waitForSelector('.stamp-slot');
@@ -422,6 +458,9 @@ async function run() {
     await mob.waitForSelector('.cutscene-video');
     await mob.click('.chapter-header .btn-primary');
     await mob.waitForSelector('.play-grid');
+    await mob.waitForSelector('.beginner-coach-banner');
+    await mob.click('.beginner-coach-banner button:has-text("我懂了")');
+    assert.equal(await mob.locator('.beginner-coach-banner').count(), 0, 'Beginner coach dismiss button did not hide banner');
     await checkImagesLoaded(mob, 'mobile-scene');
     const mobSw = await mob.evaluate(() => document.documentElement.scrollWidth);
     assert.ok(mobSw <= 390, `Mobile horizontal overflow: ${mobSw}`);

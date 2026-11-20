@@ -75,11 +75,11 @@ button {
   cursor: pointer;
   border: none;
   color: var(--text);
-  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+  transition: box-shadow 150ms ease-out, scale 150ms ease-out, border-color 150ms ease-out, background 150ms ease-out;
 }
-button:active { transform: scale(0.98); }
+button:active { scale: 0.98; }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
-button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2.5px solid var(--cyan); outline-offset: 3px; }
 
 .btn-primary {
   min-height: 48px;
@@ -93,6 +93,15 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
   box-shadow: 0 8px 24px rgba(255, 79, 163, 0.35);
 }
 .btn-primary:hover:not(:disabled) { filter: brightness(1.06); box-shadow: 0 10px 28px rgba(255, 140, 66, 0.55); }
+.btn-primary.is-hero-pulse { display: inline-flex; align-items: center; gap: 8px; }
+@media (prefers-reduced-motion: no-preference) {
+  .btn-primary.is-hero-pulse { animation: heroCtaPulse 2s ease-in-out infinite alternate; }
+}
+@keyframes heroCtaPulse {
+  from { box-shadow: 0 8px 24px rgba(255, 79, 163, 0.4); }
+  to { box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.35), 0 12px 32px rgba(255, 140, 66, 0.65); }
+}
+.hero-cta-badge { padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 900; background: #14081f; color: var(--gold); }
 .btn-cyan {
   min-height: 46px;
   padding: 8px 16px;
@@ -114,6 +123,7 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
   color: #1a0f00;
   box-shadow: 0 6px 18px rgba(255, 209, 102, 0.32);
 }
+.btn-gold.is-compact { min-height: 40px; padding: 6px 12px; font-size: 14px; }
 .btn-ghost {
   min-height: 44px;
   padding: 8px 14px;
@@ -233,11 +243,23 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .plate-box .cheat-bar { gap: 6px; }
 .plate-box .cheat-input { background: #fff; color: #12304d; border: 2px solid #12304d; min-height: 40px; width: 118px; font-size: 18px; }
 .plate-box .btn-ghost { background: #12304d; color: #fff; min-height: 40px; }
+.plate-box.is-optional {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 209, 102, 0.42);
+  box-shadow: none;
+  color: var(--muted);
+  padding: 5px 10px;
+  gap: 8px;
+}
+.plate-box.is-optional .plate-label { font-size: 12px; color: var(--muted); }
+.plate-box.is-optional .cheat-input { background: rgba(0, 0, 0, 0.36); color: var(--gold); border: 1px solid rgba(255, 209, 102, 0.4); min-height: 32px; width: 96px; font-size: 13px; padding: 4px 8px; }
+.plate-box.is-optional .btn-ghost { background: rgba(255, 255, 255, 0.09); color: #fff; min-height: 32px; padding: 4px 10px; font-size: 12.5px; }
 
 /* ─── Role select ─── */
 .role-select-wrap { display: flex; flex-direction: column; gap: 10px; }
 .role-topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
 .role-topbar h2 { margin: 4px 0 0; font-size: clamp(18px, 2vw, 28px); }
+.role-topbar-hint { margin: 4px 0 0; font-size: 13.5px; font-weight: 700; color: var(--gold); }
 .role-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .role-card {
   position: relative;
@@ -251,23 +273,44 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
   text-align: left;
   padding: 0;
 }
-.role-card:hover:not(:disabled) { border-color: var(--cyan); box-shadow: 0 12px 28px rgba(0, 229, 255, 0.28); background: linear-gradient(180deg, rgba(36, 20, 66, 0.98), rgba(16, 10, 34, 0.98)); }
+.role-card:hover:not(:disabled),
+.role-card:focus-visible:not(:disabled) { border-color: var(--cyan); box-shadow: 0 12px 28px rgba(0, 229, 255, 0.28); background: linear-gradient(180deg, rgba(36, 20, 66, 0.98), rgba(16, 10, 34, 0.98)); }
 .role-card.is-grandma { border-color: var(--gold); box-shadow: 0 0 28px rgba(255, 209, 102, 0.26); }
+.role-card.is-recommended { border-color: rgba(0, 229, 255, 0.6); box-shadow: 0 0 24px rgba(0, 229, 255, 0.2); }
 .role-card.is-locked { opacity: 0.72; filter: grayscale(0.4); }
 .role-lanyard { height: 10px; margin: 0 auto; width: 38px; border-radius: 0 0 8px 8px; background: #0a0714; border: 1px solid rgba(255, 255, 255, 0.2); border-top: 0; flex-shrink: 0; }
 .role-id-head { display: flex; justify-content: space-between; align-items: center; padding: 3px 9px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; color: var(--gold); background: rgba(255, 209, 102, 0.1); flex-shrink: 0; }
 .role-avatar-wrap { position: relative; aspect-ratio: 1 / 1; max-height: 28dvh; width: 100%; background: #170d2c; overflow: hidden; flex-shrink: 1; min-height: 0; }
 .role-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; display: block; }
+.role-rec-badge { position: absolute; top: 6px; right: 6px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 900; background: linear-gradient(135deg, #ffd166, #ff9e2c); color: #1a0f00; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55); z-index: 2; }
 .role-badge-float { position: absolute; left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 2px 7px; border-radius: 6px; font-size: 12px; font-weight: 800; background: rgba(11, 6, 22, 0.9); border: 1px solid currentColor; }
-.role-info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
+.role-info { padding: 8px 10px 8px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
 .role-info h3 { margin: 0; font-size: 17px; font-weight: 800; line-height: 1.2; }
 .role-info p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
 .role-info .role-dept { font-weight: 700; color: #efeafd; }
 .role-info .role-quote { display: none; }
 .role-special { display: inline-flex; width: fit-content; max-width: 100%; padding: 2px 8px; border-radius: 6px; font-size: 12.5px; font-weight: 800; color: #08121f; background: var(--cyan); }
-.role-bars { display: grid; gap: 3px; margin-top: auto; padding-top: 4px; }
+.role-bars { display: grid; gap: 3px; margin-top: auto; padding-top: 3px; }
 .role-bar-row { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 5px; }
 .role-bar-row svg { width: 16px; height: 16px; }
+.role-pick-cta {
+  margin-top: 4px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.36);
+  transition: background 150ms ease-out, color 150ms ease-out;
+}
+.role-card:hover:not(:disabled) .role-pick-cta,
+.role-card:focus-visible:not(:disabled) .role-pick-cta { background: linear-gradient(135deg, var(--pink), var(--orange)); border-color: transparent; color: #14081f; }
+.role-card.is-locked .role-pick-cta { color: var(--gold); background: rgba(255, 209, 102, 0.1); border-color: rgba(255, 209, 102, 0.3); font-size: 11px; }
+@media (hover: none) {
+  .role-card:not(:disabled) .role-pick-cta { background: rgba(0, 229, 255, 0.22); border-color: var(--cyan); color: #fff; }
+}
 
 /* ─── Segmented neon bars ─── */
 .seg-bar { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 1.5px; height: 7px; width: 100%; min-width: 0; }
@@ -378,6 +421,7 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .ctl-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ctl-row > button { flex: 1 1 auto; }
 #more-views-trigger { anchor-name: --more-views-btn; }
+#hud-help-trigger { anchor-name: --hud-help-btn; }
 .scene-more-popover {
   width: max-content;
   max-width: min(260px, calc(100vw - 24px));
@@ -390,8 +434,38 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
   flex-direction: column;
   gap: 6px;
   z-index: 80;
+  transform-origin: bottom left;
 }
-.scene-more-popover:is(:popover-open, .\:popover-open) { display: flex; }
+.hud-help-popover {
+  width: min(330px, calc(100vw - 24px));
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--gold);
+  background: rgba(16, 10, 34, 0.98);
+  color: var(--text);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.85);
+  flex-direction: column;
+  gap: 7px;
+  z-index: 80;
+  transform-origin: top right;
+}
+.hud-help-title { font-size: 13.5px; font-weight: 900; color: var(--gold); }
+.hud-help-list { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; line-height: 1.4; color: #ece4fc; }
+.hud-help-star-note { padding-top: 5px; border-top: 1px solid rgba(255, 255, 255, 0.14); color: var(--cyan); font-weight: 700; }
+.scene-more-popover:is(:popover-open, .\:popover-open),
+.hud-help-popover:is(:popover-open, .\:popover-open) {
+  display: flex;
+  animation: popFadeIn 150ms ease-out both;
+}
+@keyframes popFadeIn { from { opacity: 0; } }
+@keyframes popGrow { from { scale: 0.9; } }
+@media (prefers-reduced-motion: no-preference) {
+  .scene-more-popover:is(:popover-open, .\:popover-open),
+  .hud-help-popover:is(:popover-open, .\:popover-open) {
+    animation: popGrow 260ms ease-out both, popFadeIn 150ms ease-out both;
+    animation: popGrow 280ms linear(0, 0.45 15%, 1.08 35%, 0.97 55%, 1.01 75%, 1) both, popFadeIn 150ms ease-out both;
+  }
+}
 .scene-more-popover-title {
   font-size: 11.5px;
   font-weight: 800;
@@ -421,6 +495,22 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
     margin: 0;
   }
 }
+@supports (position-area: block-end) {
+  .hud-help-popover:is(:popover-open, .\:popover-open) {
+    position-anchor: --hud-help-btn;
+    inset: auto;
+    margin: 6px 0;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+}
+@supports not (position-area: block-end) {
+  .hud-help-popover:is(:popover-open, .\:popover-open) {
+    position: fixed;
+    inset: 72px 18px auto auto;
+    margin: 0;
+  }
+}
 .mode-chip, .hotspot-chip {
   min-height: 32px;
   padding: 2px 8px;
@@ -445,10 +535,34 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
 .cutscene-stage-wrap { position: relative; border-top: 14px solid #000; border-bottom: 14px solid #000; border-radius: 12px; overflow: hidden; background: #000; }
 .cutscene-subtitle { position: absolute; left: 24px; right: 24px; bottom: 18px; text-align: center; font-size: clamp(16px, 2vw, 24px); font-weight: 700; color: #fff; text-shadow: 0 2px 8px #000, -1px -1px 0 #000, 1px 1px 0 #000; pointer-events: none; }
+.cutscene-novice-tip { padding: 6px 10px; border-radius: 8px; background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.3); font-size: 13px; font-weight: 700; color: var(--cyan); }
+
+/* Zone distinction & beginner coaching */
+.zone-tag { font-size: 11.5px; font-weight: 800; letter-spacing: 0.02em; }
+.zone-tag.is-ref { padding: 3px 10px; color: var(--muted); background: rgba(255, 255, 255, 0.04); border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: center; }
+.zone-tag.is-action { display: inline-flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; padding: 2px 10px; border-radius: 999px; color: #160a00; background: linear-gradient(135deg, var(--gold), var(--orange)); font-weight: 900; }
+.main-stage.is-action-focus { border-color: rgba(0, 229, 255, 0.65); box-shadow: 0 0 0 1px rgba(255, 79, 163, 0.28), 0 14px 36px rgba(0, 0, 0, 0.45); }
+.beginner-coach-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.18), rgba(0, 229, 255, 0.14));
+  border: 1.5px solid var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff8e6;
+  line-height: 1.35;
+}
+.beginner-coach-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.beginner-coach-actions button { min-height: 30px; padding: 3px 9px; font-size: 12px; border-radius: 8px; font-weight: 800; }
 
 /* Under-stage dock: radar + clue */
 .dock-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-height: 0; }
-.minimap-box { position: relative; border-radius: 12px; overflow: hidden; background: #0a0c1d; border: 1.5px solid var(--border-cyan); padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+.minimap-box { position: relative; border-radius: 12px; overflow: hidden; background: #0a0c1d; border: 1px solid rgba(255, 255, 255, 0.16); padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
 .minimap-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: var(--cyan); white-space: nowrap; }
 .minimap-head span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .minimap-head .mode-chip { min-height: 24px; font-size: 11.5px; flex-shrink: 0; }
@@ -474,7 +588,7 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .clue-card .btn-cyan { min-height: 40px; font-size: 14px; }
 
 /* Phone */
-.phone-frame { border-radius: 18px; border: 2px solid var(--border-cyan); background: linear-gradient(180deg, #121029, #0b0718); padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 5px; min-height: 0; }
+.phone-frame { border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.16); background: linear-gradient(180deg, #121029, #0b0718); padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 5px; min-height: 0; }
 .phone-island { width: 150px; max-width: 70%; margin: 0 auto; }
 .phone-island svg { width: 100%; display: block; }
 .phone-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; }
@@ -495,6 +609,7 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
 /* Main stage content */
 .chapter-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 8px; }
+.chapter-kicker-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .chapter-header h2 { margin: 4px 0 0; font-size: clamp(18px, 1.5vw, 26px); }
 .chapter-desc { margin: 0; font-size: 17px; color: #efeafd; }
 .scene-desc-row { display: flex; gap: 8px; align-items: flex-start; }
@@ -506,8 +621,26 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .prompt-line { font-size: 15px; color: var(--cyan); font-weight: 700; }
 .replies-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .reply-btn { min-height: 52px; padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 1.5px solid rgba(255, 255, 255, 0.18); text-align: left; font-size: 17px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
-.reply-btn:hover { border-color: var(--cyan); background: rgba(0, 229, 255, 0.14); }
+.reply-btn:hover,
+.reply-btn:focus-visible { border-color: var(--cyan); background: rgba(0, 229, 255, 0.14); }
 .reply-key { width: 28px; height: 28px; border-radius: 8px; background: rgba(255, 255, 255, 0.12); display: grid; place-items: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+.reply-label { flex: 1; min-width: 0; }
+.reply-cta {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  opacity: 0.72;
+  transition: opacity 150ms ease-out, background 150ms ease-out, color 150ms ease-out;
+}
+.reply-btn:hover .reply-cta,
+.reply-btn:focus-visible .reply-cta { opacity: 1; background: var(--cyan); color: #08121f; }
+@media (hover: none) { .reply-cta { opacity: 1; } }
 
 .paper-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
 .paper-card { padding: 14px; border-radius: 12px; background: #f9f4e8; color: #1b2230; text-align: left; border: 3px solid transparent; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); min-height: 88px; }
@@ -611,9 +744,9 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
   .modal-backdrop { padding: 12px 12px 76px; }
   .modal-box { max-height: calc(100dvh - 88px); }
 
-  .hud-bar { grid-template-columns: minmax(190px, 0.62fr) minmax(380px, 1.95fr) auto; gap: 8px; padding: 6px 12px; flex-shrink: 0; }
+  .hud-bar { grid-template-columns: minmax(175px, 0.56fr) minmax(370px, 1.88fr) auto; gap: 8px; padding: 6px 12px; flex-shrink: 0; }
   .hud-meters { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px 6px; }
-  .hud-right { justify-content: flex-end; flex-wrap: wrap; max-width: 390px; }
+  .hud-right { justify-content: flex-end; flex-wrap: wrap; max-width: 410px; }
   .review-stage, .cutscene-stage { flex: 1; min-height: 0; overflow-y: auto; }
   .ctl-row { flex-wrap: nowrap; }
   .mode-chip, .hotspot-chip { min-height: 30px; padding: 2px 5px; font-size: 12px; min-width: 0; }
@@ -649,53 +782,66 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 }
 
 @media (min-width: 1024px) and (max-height: 900px) {
-  :root { --stage-reserve: 468px; }
-  .hero-crest { width: min(160px, 42%); }
+  :root { --stage-reserve: 494px; }
+  .hero-crest { width: min(156px, 40%); }
   .hero-body { padding: 10px 16px; gap: 5px; overflow-y: auto; }
   .hero-story-card { padding: 6px 10px; gap: 2px; }
   .hero-story-label { font-size: 11px; }
-  .gta-subtitle { font-size: 13px; line-height: 1.32; }
+  .gta-subtitle { font-size: 12.8px; line-height: 1.3; }
   .quickstart-strip { padding: 5px 8px; gap: 5px 8px; }
   .quickstart-step { font-size: 11px; }
   .quickstart-step b { font-size: 11.5px; }
-  .plate-box { padding: 4px 8px; }
-  .plate-box .cheat-input, .plate-box .btn-ghost { min-height: 32px; font-size: 14px; padding: 3px 8px; }
-  .hero-actions { gap: 6px; margin-top: 0; }
-  .hero-actions button { min-height: 36px; padding: 5px 11px; font-size: 13.5px; }
-  .role-card .role-info { padding: 6px 8px; gap: 2px; }
-  .role-route-summary { font-size: 10.5px; line-height: 1.22; }
-  .role-route-itinerary { font-size: 10.5px; line-height: 1.22; }
-  .role-info .role-quote { font-size: 11.5px; line-height: 1.22; }
+  .plate-box.is-optional { padding: 4px 8px; gap: 6px; }
+  .plate-box.is-optional .plate-label { font-size: 11px; }
+  .plate-box.is-optional .cheat-input,
+  .plate-box.is-optional .btn-ghost { min-height: 28px; font-size: 12px; padding: 2px 7px; }
+  .hero-actions { gap: 6px; margin-top: 2px; }
+  .hero-actions button { min-height: 38px; padding: 5px 12px; font-size: 13.5px; }
+  .role-topbar { padding: 6px 12px; gap: 6px; }
+  .role-topbar h2 { font-size: 19px; }
+  .role-topbar-hint { font-size: 12px; margin-top: 2px; }
+  .role-card .role-info { padding: 5px 7px 6px; gap: 2px; }
+  .role-route-summary { font-size: 10.5px; line-height: 1.2; }
+  .role-route-itinerary { font-size: 10.5px; line-height: 1.2; }
+  .role-info .role-quote { font-size: 11px; line-height: 1.2; }
+  .role-pick-cta { margin-top: 2px; padding: 3px 6px; font-size: 11px; }
   .phone-island, .phone-head { display: none; }
   .chapter-header .pill { display: none; }
+  .zone-tag.is-ref { padding: 2px 8px; font-size: 11px; }
+  .zone-tag.is-action { padding: 2px 8px; font-size: 11px; }
+  .beginner-coach-banner { padding: 4px 8px; font-size: 11.5px; line-height: 1.25; gap: 6px; }
+  .beginner-coach-actions button { min-height: 24px; padding: 2px 7px; font-size: 11px; }
   .step-pill { padding: 2px 6px; font-size: 11.5px; }
   .chapter-header { padding-bottom: 3px; }
-  .chapter-header h2 { margin: 0; font-size: 17px; }
-  .main-stage { gap: 4px; padding: 7px 11px; }
+  .chapter-header h2 { margin: 2px 0 0; font-size: 16px; line-height: 1.2; }
+  .main-stage { gap: 4px; padding: 6px 10px; }
   .main-stage-inner { gap: 4px; }
-  .quiz-guide-box { padding: 5px 9px; gap: 2px; }
-  .quiz-guide-badge { font-size: 11.5px; }
-  .chapter-desc { font-size: 14px; line-height: 1.32; }
-  .boss-callout { font-size: 13.5px; padding: 5px 9px; line-height: 1.3; }
+  .quiz-guide-box { padding: 4px 8px; gap: 1px; }
+  .quiz-guide-badge { font-size: 11px; }
+  .chapter-desc { font-size: 13px; line-height: 1.26; }
+  .boss-callout { font-size: 13px; padding: 4px 8px; line-height: 1.26; }
   .takeaway-card { padding: 6px 10px; }
   .takeaway-text { font-size: 15px; line-height: 1.28; padding-right: 124px; }
   .stamp-slot { width: 116px; top: 2px; right: 6px; }
   .gta6-analysis-card { padding: 5px 9px; font-size: 12px; line-height: 1.28; gap: 1px !important; }
   .rescue-toast { padding: 5px 9px; font-size: 13px; line-height: 1.28; }
   .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 36px; padding: 5px 12px; font-size: 14px; }
-  .prompt-line { font-size: 12.5px; }
-  .reply-btn { min-height: 38px; font-size: 14.5px; padding: 4px 10px; }
+  .prompt-line { font-size: 11.5px; line-height: 1.25; }
+  .replies-grid { gap: 5px; }
+  .reply-btn { min-height: 36px; font-size: 13px; padding: 3px 7px; gap: 6px; line-height: 1.22; }
+  .reply-key { width: 22px; height: 22px; font-size: 12px; }
+  .reply-cta { font-size: 10.5px; padding: 1px 5px; }
   .col-right .chat-scroll { max-height: 46px; }
   .phone-frame { padding: 5px 8px; }
   .phone-tab { min-height: 30px; font-size: 12.5px; }
-  .clue-text { font-size: 13.5px; }
+  .clue-text { font-size: 13px; }
   .clue-card { gap: 4px; padding: 7px 10px; }
-  .clue-card .btn-cyan { min-height: 34px; padding: 4px 10px; font-size: 13px; }
+  .clue-card .btn-cyan { min-height: 32px; padding: 4px 10px; font-size: 12.5px; }
   .dock-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
-  .radar-stage { width: 100%; height: auto; max-height: 118px; }
+  .radar-stage { width: 100%; height: auto; max-height: 114px; }
   .hud-bar { padding: 4px 10px; }
-  .hud-right { max-width: 356px; gap: 4px; }
-  .hud-btn { min-height: 30px; font-size: 12px; padding: 3px 7px; }
+  .hud-right { max-width: 392px; gap: 4px; }
+  .hud-btn { min-height: 29px; font-size: 11.5px; padding: 2px 6px; }
   .score-pill { font-size: 17px; padding: 2px 8px; }
   .wanted-box { font-size: 13px; }
   .meter-label { font-size: 10.5px; }
@@ -751,7 +897,7 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 /* ─── Onboarding & Guided Quiz UI ─── */
 .quickstart-strip {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px 8px;
   padding: 7px 9px;
   border-radius: 10px;

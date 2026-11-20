@@ -24,6 +24,7 @@ import { SVG_GTA_TAIWAN_CREST, SVG_IRON_GRILLE_CORNER, SVG_TEMPLE_STAMP_PASSED, 
 
 const STORAGE_KEY = 'gta_dentsu_taiwan_v1';
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
+const BEGINNER_TIP_STORAGE_KEY = 'gta_dentsu_beginner_tip_v1';
 
 const WELCOME_SLIDES = [
   {
@@ -191,6 +192,7 @@ class GtaDentsuApp {
     this.tourActive = false;
     this.tourStepIndex = 0;
     this.tourDone = this._loadTourDone();
+    this.beginnerTipDismissed = this._loadBeginnerTipDone();
     this.tourUserInitiated = false;
     this._tourHighlightEl = null;
     this._tourInvokerEl = null;
@@ -364,6 +366,21 @@ class GtaDentsuApp {
     this.tourDone = Boolean(done);
     try {
       localStorage.setItem(TOUR_STORAGE_KEY, done ? '1' : '0');
+    } catch {}
+  }
+
+  _loadBeginnerTipDone() {
+    try {
+      return localStorage.getItem(BEGINNER_TIP_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  _saveBeginnerTipDone(done = true) {
+    this.beginnerTipDismissed = Boolean(done);
+    try {
+      localStorage.setItem(BEGINNER_TIP_STORAGE_KEY, done ? '1' : '0');
     } catch {}
   }
 
@@ -896,6 +913,9 @@ class GtaDentsuApp {
   }
 
   _pickReply(idx) {
+    if (!this.beginnerTipDismissed) {
+      this._saveBeginnerTipDone(true);
+    }
     if (this.tourActive) {
       this._finishHudTour(false);
     }
@@ -1038,54 +1058,48 @@ class GtaDentsuApp {
         el('span', { class: 't-b', text: '電通台灣一日風雲' })
       ]),
       el('div', { class: 'hero-story-card' }, [
-        el('div', { class: 'hero-story-label', text: '🎬 情境帶入｜今天你走進台北信義區富邦 A25 電通大樓' }),
+        el('div', { class: 'hero-story-label', text: '🎬 情境帶入｜這是一款「職場選擇題」互動體驗' }),
         el('p', {
           class: 'gta-subtitle',
-          text: '從清晨到午夜的台北街頭，對街「陶朱隱園」與 101 霓虹下，客戶砍預算、採購比價、AI 罐頭腳本與黑箱報表同時炸開。五種職能就是五條截然不同的台北行程、現場狀況與實務考題——今天你想用哪個視角破局？'
+          text: '從清晨到午夜的台北信義區富邦 A25 與陶朱隱園霓虹下，客戶砍預算、採購比價、AI 罐頭腳本與黑箱報表同時炸開。不用懂遊戲規則、也不用背術語！就像回 LINE 一樣直接點選項，就能體驗五位角色截然不同的台北一天。'
         })
       ]),
-      el('div', { class: 'quickstart-strip', role: 'list', 'aria-label': '遊玩四步驟流程' }, [
+      el('div', { class: 'quickstart-strip', role: 'list', 'aria-label': '遊玩三步驟' }, [
         el('div', { class: 'quickstart-step', role: 'listitem' }, [
-          el('b', { text: '01 選職能＝選專屬行程' }),
-          el('span', { text: '業務・策略・創意・數據・阿嬤路線與題庫全不同' })
+          el('b', { text: '① 挑 1 位角色' }),
+          el('span', { text: '選想體驗的職能（不知選誰可選新手推薦）' })
         ]),
         el('div', { class: 'quickstart-step', role: 'listitem' }, [
-          el('b', { text: '02 左區看實景與線索' }),
-          el('span', { text: '專注對照現場畫面、雷達跑點與職能絕招' })
+          el('b', { text: '② 右邊選答案' }),
+          el('span', { text: '看 LINE 狀況點 1–4 回覆，再解 1 題互動' })
         ]),
         el('div', { class: 'quickstart-step', role: 'listitem' }, [
-          el('b', { text: '03 右區引導依序作答' }),
-          el('span', { text: '看狀況 ➔ 回 LINE 選題（1–4）➔ 挑戰專屬測驗' })
-        ]),
-        el('div', { class: 'quickstart-step', role: 'listitem' }, [
-          el('b', { text: '04 必要時問手機隊友' }),
-          el('span', { text: '點讀心偷聽 Lisa/Cindy 或輸 AMA666 喚阿嬤' })
+          el('b', { text: '③ 過 10 站看稱號' }),
+          el('span', { text: '選錯也不會死，每站都能看專家金句復盤' })
         ])
       ]),
       this.state.grandmaUnlocked
-        ? el('div', { class: 'rescue-toast', style: 'font-size:13.5px;padding:6px 10px;', text: '🍲 秘技 AMA666 已啟動！隱藏第 5 角色「滿級皇太后・台灣阿嬤」解鎖完成，請點下方打卡上班！' })
+        ? el('div', { class: 'rescue-toast', style: 'font-size:13.5px;padding:6px 10px;', text: '🍲 秘技 AMA666 已啟動！隱藏第 5 角色「滿級皇太后・台灣阿嬤」解鎖完成，請按下方開始遊戲！' })
         : null,
-      el('div', { class: 'plate-box' }, [
-        el('span', { class: 'plate-label', text: '台灣秘技車牌 AMA-666' }),
-        this._renderCheatInput()
-      ]),
       el('div', { class: 'hero-actions' }, [
         el('button', {
-          class: 'btn-primary',
-          text: '打卡上班：選角色與專屬行程 ➔',
+          class: 'btn-primary is-hero-pulse',
           onClick: () => this._startShift()
-        }),
+        }, [
+          el('span', { class: 'hero-cta-badge', text: '👉 第一步' }),
+          el('span', { text: '▶ 開始遊戲：挑選你的角色 ➔' })
+        ]),
         el('button', {
           class: 'btn-cyan',
-          text: '🧭 一步步新手教學 & 導覽',
+          text: '🧭 30 秒新手圖解導覽',
           onClick: (e) => {
             soundFX.playClick();
             this._openWelcomeTour(0, e.currentTarget);
           }
         }),
         el('button', {
-          class: 'btn-gold',
-          text: '🛵 試駕 2026 電車 × Tesla FSD',
+          class: 'btn-gold is-compact',
+          text: '🛵 先試玩 2026 電車',
           onClick: () => this._openScooterModal()
         }),
         this.state.history.length > 0
@@ -1098,6 +1112,10 @@ class GtaDentsuApp {
               }
             })
           : null
+      ]),
+      el('div', { class: 'plate-box is-optional' }, [
+        el('span', { class: 'plate-label', text: '進階彩蛋（非必填）· 輸入 AMA666 解鎖阿嬤角色' }),
+        this._renderCheatInput()
       ])
     ]);
 
@@ -1145,8 +1163,9 @@ class GtaDentsuApp {
   _renderRoleSelect() {
     const topBar = el('div', { class: 'panel role-topbar' }, [
       el('div', {}, [
-        el('div', { class: 'gta-kicker', text: 'STEP 1 · 領取識別證＝選定今日專屬台北行程與題庫' }),
-        el('h2', { text: '2026 早安信義區：今天你以哪個職能走進富邦 A25？' })
+        el('div', { class: 'gta-kicker', text: 'STEP 1 · 選好角色就等於選定今日專屬行程與題目' }),
+        el('h2', { text: '2026 早安信義區：今天想當哪一位電通人？' }),
+        el('p', { class: 'role-topbar-hint', text: '👇 點下方任一張角色卡就能直接出發！（第一次玩不知道選誰？推薦選有「⭐ 新手推薦」那張）' })
       ]),
       el('div', { class: 'cheat-bar' }, [
         el('button', {
@@ -1173,7 +1192,8 @@ class GtaDentsuApp {
 
     const grid = el('div', { class: 'role-grid' }, ROLES.map((role, idx) => {
       const locked = role.id === 'grandma' && !this.state.grandmaUnlocked;
-      const cls = `role-card${role.id === 'grandma' ? ' is-grandma' : ''}${locked ? ' is-locked' : ''}`;
+      const isRec = role.id === 'planner';
+      const cls = `role-card${role.id === 'grandma' ? ' is-grandma' : ''}${isRec ? ' is-recommended' : ''}${locked ? ' is-locked' : ''}`;
       const route = ROLE_ROUTE_META[role.id] || {};
       return el('button', {
         class: cls,
@@ -1199,6 +1219,7 @@ class GtaDentsuApp {
             alt: role.name,
             onerror: (e) => { e.target.style.display = 'none'; }
           }),
+          isRec ? el('span', { class: 'role-rec-badge', text: '⭐ 新手推薦' }) : null,
           el('span', {
             class: 'role-badge-float',
             style: `color:${role.color};`,
@@ -1241,7 +1262,8 @@ class GtaDentsuApp {
               htmlNode('role-bar-icon', getStatIconSvg(st.icon)),
               this._renderSegBar(role.startingStats[st.key], st.color)
             ])
-          ))
+          )),
+          el('div', { class: 'role-pick-cta', text: locked ? '🔒 點上方「阿嬤平安符」即可解鎖' : '👆 點此選這位出發 ➔' })
         ])
       ]);
     }));
@@ -1273,6 +1295,13 @@ class GtaDentsuApp {
     const [roadZh, roadEn] = this._roadParts(ch);
     const stars = Math.max(0, Math.min(5, this.state.wantedStars));
     const starsText = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+    const statTips = {
+      stamina: '肝指數：你的體力，歸零會呼叫阿嬤送便當補滿！',
+      streetCred: '嘴砲力：短期應付高層或客戶的話術能力。',
+      realLift: '真增量：帶進真正新客人的實戰實力。',
+      brandTrust: '品牌信任：消費者喜歡並相信品牌的程度。',
+      judgment: '衡斷力：分辨真假與做決斷的關鍵能力。'
+    };
 
     const stationBtn = el('button', {
       class: 'hud-btn is-radio',
@@ -1296,6 +1325,34 @@ class GtaDentsuApp {
       el('span', { class: 'hud-btn-text', text: `${soundFX.voiceEnabled ? '🎙️' : '🔇'} ${this._voiceBtnLabel()}` })
     ]);
 
+    const helpBtn = el('button', {
+      id: 'hud-help-trigger',
+      type: 'button',
+      class: 'hud-btn',
+      popovertarget: 'hud-help-popover',
+      'aria-haspopup': 'dialog',
+      title: '查看五項能力數值與通緝星說明',
+      text: '❓ 說明',
+      onClick: () => soundFX.playClick()
+    });
+    const helpPopover = el('div', {
+      id: 'hud-help-popover',
+      popover: 'auto',
+      class: 'hud-help-popover',
+      role: 'dialog',
+      'aria-label': '頂部數值與通緝星說明'
+    }, [
+      el('div', { class: 'hud-help-title', text: '❓ 頂部五項數值 ＆ 通緝星代表什麼？' }),
+      el('div', { class: 'hud-help-list' }, [
+        el('div', { text: '🔥 肝指數：你的體力，歸零也沒關係，阿嬤會衝來補滿！' }),
+        el('div', { text: '🎤 嘴砲力：短期應付老闆的話術，但太高會傷信任。' }),
+        el('div', { text: '📈 真增量：真正帶進新客人的能力（不把熟客算進來）。' }),
+        el('div', { text: '🛡️ 品牌信任：顧客喜歡你的程度，決定長期口碑。' }),
+        el('div', { text: '⚖️ 衡斷力：分辨對錯的決勝關鍵，決定你的終局稱號！' }),
+        el('div', { class: 'hud-help-star-note', text: '⭐ 通緝星：讓短視高層不爽會升星；滿 5 顆星會召喚阿嬤提電鍋拯救，遊戲不會失敗結束！' })
+      ])
+    ]);
+
     return el('header', { class: 'hud-bar' }, [
       el('div', { class: 'hud-identity' }, [
         el('div', { class: 'hud-avatar-frame', 'data-voice': 'any' }, [
@@ -1310,7 +1367,7 @@ class GtaDentsuApp {
         ])
       ]),
       el('div', { class: 'hud-meters' }, HUD_STATS.map((m) =>
-        el('div', { class: 'meter-box', style: `--seg:${m.color};` }, [
+        el('div', { class: 'meter-box', style: `--seg:${m.color};`, title: statTips[m.key] || m.label }, [
           htmlNode('meter-icon', getStatIconSvg(m.icon)),
           el('div', { class: 'meter-label' }, [
             el('span', { text: m.label }),
@@ -1339,13 +1396,15 @@ class GtaDentsuApp {
           'aria-label': '切換音效',
           onClick: () => this._toggleMute()
         }),
+        helpBtn,
         el('button', {
           class: 'hud-btn',
           text: '↺ 重開',
           onClick: () => {
             if (window.confirm('確定要重開？目前進度會清除。')) this._resetGame();
           }
-        })
+        }),
+        helpPopover
       ])
     ]);
   }
@@ -1458,7 +1517,7 @@ class GtaDentsuApp {
               syncAudioUi();
             }
           }),
-          el('button', { class: 'btn-primary', text: '進入現場 ➔', onClick: () => this._leaveCutscene() })
+          el('button', { class: 'btn-primary', text: '⏭️ 跳過動畫，直接開始玩 ➔', onClick: () => this._leaveCutscene() })
         ])
       ]),
       el('div', { class: 'cutscene-stage-wrap' }, [
@@ -1466,6 +1525,7 @@ class GtaDentsuApp {
         unlockBtn,
         el('div', { class: 'cutscene-subtitle', text: subtitleText })
       ]),
+      el('div', { class: 'cutscene-novice-tip', text: '💡 影片會帶你認識這個時段的現場背景；隨時點右上角粉色按鈕（或按空白鍵 Space）即可跳過直接進入選題畫面！' }),
       el('p', { class: 'chapter-desc', text: ch.sceneDesc })
     ]);
   }
@@ -1632,6 +1692,7 @@ class GtaDentsuApp {
       el('div', { class: 'tex', style: 'background-image:url(./public/images/ui-begonia-glass.webp);', 'aria-hidden': 'true' }),
       htmlNode('grille tl', SVG_IRON_GRILLE_CORNER),
       htmlNode('grille tr', SVG_IRON_GRILLE_CORNER),
+      el('div', { class: 'zone-tag is-ref', text: '👀 左邊：現場參考與小抄（不用急著按，想看再看）' }),
       // Track 1：路牌狀態列（獨立空間）
       el('div', { class: 'track-status' }, [
         htmlNode('track-sign', SVG_ROAD_SIGN_BADGE(roadZh, roadEn)),
@@ -2007,15 +2068,47 @@ class GtaDentsuApp {
       ? getChapterForRole(this.state.chapterIndex + 1, this.state.roleId)
       : null;
 
+    const actionZoneTag = el('span', { class: 'zone-tag is-action', text: '🎯 右邊操作區' });
+
     const header = el('div', { class: 'chapter-header' }, [
       el('div', {}, [
-        el('div', { class: 'gta-kicker', text: `${ch.roleRoute?.routeBadge ? `${ch.roleRoute.routeBadge} · ` : ''}${ch.timeSlot} · 第 ${ch.id}／10 站行程` }),
+        el('div', { class: 'chapter-kicker-row' }, [
+          actionZoneTag,
+          el('div', { class: 'gta-kicker', text: `${ch.roleRoute?.routeBadge ? `${ch.roleRoute.routeBadge} · ` : ''}${ch.timeSlot} · 第 ${ch.id}／10 站` })
+        ]),
         el('h2', { text: `${ch.title}｜${ch.location}` })
       ]),
       el('div', { class: 'pill', text: `${ch.book}` })
     ]);
 
     const stepFlow = this._renderStepFlow(phase);
+    const beginnerBanner = (this.state.chapterIndex === 0 && phase === 'scene' && !this.beginnerTipDismissed)
+      ? el('div', { class: 'beginner-coach-banner', role: 'status' }, [
+          el('span', { style: 'flex:1 1 200px;', text: '🐣 新手提示：看完 LINE 直接點 1–4 回覆就對了（選錯不會死！）；左邊只是小抄卡關再看。' }),
+          el('div', { class: 'beginner-coach-actions' }, [
+            el('button', {
+              type: 'button',
+              class: 'btn-cyan',
+              text: '🧭 導覽',
+              onClick: (e) => {
+                soundFX.playClick();
+                this._startHudTour('scene', e.currentTarget);
+              }
+            }),
+            el('button', {
+              type: 'button',
+              class: 'btn-ghost',
+              text: '✓ 我懂了',
+              onClick: () => {
+                soundFX.playClick();
+                this._saveBeginnerTipDone(true);
+                this.render();
+              }
+            })
+          ])
+        ])
+      : null;
+
     const rescueBanner = this.state.lastRescueMessage
       ? el('div', {
           class: 'rescue-toast',
@@ -2032,9 +2125,11 @@ class GtaDentsuApp {
       : null;
 
     if (phase === 'scene') {
-      return el('main', { class: 'panel main-stage' }, [
+      return el('main', { class: 'panel main-stage is-action-focus' }, [
+        actionZoneTag,
         header,
         stepFlow,
+        beginnerBanner,
         rescueBanner,
         el('p', { class: 'chapter-desc', text: ch.sceneDesc }),
         el('div', { class: 'boss-callout line-banner' }, [
@@ -2052,8 +2147,8 @@ class GtaDentsuApp {
             : null
         ]),
         el('div', { class: 'quiz-guide-box' }, [
-          el('div', { class: 'quiz-guide-badge', text: `👉 右區引導選題｜${ch.roleRoute?.routeBadge || ''}（第 ${ch.id}／10 站）` }),
-          el('div', { class: 'prompt-line', text: '看完上方狀況與 LINE 危機後，請點選下方 4 個臨場回覆之一（鍵盤 1–4），接著進入本角色專屬實務題：' })
+          el('div', { class: 'quiz-guide-badge', text: `👇 第 1 步操作｜請點選下面 4 個回覆之一（${ch.roleRoute?.routeBadge || ''}）` }),
+          el('div', { class: 'prompt-line', text: '直接用滑鼠點（或按鍵盤 1–4）；選錯也不會結束，選完馬上進入下一題！' })
         ]),
         el('div', { class: 'replies-grid' }, ch.replies.map((r, idx) =>
           el('button', {
@@ -2061,14 +2156,26 @@ class GtaDentsuApp {
             onClick: () => this._pickReply(idx)
           }, [
             el('span', { class: 'reply-key', text: String(idx + 1) }),
-            el('span', { text: r.text })
+            el('span', { class: 'reply-label', text: r.text }),
+            el('span', { class: 'reply-cta', text: '點選 ➔' })
           ])
         ))
       ]);
     }
 
     if (phase === 'game') {
-      return el('main', { class: 'panel main-stage' }, [
+      const gameTypeGuides = {
+        pick: '👇 怎麼玩：直接點選你覺得最對的那張卡片，點一下就會自動送出！',
+        agent: '👇 怎麼玩：直接點選你想挑選的那一張卡片，點一下就會自動送出！',
+        slider: '👇 怎麼玩：① 先拖拉圓點或點下方數字刻度 ➔ ② 按最底下的「鎖定這個數字」按鈕送出！',
+        swipe: '👇 怎麼玩：不用滑動拖曳！直接點下方左邊（藍）或右邊（粉）按鈕，連答 4 張就過關！',
+        multi: '👇 怎麼玩：① 點多張卡片打勾（☑ 可複選）➔ ② 全部勾完後，按底下「送出複選審計」按鈕！',
+        stop: '👇 怎麼玩：看準「新客比例」快掉下去時，馬上點下方超大粉色「緊急煞車」按鈕！'
+      };
+      const gameGuideText = gameTypeGuides[ch.game?.type] || '👇 怎麼玩：依提示完成下方實務題目！';
+
+      return el('main', { class: 'panel main-stage is-action-focus' }, [
+        actionZoneTag,
         header,
         stepFlow,
         rescueBanner,
@@ -2076,8 +2183,8 @@ class GtaDentsuApp {
           ? el('div', { style: 'padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-size:15px;color:#e0d6f7;', text: `你剛剛回：「${this.state.activeReply.text}」➔ ${this.state.activeReply.feedback}` })
           : null,
         el('div', { class: 'quiz-guide-box' }, [
-          el('div', { class: 'quiz-guide-badge', text: `🎯 右區引導作答｜${ch.roleRoute?.routeBadge || ''}・本角色專屬實務題` }),
-          el('div', { class: 'prompt-line', text: '對照左側現場與桌上線索完成下方互動題型，即可解鎖本時段實測結論與年鑑金句：' })
+          el('div', { class: 'quiz-guide-badge', text: `🎯 第 2 步操作｜${ch.roleRoute?.routeBadge || ''}・本角色專屬實務題` }),
+          el('div', { class: 'prompt-line', text: gameGuideText })
         ]),
         this._renderMiniGame(ch.game)
       ]);
@@ -2086,7 +2193,8 @@ class GtaDentsuApp {
     // phase === 'reveal'
     const out = this.state.lastGameOutcome || { scored: false, correct: true, detail: '', pointsEarned: 0 };
     const badgeText = out.scored ? (out.correct ? '🎯 識破迷霧！' : '💡 差一點（參與分照拿）') : '✅ 完成情境實測';
-    return el('main', { class: 'panel main-stage' }, [
+    return el('main', { class: 'panel main-stage is-action-focus' }, [
+      actionZoneTag,
       header,
       stepFlow,
       rescueBanner,
@@ -2126,6 +2234,7 @@ class GtaDentsuApp {
           onClick: () => soundFX.speak(ch.grandmaQuip, 'grandma', true)
         })
       ]),
+      el('div', { class: 'prompt-line', text: nextCh ? '🎉 本站完成！看完金句後，點下方粉色按鈕（或右下底部粉色按鈕）前往下一站！' : '🏁 全部 10 站完成！點下方粉色按鈕查看你的終局稱號！' }),
       el('div', { class: 'reveal-actions' }, [
         el('button', {
           class: 'btn-gold',
@@ -2662,30 +2771,16 @@ class GtaDentsuApp {
         })
       );
     } else if (this.state.phase === 'title') {
-      text = '👋 操作指示：先點「打卡上班」挑選職能專屬行程與考題；輸入 AMA666 可解鎖第 5 位阿嬤角色！';
+      text = '👋 第一次玩？直接點上方粉色「開始遊戲」即可出發，不需要先輸入車牌喔！';
       actions.push(
         el('button', {
-          class: 'guide-btn is-primary',
-          text: '打卡上班選職能 ➔',
-          onClick: () => {
-            soundFX.playScooterHorn();
-            soundFX.startBGM();
-            this._setState({ ...this.state, phase: 'role' });
-          }
-        }),
-        el('button', {
           class: 'guide-btn',
-          text: '🧭 新手導覽',
+          text: '🧭 30 秒新手導覽',
           onClick: (e) => this._openWelcomeTour(0, e.currentTarget)
-        }),
-        el('button', {
-          class: 'guide-btn',
-          text: '👵 一鍵解鎖 AMA666',
-          onClick: () => this._triggerCheatCode(true)
         })
       );
     } else if (this.state.phase === 'role') {
-      text = '🪪 操作指示：直接點擊 5 張電通識別證之一，立即出發走完該角色專屬 10 站行程、狀況與考題！';
+      text = '🪪 操作指示：直接點擊任一張角色識別證就能出發！不確定選誰可以挑「⭐ 新手推薦」那張。';
       actions.push(
         el('button', {
           class: 'guide-btn',
@@ -2704,17 +2799,17 @@ class GtaDentsuApp {
         })
       );
     } else if (this.state.phase === 'cutscene') {
-      text = '🎬 操作指示：正在播放 2026 台北實景過場動畫（含人物配音與環境音效），隨時可點「進入現場」或按 Space / Enter 直接開工！';
+      text = '🎬 影片播放中：看完或隨時點右上角「⏭️ 跳過動畫，直接開始玩」（或按空白鍵 Space）進入選題！';
       actions.push(
         el('button', {
           class: 'guide-btn is-primary',
-          text: '⏭️ 進入現場 (Space / Enter) ➔',
+          text: '⏭️ 跳過動畫直接玩 (Space) ➔',
           onClick: () => this._leaveCutscene()
         })
       );
     } else if (this.state.phase === 'scene') {
       const role = getRole(this.state.roleId);
-      text = '👉 右區引導：看完本時段狀況與左下線索後，點擊右側 4 個臨場回覆之一（鍵盤 1–4），接著挑戰專屬實務題！';
+      text = '👉 右邊操作區：看完 LINE 危機後點右側 1–4 任一個回覆即可推進；卡關再看左邊線索或手機！';
       actions.push(
         el('button', {
           class: 'guide-btn',
