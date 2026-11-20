@@ -170,34 +170,36 @@ async function run() {
   };
 
   try {
-    // 0. Verify all 118 Google Gemini TTS MP3 clips + 3 audio-enabled MP4 cutscenes serve cleanly over HTTP
-    const audioChecks = [
-      ...['quote', ...Array.from({ length: 5 }, (_, i) => `rescue_${i}`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue`)]
-        .map((id) => `/public/audio/grandma/${id}.mp3`),
-      ...[
-        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line`),
-        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa`),
-        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy`),
-        ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway`),
-        'fsd_on',
-        'fsd_off',
-        ...['account', 'creative', 'media', 'grandma'].flatMap((role) =>
-          Array.from({ length: 10 }, (_, i) => `role_${role}_ch${i + 1}_line`)
-        )
-      ].map((id) => `/public/audio/voices/${id}.mp3`)
-    ];
-    for (const relUrl of audioChecks) {
-      const res = await fetch(`${baseUrl}${relUrl}`);
-      assert.equal(res.status, 200, `Expected HTTP 200 for ${relUrl}, got ${res.status}`);
-      assert.ok((res.headers.get('content-type') || '').includes('audio/mpeg'), `Bad Content-Type for ${relUrl}`);
-      const buf = Buffer.from(await res.arrayBuffer());
-      assert.ok(buf.length > 2048, `Expected ${relUrl} > 2048 bytes, got ${buf.length}`);
-    }
-    for (const vid of ['intro-taipei.mp4', 'boardroom-push.mp4', 'grandma-rescue.mp4']) {
-      const res = await fetch(`${baseUrl}/public/video/${vid}`);
-      assert.equal(res.status, 200, `Expected HTTP 200 for ${vid}`);
-      const buf = Buffer.from(await res.arrayBuffer());
-      assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Cutscene missing audio track over HTTP: ${vid}`);
+    // 0. Verify all 354 Google Gemini TTS MP3 clips + 9 audio-enabled MP4 cutscenes across zh / en / ja serve cleanly over HTTP
+    for (const prefix of ['', 'en/', 'ja/']) {
+      const audioChecks = [
+        ...['quote', ...Array.from({ length: 5 }, (_, i) => `rescue_${i}`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call`), ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue`)]
+          .map((id) => `/public/audio/${prefix}grandma/${id}.mp3`),
+        ...[
+          ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line`),
+          ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa`),
+          ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy`),
+          ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway`),
+          'fsd_on',
+          'fsd_off',
+          ...['account', 'creative', 'media', 'grandma'].flatMap((role) =>
+            Array.from({ length: 10 }, (_, i) => `role_${role}_ch${i + 1}_line`)
+          )
+        ].map((id) => `/public/audio/${prefix}voices/${id}.mp3`)
+      ];
+      for (const relUrl of audioChecks) {
+        const res = await fetch(`${baseUrl}${relUrl}`);
+        assert.equal(res.status, 200, `Expected HTTP 200 for ${relUrl}, got ${res.status}`);
+        assert.ok((res.headers.get('content-type') || '').includes('audio/mpeg'), `Bad Content-Type for ${relUrl}`);
+        const buf = Buffer.from(await res.arrayBuffer());
+        assert.ok(buf.length > 2048, `Expected ${relUrl} > 2048 bytes, got ${buf.length}`);
+      }
+      for (const vid of ['intro-taipei.mp4', 'boardroom-push.mp4', 'grandma-rescue.mp4']) {
+        const res = await fetch(`${baseUrl}/public/video/${prefix}${vid}`);
+        assert.equal(res.status, 200, `Expected HTTP 200 for ${prefix}${vid}`);
+        const buf = Buffer.from(await res.arrayBuffer());
+        assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Cutscene missing audio track over HTTP: ${prefix}${vid}`);
+      }
     }
 
     // 1. Multi-resolution geometry & interactive matrix (1024x720, 1280x800, 1920x1080)
@@ -568,8 +570,101 @@ async function run() {
     assert.equal(seenPrompts.size, 5, `Expected 5 distinct Ch1 mini-game prompts across roles, got ${seenPrompts.size}`);
     await roleDiffPage.close();
 
+    // 7. Trilingual UI switching (zh -> en -> ja), 0 CJK leak in EN, 1024x720 geometry across all 5 roles, & EN/JA MP3 + standalone HTML check
+    for (const [langCode, htmlLangPrefix] of [['en', 'en'], ['ja', 'ja']]) {
+      const i18nPage = await browser.newPage({ viewport: { width: 1024, height: 720 } });
+      await i18nPage.addInitScript(() => {
+        window.__ttsSpeakCalls = 0;
+        if (window.speechSynthesis && typeof window.speechSynthesis.speak === 'function') {
+          const orig = window.speechSynthesis.speak.bind(window.speechSynthesis);
+          window.speechSynthesis.speak = (...args) => {
+            window.__ttsSpeakCalls += 1;
+            return orig(...args);
+          };
+        }
+      });
+      attachErrorWatchers(i18nPage, `i18n-${langCode}`);
+      const audioResponses = [];
+      i18nPage.on('response', (res) => {
+        if (res.url().includes(`/public/audio/${langCode}/`)) {
+          audioResponses.push({ url: res.url(), status: res.status() });
+        }
+      });
+
+      await i18nPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+      await i18nPage.click(`.lang-btn[data-lang="${langCode}"]`);
+      const actualHtmlLang = await i18nPage.getAttribute('html', 'lang');
+      assert.ok(actualHtmlLang.startsWith(htmlLangPrefix), `${langCode}: unexpected html[lang]=${actualHtmlLang}`);
+      await proofreadPage(i18nPage, FORBIDDEN_WORDS, `${langCode}-title`);
+
+      if (langCode === 'en') {
+        const cjkInEnTitle = await i18nPage.evaluate(() => {
+          const clone = document.body.cloneNode(true);
+          clone.querySelectorAll('.lang-switch').forEach((n) => n.remove());
+          return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(clone.innerText);
+        });
+        assert.equal(cjkInEnTitle, false, 'EN title leaked CJK characters outside language switcher');
+      }
+
+      // Check all 5 roles at 1024x720 for meter truncation and 4th reply visibility, plus voice click
+      for (let rIdx = 0; rIdx < 5; rIdx += 1) {
+        await i18nPage.evaluate((lc) => {
+          localStorage.clear();
+          localStorage.setItem('gta_dentsu_lang_v1', lc);
+        }, langCode);
+        await i18nPage.goto(`${baseUrl}/index.html?lang=${langCode}`, { waitUntil: 'networkidle' });
+        await i18nPage.fill('.cheat-input', 'AMA666');
+        await i18nPage.click('.plate-box .btn-ghost');
+        await i18nPage.click('.hero-actions .btn-primary');
+        await i18nPage.waitForSelector('.role-grid');
+        await i18nPage.locator('.role-card').nth(rIdx).click();
+        await i18nPage.waitForSelector('.cutscene-video');
+        const vidSrc = await i18nPage.getAttribute('.cutscene-video', 'src');
+        assert.ok(vidSrc.includes(`/public/video/${langCode}/`), `${langCode}: cutscene src mismatch (${vidSrc})`);
+        await i18nPage.click('.chapter-header .btn-primary');
+        await i18nPage.waitForSelector('.replies-grid');
+        await proofreadPage(i18nPage, FORBIDDEN_WORDS, `${langCode}-role-${rIdx}-scene`);
+        await checkDesktopGeometry(i18nPage, `${langCode}-role-${rIdx}-1024`, false);
+        const fits = await i18nPage.evaluate(() => {
+          const ms = document.querySelector('.main-stage')?.getBoundingClientRect();
+          const btns = [...document.querySelectorAll('.reply-btn')];
+          if (!ms || btns.length !== 4) return { ok: false, diff: 999 };
+          const b = btns[3].getBoundingClientRect();
+          return { ok: b.bottom <= ms.bottom + 2, diff: Math.round(b.bottom - ms.bottom) };
+        });
+        assert.equal(fits.ok, true, `${langCode} role-${rIdx} at 1024x720: 4th reply clipped (diff=${fits.diff})`);
+        if (rIdx === 1) {
+          await i18nPage.click('.line-banner .replay-btn');
+          await i18nPage.waitForTimeout(350);
+          assert.ok(
+            audioResponses.some((r) => r.status === 200 || r.status === 206),
+            `${langCode}: Expected HTTP 200/206 for /public/audio/${langCode}/ voice clip on click`
+          );
+          if (langCode === 'en') {
+            const cjkInEnScene = await i18nPage.evaluate(() => {
+              const clone = document.body.cloneNode(true);
+              clone.querySelectorAll('.lang-switch').forEach((n) => n.remove());
+              return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(clone.innerText);
+            });
+            assert.equal(cjkInEnScene, false, 'EN scene leaked CJK characters outside language switcher');
+          }
+        }
+      }
+      assert.equal(await i18nPage.evaluate(() => window.__ttsSpeakCalls || 0), 0, `${langCode}: Unexpected Web Speech calls`);
+      await i18nPage.close();
+    }
+
+    // Standalone HTML trilingual switch check
+    const soloI18n = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    attachErrorWatchers(soloI18n, 'standalone-i18n');
+    await soloI18n.goto(`${baseUrl}/gta-dentsu-taiwan-standalone.html?lang=en`, { waitUntil: 'networkidle' });
+    assert.ok((await soloI18n.getAttribute('html', 'lang')).startsWith('en'), 'Standalone ?lang=en did not set html[lang]');
+    await soloI18n.click('.lang-btn[data-lang="ja"]');
+    assert.ok((await soloI18n.getAttribute('html', 'lang')).startsWith('ja'), 'Standalone click JA did not set html[lang]');
+    await soloI18n.close();
+
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
-    console.log('E2E VERIFY PASSED: 1024x720, 1280x800, 1920x1080, 390x844, 0 Web Speech murmuring, decluttered left controls + #scene-more-views popover, 3-slide welcome + 7-step HUD tour, 5 distinct role itineraries/storylines/quizzes, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
+    console.log('E2E VERIFY PASSED: zh/en/ja (354 MP3s, 9 MP4s), 1024x720, 1280x800, 1920x1080, 390x844, 0 Web Speech murmuring, decluttered left controls + #scene-more-views popover, 3-slide welcome + 7-step HUD tour, 5 distinct role itineraries/storylines/quizzes, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
   } finally {
     await browser.close();
     server.close();

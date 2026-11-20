@@ -1,8 +1,9 @@
 // 純函式遊戲狀態機：決策智慧 GTA 6 台灣生活情境遊戲
 // 零 DOM 相依，可在 Node 測試與瀏覽器前端共用。
 
-import { ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, CHAPTERS, PERSONAS } from './story-data.js';
+import { PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, CHAPTERS } from './story-data.js';
 import { ROLE_ROUTE_META, getChapterForRole } from './role-stories.js';
+import { getLang, t, getLocalizedRole, getLocalizedTwins, getLocalizedGrandmaQuips, getLocalizedPersonas, getLocalizedChapterForRole } from './i18n.js';
 
 export { ROLE_ROUTE_META, getChapterForRole };
 
@@ -47,11 +48,11 @@ export function createInitialState() {
 }
 
 export function getRole(roleId) {
-  return ROLES.find((r) => r.id === roleId) || ROLES[1];
+  return getLocalizedRole(roleId, getLang());
 }
 
 export function getCurrentChapter(state) {
-  return getChapterForRole(state.chapterIndex, state.roleId);
+  return getLocalizedChapterForRole(state.chapterIndex, state.roleId, getLang());
 }
 
 export function selectRole(state, roleId) {
@@ -59,7 +60,7 @@ export function selectRole(state, roleId) {
     return state;
   }
   const role = getRole(roleId);
-  const firstCh = getChapterForRole(0, role.id);
+  const firstCh = getLocalizedChapterForRole(0, role.id, getLang());
   return {
     ...state,
     phase: firstCh.cutscene ? 'cutscene' : 'scene',
@@ -96,8 +97,9 @@ export function finishCutscene(state) {
 }
 
 export function activateGrandmaCheat(state, triggerRescue = true) {
-  const idx = state.grandmaRescues % GRANDMA_QUIPS.rescueLines.length;
-  const rescueText = GRANDMA_QUIPS.rescueLines[idx];
+  const quips = getLocalizedGrandmaQuips(getLang());
+  const idx = state.grandmaRescues % quips.rescueLines.length;
+  const rescueText = quips.rescueLines[idx];
   const nextStats = {
     ...state.stats,
     stamina: triggerRescue ? 100 : state.stats.stamina,
@@ -112,14 +114,15 @@ export function activateGrandmaCheat(state, triggerRescue = true) {
     grandmaRescues: state.grandmaRescues + (triggerRescue ? 1 : 0),
     wantedStars: triggerRescue ? 0 : state.wantedStars,
     stats: nextStats,
+    lastRescueIndex: triggerRescue ? idx : null,
     lastRescueMessage: triggerRescue
-      ? `${GRANDMA_QUIPS.rescueTitle} ${rescueText}`
-      : '阿嬤平安符啟動！已解鎖隱藏第 5 角色「滿級皇太后・台灣阿嬤」與菜市場經濟學翻譯。',
+      ? `${quips.rescueTitle} ${rescueText}`
+      : t('engine.cheatUnlockOnly'),
     phoneLog: [
       ...state.phoneLog,
       {
-        from: '阿嬤',
-        role: '滿級皇太后顧問',
+        from: t('engine.grandmaName'),
+        role: t('engine.grandmaRole'),
         badge: 'AMA666',
         time: getCurrentChapter(state).timeSlot,
         text: rescueText,
@@ -130,15 +133,16 @@ export function activateGrandmaCheat(state, triggerRescue = true) {
 
 export function consultTwin(state, twinId) {
   if (!PEOPLE_MODEL_TWINS[twinId]) return state;
+  const twins = getLocalizedTwins(getLang());
   const ch = getCurrentChapter(state);
   const already = state.askedTwins.includes(twinId);
   const askedTwins = already ? state.askedTwins : [...state.askedTwins, twinId];
   let replyText = '';
-  let senderName = PEOPLE_MODEL_TWINS[twinId].name;
+  let senderName = twins[twinId].name;
   let badge = 'MODEL';
   if (twinId === 'grandma') {
     replyText = ch.grandmaQuip;
-    senderName = '阿嬤';
+    senderName = t('engine.grandmaName');
     badge = 'AMA';
   } else {
     replyText = ch.peopleModel?.[twinId] || '';
@@ -150,7 +154,7 @@ export function consultTwin(state, twinId) {
         ...state.phoneLog,
         {
           from: senderName,
-          role: PEOPLE_MODEL_TWINS[twinId].voice,
+          role: twins[twinId].voice,
           badge,
           time: ch.timeSlot,
           text: replyText,
@@ -176,25 +180,23 @@ export function useRoleSpecial(state) {
   const ch = getCurrentChapter(state);
   let nextStats = { ...state.stats };
   let nextWanted = state.wantedStars;
-  let note = `${role.specialName} 已發動！`;
+  let note = t('engine.specialNotes.' + role.id);
+  if (!note || note === 'engine.specialNotes.' + role.id) {
+    note = t('engine.specialFallback', role.specialName);
+  }
 
   if (role.id === 'account') {
     nextWanted = Math.max(0, nextWanted - 1);
     nextStats.streetCred = clampStat(nextStats.streetCred + 5);
-    note = '拆彈外交發動：先穩住 CFO 與客戶情緒，通緝星 -1、嘴砲力 +5！';
   } else if (role.id === 'planner') {
     nextStats.judgment = clampStat(nextStats.judgment + 6);
-    note = '讀心術發動：同步揭露 Lisa & Cindy 雙重視角，衡斷力 +6！';
   } else if (role.id === 'creative') {
     nextStats.brandTrust = clampStat(nextStats.brandTrust + 7);
-    note = '品味否決權發動：擋下平庸 AI 罐頭，品牌信任 +7！';
   } else if (role.id === 'media') {
     nextStats.realLift = clampStat(nextStats.realLift + 7);
-    note = '抓鬼雷達發動：透視虛榮報表口徑，真實增量 +7！';
   } else if (role.id === 'grandma') {
     nextStats.stamina = 100;
     nextWanted = 0;
-    note = '大同電鍋全開！一鍋滷肉飯讓體力回滿 100、通緝星歸零！';
   }
 
   const nextAsked = role.id === 'planner'
@@ -244,22 +246,25 @@ export function chooseReply(state, replyIndex) {
   };
 
   let rescues = state.grandmaRescues;
+  let rescueIndex = null;
   let rescueMessage = null;
   let grandmaUnlocked = state.grandmaUnlocked;
   let phoneLog = [...state.phoneLog];
 
   // 彩蛋 ②：5 星爆肝 / 體力歸零時，觸發阿嬤大同電鍋救援！
   if (nextWanted >= 5 || nextStats.stamina <= 0) {
-    const rescueLine = GRANDMA_QUIPS.rescueLines[rescues % GRANDMA_QUIPS.rescueLines.length];
+    const quips = getLocalizedGrandmaQuips(getLang());
+    rescueIndex = rescues % quips.rescueLines.length;
+    const rescueLine = quips.rescueLines[rescueIndex];
     rescues += 1;
     grandmaUnlocked = true;
     nextWanted = 0;
     nextStats.stamina = 100;
     nextStats.judgment = clampStat(nextStats.judgment + 6);
-    rescueMessage = `${GRANDMA_QUIPS.rescueTitle} ${rescueLine}`;
+    rescueMessage = `${quips.rescueTitle} ${rescueLine}`;
     phoneLog.push({
-      from: '阿嬤（緊急救援）',
-      role: '大同電鍋支援',
+      from: t('engine.grandmaEmergencyFrom'),
+      role: t('engine.grandmaEmergencyRole'),
       badge: 'RESCUE',
       time: ch.timeSlot,
       text: rescueMessage,
@@ -282,6 +287,7 @@ export function chooseReply(state, replyIndex) {
       lean: rep.lean,
       correct: true,
       pointsEarned: replyPoints,
+      submission: null,
     };
     return {
       ...state,
@@ -292,6 +298,7 @@ export function chooseReply(state, replyIndex) {
       perfPicks: nextPerf,
       grandmaRescues: rescues,
       grandmaUnlocked,
+      lastRescueIndex: rescueIndex,
       lastRescueMessage: rescueMessage,
       activeReply: rep,
       lastGameOutcome: {
@@ -299,6 +306,7 @@ export function chooseReply(state, replyIndex) {
         correct: true,
         detail: rep.feedback,
         pointsEarned: replyPoints,
+        submission: null,
       },
       history: [...state.history, record],
       phoneLog,
@@ -314,6 +322,7 @@ export function chooseReply(state, replyIndex) {
     perfPicks: nextPerf,
     grandmaRescues: rescues,
     grandmaUnlocked,
+    lastRescueIndex: rescueIndex,
     lastRescueMessage: rescueMessage,
     activeReply: rep,
     phoneLog,
@@ -335,7 +344,7 @@ export function evaluateMiniGame(game, submission) {
     return {
       scored: Boolean(game.scored),
       correct,
-      detail: `你拉了 ${val}${game.unit || ''}。${game.reveal}`,
+      detail: t('engine.evalSlider', val, game.unit || '', game.reveal),
       ratio: correct ? 1 : 0,
     };
   }
@@ -357,7 +366,7 @@ export function evaluateMiniGame(game, submission) {
     return {
       scored: true,
       correct,
-      detail: `答對 ${hits}／${answers.length} 句。${game.reveal}`,
+      detail: t('engine.evalSwipe', hits, answers.length, game.reveal),
       ratio: answers.length ? hits / answers.length : 0,
     };
   }
@@ -371,7 +380,7 @@ export function evaluateMiniGame(game, submission) {
     return {
       scored: Boolean(game.scored),
       correct,
-      detail: `抓對 ${rightHits}／${answers.length} 項（誤選 ${wrongHits} 項）。${game.reveal}`,
+      detail: t('engine.evalMulti', rightHits, answers.length, wrongHits, game.reveal),
       ratio: answers.length ? Math.max(0, rightHits / answers.length) : 0,
     };
   }
@@ -431,8 +440,8 @@ export function submitMiniGame(state, submission) {
   if (ch.grandmaCallTrigger && ch.grandmaPhoneCall?.trigger) {
     chapter6PhoneTriggered = true;
     phoneLog.push({
-      from: '阿嬤（內湖現場來電）',
-      role: '滿級皇太后',
+      from: t('engine.grandmaCh6From'),
+      role: t('engine.grandmaCh6Role'),
       badge: 'CH6 CALL',
       time: ch.timeSlot,
       text: ch.grandmaPhoneCall.text,
@@ -450,6 +459,7 @@ export function submitMiniGame(state, submission) {
     lean: state.activeReply ? state.activeReply.lean : 'judge',
     correct: outcome.correct,
     pointsEarned,
+    submission,
   };
 
   return {
@@ -459,7 +469,7 @@ export function submitMiniGame(state, submission) {
     points: state.points + pointsEarned,
     gamesScoredCount: state.gamesScoredCount + (outcome.scored ? 1 : 0),
     gamesCorrectCount: state.gamesCorrectCount + (outcome.scored && outcome.correct ? 1 : 0),
-    lastGameOutcome: { ...outcome, pointsEarned },
+    lastGameOutcome: { ...outcome, pointsEarned, submission },
     chapter6PhoneTriggered,
     history: [...state.history, record],
     phoneLog,
@@ -485,11 +495,11 @@ export function completeScooterRun(state, result) {
     phoneLog: [
       ...state.phoneLog,
       {
-        from: '阿嬤（電動車直播）',
-        role: '菜市場狂飆',
+        from: t('engine.grandmaScooterFrom'),
+        role: t('engine.grandmaScooterRole'),
         badge: 'MINIGAME',
         time: getCurrentChapter(state).timeSlot,
-        text: `剛跑完信義區拿到 ${score} 分！衡斷力 +${judgmentBonus}、品牌信任 +${trustBonus}！`,
+        text: t('engine.scooterLog', score, judgmentBonus, trustBonus),
       },
     ],
   };
@@ -500,7 +510,7 @@ export function advanceChapter(state) {
   if (nextIndex >= CHAPTERS.length) {
     return { ...state, phase: 'review' };
   }
-  const nextCh = getChapterForRole(nextIndex, state.roleId);
+  const nextCh = getLocalizedChapterForRole(nextIndex, state.roleId, getLang());
   return {
     ...state,
     phase: nextCh.cutscene ? 'cutscene' : 'scene',
@@ -509,6 +519,7 @@ export function advanceChapter(state) {
     roleSpecialUsedThisChapter: false,
     activeReply: null,
     lastGameOutcome: null,
+    lastRescueIndex: null,
     lastRescueMessage: null,
     phoneLog: [
       ...state.phoneLog,
@@ -524,19 +535,20 @@ export function advanceChapter(state) {
 }
 
 export function determinePersona(state) {
+  const personas = getLocalizedPersonas(getLang());
   if (state.roleId === 'grandma' || state.cheatUsed) {
-    return PERSONAS.find((p) => p.id === 'grandma') || PERSONAS[4];
+    return personas.find((p) => p.id === 'grandma') || personas[4];
   }
   const score = state.gamesCorrectCount;
   const perf = state.perfPicks;
   if (score >= 5 && perf >= 3 && perf <= 7) {
-    return PERSONAS.find((p) => p.id === 'judge') || PERSONAS[0];
+    return personas.find((p) => p.id === 'judge') || personas[0];
   }
   if (perf >= 7) {
-    return PERSONAS.find((p) => p.id === 'hunter') || PERSONAS[1];
+    return personas.find((p) => p.id === 'hunter') || personas[1];
   }
   if (perf <= 3) {
-    return PERSONAS.find((p) => p.id === 'believer') || PERSONAS[2];
+    return personas.find((p) => p.id === 'believer') || personas[2];
   }
-  return PERSONAS.find((p) => p.id === 'balance') || PERSONAS[3];
+  return personas.find((p) => p.id === 'balance') || personas[3];
 }

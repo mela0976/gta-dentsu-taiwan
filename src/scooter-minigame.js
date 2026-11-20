@@ -59,6 +59,16 @@ export class GrandmaScooterGame {
       goodItems: normalizeItems(config.goodItems, true, DEFAULT_CONFIG.goodItems),
       hazards: normalizeItems(config.hazards || config.badItems, false, DEFAULT_CONFIG.hazards)
     };
+    this.labels = {
+      initBanner: '2026 旗艦電摩 × Tesla FSD 自動駕駛測試道｜松仁路直達富邦 A25！',
+      shieldBanner: '大同電鍋無敵護盾啟動！演算法撞不倒阿嬤！',
+      pickupPrefix: '撿到 ',
+      deflectTpl: '大同電鍋彈飛「{label}」！+120',
+      hitTpl: '撞到 {label}！「唉唷，這款數字攏係假！」',
+      signLeft: '陶朱隱園 · 松勇路',
+      signRight: '松仁路 · 富邦A25總部',
+      ...(config.canvas || {})
+    };
     this.onFinish = callbacks.onFinish || (() => {});
     this.onEvent = callbacks.onEvent || (() => {});
     this.onHudUpdate = callbacks.onHudUpdate || (() => {});
@@ -84,7 +94,7 @@ export class GrandmaScooterGame {
     this.running = false;
     this.rafId = null;
     this.lastTs = 0;
-    this.bannerText = '2026 旗艦電摩 × Tesla FSD 自動駕駛測試道｜松仁路直達富邦 A25！';
+    this.bannerText = this.labels.initBanner;
     this.bannerTimer = 2.8;
 
     this._onKeyDown = (e) => {
@@ -213,17 +223,17 @@ export class GrandmaScooterGame {
           if (ent.heal) this.hp = Math.min(this.maxHp, this.hp + ent.heal);
           if (ent.shield) {
             this.shieldTimer = 4.5;
-            this.bannerText = '大同電鍋無敵護盾啟動！演算法撞不倒阿嬤！';
+            this.bannerText = this.labels.shieldBanner;
             this.bannerTimer = 2.0;
           } else {
-            this.bannerText = `撿到 ${ent.label}！+${ent.pts}`;
+            this.bannerText = `${this.labels.pickupPrefix}${ent.label} +${ent.pts}`;
             this.bannerTimer = 1.1;
           }
           this._emitParticles(px, py, ent.color, 14);
           this.onEvent('good');
         } else if (this.shieldTimer > 0) {
           this.score += 120;
-          this.bannerText = `大同電鍋彈飛「${ent.label}」！+120`;
+          this.bannerText = String(this.labels.deflectTpl).replace('{label}', ent.label);
           this.bannerTimer = 1.2;
           this._emitParticles(px, py, '#4ade80', 14);
           this.onEvent('good');
@@ -231,7 +241,7 @@ export class GrandmaScooterGame {
           this.hp = Math.max(0, this.hp - (ent.dmg || 1));
           this.combo = 0;
           this.score = Math.max(0, this.score + (ent.pts || -60));
-          this.bannerText = `撞到 ${ent.label}！「唉唷，這款數字攏係假！」`;
+          this.bannerText = String(this.labels.hitTpl).replace('{label}', ent.label);
           this.bannerTimer = 1.6;
           this._emitParticles(px, py, '#ff3b6b', 16);
           this.onEvent('bad');
@@ -474,13 +484,13 @@ export class GrandmaScooterGame {
 
     // 信義區松仁路高架綠底白框台灣路牌（設於開闊天空，絕不遮擋大樓冠頂）
     const signs = [
-      { x: 0.14, y: 0.13, txt: '陶朱隱園 · 松勇路', bg: '#0b1628', border: '#4ade80' },
-      { x: 0.48, y: 0.13, txt: '松仁路 · 富邦A25總部', bg: '#006b54', border: '#e2e8f0' }
+      { x: 0.22, y: 0.13, txt: this.labels.signLeft, bg: '#0b1628', border: '#4ade80' },
+      { x: 0.62, y: 0.13, txt: this.labels.signRight, bg: '#006b54', border: '#e2e8f0' }
     ];
     ctx.font = 'bold 10.5px sans-serif';
     ctx.textAlign = 'center';
     signs.forEach((s) => {
-      const boxW = Math.max(94, s.txt.length * 10 + 18);
+      const boxW = Math.max(94, Math.ceil(ctx.measureText(s.txt).width) + 18);
       ctx.fillStyle = s.bg;
       ctx.fillRect(w * s.x - boxW / 2, h * s.y - 9, boxW, 18);
       ctx.strokeStyle = s.border;

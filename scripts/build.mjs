@@ -46,30 +46,33 @@ copyDir(path.join(ROOT, 'src'), path.join(DIST, 'src'));
 copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 
 // Build standalone single-file HTML bundle (no external CSS/JS module requests, loads ./public assets if beside dist)
+function stripModuleSyntax(code) {
+  return code
+    .replace(/^import\s*\{[\s\S]*?\}\s*from\s*['"]\.[^'"]*['"];\s*$/gm, '')
+    .replace(/^import\s+\w+\s+from\s+['"]\.[^'"]*['"];\s*$/gm, '')
+    .replace(/^export\s*\{[^}]*\};\s*$/gm, '')
+    .replace(/^export\s+default\s+\w+;\s*$/gm, '')
+    .replace(/^export\s+(const|let|var|function|class)\s+/gm, '$1 ');
+}
+
 const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8');
-const storyJs = fs.readFileSync(path.join(ROOT, 'src/story-data.js'), 'utf8');
-const roleStoriesJs = fs.readFileSync(path.join(ROOT, 'src/role-stories.js'), 'utf8')
-  .replace(/^import\s*\{[\s\S]*?\}\s*from\s*'\.\/[^']+';\s*$/gm, '')
-  .replace(/export const /g, 'const ')
-  .replace(/export function /g, 'function ');
-const audioJs = fs.readFileSync(path.join(ROOT, 'src/audio-fx.js'), 'utf8')
-  .replace(/export const /g, 'const ')
-  .replace(/export default soundFX;/g, '');
-const engineJs = fs.readFileSync(path.join(ROOT, 'src/game-engine.js'), 'utf8')
-  .replace(/^import\s*\{[\s\S]*?\}\s*from\s*'\.\/[^']+';\s*$/gm, '')
-  .replace(/^export\s*\{[^}]*\};\s*$/gm, '')
-  .replace(/export const /g, 'const ')
-  .replace(/export function /g, 'function ');
-const scooterJs = fs.readFileSync(path.join(ROOT, 'src/scooter-minigame.js'), 'utf8')
-  .replace(/export class /g, 'class ')
-  .replace(/export default GrandmaScooterGame;/g, '');
-const graphicsJs = fs.readFileSync(path.join(ROOT, 'src/ui-graphics.js'), 'utf8')
-  .replace(/export const /g, 'const ')
-  .replace(/export function /g, 'function ');
-const uiJs = fs.readFileSync(path.join(ROOT, 'src/ui-app.js'), 'utf8')
-  .replace(/^import\s*\{[\s\S]*?\}\s*from\s*'\.\/[^']+';\s*$/gm, '')
-  .replace(/^import\s+\w+\s+from\s*'\.\/[^']+';\s*$/gm, '');
-const cleanStory = storyJs.replace(/export const /g, 'const ');
+const bundledModules = [
+  'src/story-data.js',
+  'src/role-stories.js',
+  'src/locales/ui-strings.js',
+  'src/locales/story-en.js',
+  'src/locales/roles-en-1.js',
+  'src/locales/roles-en-2.js',
+  'src/locales/story-ja.js',
+  'src/locales/roles-ja-1.js',
+  'src/locales/roles-ja-2.js',
+  'src/i18n.js',
+  'src/audio-fx.js',
+  'src/game-engine.js',
+  'src/scooter-minigame.js',
+  'src/ui-graphics.js',
+  'src/ui-app.js'
+].map((rel) => stripModuleSyntax(fs.readFileSync(path.join(ROOT, rel), 'utf8'))).join('\n\n');
 
 const standaloneHtml = `<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -86,13 +89,7 @@ const standaloneHtml = `<!DOCTYPE html>
   <script>
 (() => {
 'use strict';
-${cleanStory}
-${roleStoriesJs}
-${audioJs}
-${engineJs}
-${scooterJs}
-${graphicsJs}
-${uiJs}
+${bundledModules}
 })();
   </script>
 </body>

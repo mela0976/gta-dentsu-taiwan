@@ -6,6 +6,14 @@ import { CHAPTERS, ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, SCOOTER_CONFIG } fr
 import { ROLE_CHAPTER_VARIANTS } from '../src/role-stories.js';
 import { soundFX, normalizeGrandmaVoiceKey, BGM_MIX_LEVELS, BGM_FILTER_HZ } from '../src/audio-fx.js';
 import {
+  setLang,
+  getLocalizedRoles,
+  getLocalizedPersonas,
+  getLocalizedChapterForRole,
+  getLocalizedRouteMeta,
+  getUiStrings,
+} from '../src/i18n.js';
+import {
   createInitialState,
   ROLE_ROUTE_META,
   getChapterForRole,
@@ -272,4 +280,119 @@ test('All 5 roles have distinct itineraries, storylines, LINE dilemmas, replies,
     assert.equal(state.history.length, 10);
     assert.ok(determinePersona(state).id);
   }
+});
+
+test('Trilingual parity (zh/en/ja), zero EN CJK leaks, zero forbidden words, and 10-chapter playthroughs in EN & JA', () => {
+  const FORBIDDEN = ['陶豬', '逃豬', '松仁路 100 號', '视频', '软件', '信息', '优化', '项目', '营销', '网络', '内存', '默认', '界面', '联系', '账号'];
+  const cjkRe = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+  try {
+    for (const lang of ['zh', 'en', 'ja']) {
+      setLang(lang);
+      soundFX.setLang(lang);
+      const roles = getLocalizedRoles(lang);
+      const routeMeta = getLocalizedRouteMeta(lang);
+      const personas = getLocalizedPersonas(lang);
+      assert.equal(roles.length, 5);
+      assert.equal(personas.length, 5);
+      for (const r of roles) {
+        assert.ok(routeMeta[r.id]?.routeName);
+      }
+
+      if (lang === 'en') {
+        const uiEn = { ...getUiStrings('en'), langNames: null, langShort: null };
+        assert.equal(cjkRe.test(JSON.stringify(uiEn)), false, 'Unexpected CJK characters in UI_STRINGS.en');
+        assert.equal(cjkRe.test(JSON.stringify(roles)), false, 'Unexpected CJK characters in EN roles');
+        assert.equal(cjkRe.test(JSON.stringify(personas)), false, 'Unexpected CJK characters in EN personas');
+      }
+
+      for (const r of roles) {
+        for (let i = 0; i < CHAPTERS.length; i += 1) {
+          const ch = getLocalizedChapterForRole(i, r.id, lang);
+          assert.equal(ch.replies.length, 4);
+          assert.ok(ch.voiceClips?.line && ch.voiceClips?.grandmaQuip);
+          const chText = JSON.stringify({
+            title: ch.title,
+            sceneDesc: ch.sceneDesc,
+            lineMessage: ch.lineMessage,
+            replies: ch.replies,
+            takeaway: ch.takeaway,
+            grandmaQuip: ch.grandmaQuip,
+          });
+          for (const w of FORBIDDEN) {
+            assert.equal(chText.includes(w), false, `${lang}/${r.id}/ch${i + 1} contains forbidden word "${w}"`);
+          }
+          if (lang === 'en') {
+            assert.equal(cjkRe.test(chText), false, `EN ${r.id} ch${i + 1} leaked CJK text`);
+          }
+          if (i === 5) {
+            assert.ok(ch.game.cards[3].includes(ch.grandmaPhoneCall.triggerCardText), `${lang}/${r.id} Ch6 card[3] missing triggerCardText`);
+          }
+        }
+      }
+
+      if (lang !== 'zh') {
+        let state = activateGrandmaCheat(createInitialState(), false);
+        state = selectRole(state, 'planner');
+        const subs = [1, 5, 65, ['left', 'left', 'left', 'right'], 80, ['right', 'right', 'right', 'right'], [0, 1, 2], 3, 0];
+        for (let i = 0; i < 10; i += 1) {
+          if (state.phase === 'cutscene') state = { ...state, phase: 'scene' };
+          state = chooseReply(state, 2);
+          if (i < 9) state = submitMiniGame(state, subs[i]);
+          state = advanceChapter(state);
+        }
+        assert.equal(state.phase, 'review');
+        assert.equal(state.history.length, 10);
+        assert.ok(determinePersona(state).id);
+      }
+    }
+  } finally {
+    setLang('zh');
+    soundFX.setLang('zh');
+  }
+});
+
+test('All 354 Google Gemini TTS MP3 clips (zh/en/ja x 118) and 9 AAC MP4 cutscenes exist on disk', () => {
+  const grandmaFiles = [
+    'quote.mp3',
+    ...Array.from({ length: 5 }, (_, i) => `rescue_${i}.mp3`),
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip.mp3`),
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call.mp3`),
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue.mp3`),
+  ];
+  const voiceFiles = [
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_line.mp3`),
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_lisa.mp3`),
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_cindy.mp3`),
+    ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_takeaway.mp3`),
+    'fsd_on.mp3',
+    'fsd_off.mp3',
+    ...['account', 'creative', 'media', 'grandma'].flatMap((roleId) =>
+      Array.from({ length: 10 }, (_, i) => `role_${roleId}_ch${i + 1}_line.mp3`)
+    ),
+  ];
+
+  for (const lang of ['zh', 'en', 'ja']) {
+    const prefix = lang === 'zh' ? '' : `${lang}/`;
+    soundFX.setLang(lang);
+    const clipUrl = soundFX.resolveVoiceClip('x', 'boss', 'voice:ch1_line');
+    assert.equal(clipUrl, `./public/audio/${prefix}voices/ch1_line.mp3`);
+
+    for (const f of grandmaFiles) {
+      const p = path.join(process.cwd(), 'public/audio', prefix, 'grandma', f);
+      assert.ok(fs.existsSync(p), `Missing ${lang} grandma MP3: ${p}`);
+      assert.ok(fs.statSync(p).size > 2048, `Truncated ${lang} grandma MP3: ${p}`);
+    }
+    for (const f of voiceFiles) {
+      const p = path.join(process.cwd(), 'public/audio', prefix, 'voices', f);
+      assert.ok(fs.existsSync(p), `Missing ${lang} voice MP3: ${p}`);
+      assert.ok(fs.statSync(p).size > 2048, `Truncated ${lang} voice MP3: ${p}`);
+    }
+    for (const vid of ['intro-taipei.mp4', 'boardroom-push.mp4', 'grandma-rescue.mp4']) {
+      const vp = path.join(process.cwd(), 'public/video', prefix, vid);
+      assert.ok(fs.existsSync(vp), `Missing ${lang} video: ${vp}`);
+      const buf = fs.readFileSync(vp);
+      assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Video missing AAC audio track: ${vp}`);
+    }
+  }
+  soundFX.setLang('zh');
 });

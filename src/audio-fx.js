@@ -198,6 +198,7 @@ class SoundEngine {
     this.bgmMaster = null;
     this.muted = false;
     this.voiceEnabled = true;
+    this.lang = 'zh';
     this.speaking = false;
     this.cutscenePlaying = false;
     this.activeVoiceRole = '';
@@ -209,6 +210,14 @@ class SoundEngine {
     this.stationIndex = 0;
     this.onVoiceChange = null;
     this._noiseBuffer = null;
+  }
+
+  setLang(lang) {
+    const next = lang === 'en' || lang === 'ja' ? lang : 'zh';
+    if (this.lang !== next) {
+      this.lang = next;
+      this.stopSpeech();
+    }
   }
 
   _ensureCtx() {
@@ -468,14 +477,51 @@ class SoundEngine {
     }
   }
 
-  resolveGrandmaClip(text) {
-    return GRANDMA_VOICE_CLIPS[normalizeGrandmaVoiceKey(text)] || null;
+  _localizeClipUrl(zhUrl) {
+    if (!zhUrl) return null;
+    if (this.lang === 'zh') return zhUrl;
+    const clean = String(zhUrl);
+    const prefix = './public/audio/';
+    if (clean.startsWith(`${prefix}${this.lang}/`)) return clean;
+    if (clean.startsWith(prefix)) {
+      return `${prefix}${this.lang}/${clean.slice(prefix.length)}`;
+    }
+    return clean;
   }
 
-  resolveVoiceClip(text, roleKey = 'narrator') {
-    if (roleKey === 'grandma') return this.resolveGrandmaClip(text);
+  resolveClipById(clipId) {
+    if (!clipId) return null;
+    const raw = String(clipId).trim();
+    if (!raw) return null;
+    if (raw.startsWith('./public/audio/')) {
+      return this._localizeClipUrl(raw);
+    }
+    const langPrefix = this.lang === 'zh' ? '' : `${this.lang}/`;
+    if (raw.startsWith('grandma:')) {
+      const name = raw.slice('grandma:'.length);
+      return name ? `./public/audio/${langPrefix}grandma/${name}.mp3` : null;
+    }
+    if (raw.startsWith('voice:')) {
+      const name = raw.slice('voice:'.length);
+      return name ? `./public/audio/${langPrefix}voices/${name}.mp3` : null;
+    }
+    return null;
+  }
+
+  resolveGrandmaClip(text, clipId = null) {
+    const byId = this.resolveClipById(clipId);
+    if (byId) return byId;
+    const zhUrl = GRANDMA_VOICE_CLIPS[normalizeGrandmaVoiceKey(text)] || null;
+    return this._localizeClipUrl(zhUrl);
+  }
+
+  resolveVoiceClip(text, roleKey = 'narrator', clipId = null) {
+    const byId = this.resolveClipById(clipId);
+    if (byId) return byId;
+    if (roleKey === 'grandma') return this.resolveGrandmaClip(text, clipId);
     const norm = normalizeVoiceKey(text);
-    return CHARACTER_VOICE_CLIPS[`${roleKey}:${norm}`] || null;
+    const zhUrl = CHARACTER_VOICE_CLIPS[`${roleKey}:${norm}`] || null;
+    return this._localizeClipUrl(zhUrl);
   }
 
   _clearSpeechState() {
@@ -544,7 +590,7 @@ class SoundEngine {
     }
   }
 
-  speak(text, roleKey = 'narrator', forceManual = false) {
+  speak(text, roleKey = 'narrator', forceManual = false, clipId = null) {
     if (!text || this.muted) return false;
     if (!forceManual && !this.voiceEnabled) return false;
     if (this.cutscenePlaying && !forceManual) return false;
@@ -557,7 +603,7 @@ class SoundEngine {
 
     this.stopSpeech();
 
-    const clipUrl = this.resolveVoiceClip(clean, roleKey);
+    const clipUrl = this.resolveVoiceClip(clean, roleKey, clipId);
     if (!clipUrl) {
       // 僅播放工作室 Google Gemini TTS 錄音檔，絕不降級為瀏覽器預設女聲 TTS 呢喃
       if (roleKey === 'grandma') {

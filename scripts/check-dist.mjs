@@ -95,29 +95,42 @@ for (const img of REQUIRED_IMAGES) {
   }
 }
 
-for (const vid of REQUIRED_VIDEOS) {
-  const p = path.join(DIST, 'public/video', vid);
-  if (!fs.existsSync(p) || fs.statSync(p).size < 10240) {
-    errors.push(`Missing or invalid MP4 cutscene: ${vid}`);
-  } else {
-    const buf = fs.readFileSync(p);
-    if (!buf.includes('soun') || !buf.includes('mp4a')) {
-      errors.push(`MP4 cutscene missing embedded AAC audio track: ${vid}`);
+let mp3Count = 0;
+let mp4Count = 0;
+
+for (const lang of ['zh', 'en', 'ja']) {
+  const prefix = lang === 'zh' ? '' : `${lang}/`;
+
+  for (const vid of REQUIRED_VIDEOS) {
+    const p = path.join(DIST, 'public/video', prefix, vid);
+    if (!fs.existsSync(p) || fs.statSync(p).size < 10240) {
+      errors.push(`Missing or invalid ${lang} MP4 cutscene: ${prefix}${vid}`);
+    } else {
+      const buf = fs.readFileSync(p);
+      if (!buf.includes('soun') || !buf.includes('mp4a')) {
+        errors.push(`${lang} MP4 cutscene missing embedded AAC audio track: ${prefix}${vid}`);
+      } else {
+        mp4Count += 1;
+      }
     }
   }
-}
 
-for (const clip of REQUIRED_GRANDMA_CLIPS) {
-  const p = path.join(DIST, 'public/audio/grandma', clip);
-  if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
-    errors.push(`Missing or invalid Google Gemini TTS Grandma MP3 clip: ${clip}`);
+  for (const clip of REQUIRED_GRANDMA_CLIPS) {
+    const p = path.join(DIST, 'public/audio', prefix, 'grandma', clip);
+    if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
+      errors.push(`Missing or invalid ${lang} Google Gemini TTS Grandma MP3 clip: ${prefix}grandma/${clip}`);
+    } else {
+      mp3Count += 1;
+    }
   }
-}
 
-for (const clip of REQUIRED_CHARACTER_CLIPS) {
-  const p = path.join(DIST, 'public/audio/voices', clip);
-  if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
-    errors.push(`Missing or invalid Google Gemini TTS character MP3 clip: ${clip}`);
+  for (const clip of REQUIRED_CHARACTER_CLIPS) {
+    const p = path.join(DIST, 'public/audio', prefix, 'voices', clip);
+    if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
+      errors.push(`Missing or invalid ${lang} Google Gemini TTS character MP3 clip: ${prefix}voices/${clip}`);
+    } else {
+      mp3Count += 1;
+    }
   }
 }
 
@@ -131,4 +144,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} audio-enabled MP4 cutscenes, ${REQUIRED_GRANDMA_CLIPS.length + REQUIRED_CHARACTER_CLIPS.length} Google Gemini TTS MP3 clips (36 grandma + 82 character), 0 leaks.`);
+console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${mp4Count} audio-enabled MP4 cutscenes (zh/en/ja), ${mp3Count} Google Gemini TTS MP3 clips (zh/en/ja), 0 leaks.`);

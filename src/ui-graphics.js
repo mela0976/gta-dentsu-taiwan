@@ -1,4 +1,6 @@
 // These SVGs use layered strokes and geometry so repeated inline instances need no IDs.
+import { getLang } from './i18n.js';
+
 const gdtSvgNamespace = 'http://www.w3.org/2000/svg';
 
 const gdtSunBands = Array.from({ length: 51 }, (_, index) => {
@@ -49,7 +51,12 @@ const gdtSealFlecks = Array.from({ length: 90 }, (_, index) => {
   return `<path d="M${x} ${y}h${index % 3 + 1}"/>`;
 }).join('');
 
-export const SVG_TEMPLE_STAMP_PASSED = `<svg xmlns="${gdtSvgNamespace}" class="gdt-temple-stamp" viewBox="0 0 260 110" role="img" aria-label="MISSION PASSED · 衡斷破局 · DENTSU TW">
+export function getTempleStampSvg(lang = getLang()) {
+  const txt = lang === 'en' ? 'JUDGMENT' : lang === 'ja' ? '裁断破局' : '衡斷破局';
+  const sub = lang === 'en' ? 'CASE PASSED · DENTSU TW' : 'MISSION PASSED · DENTSU TW';
+  const fs = lang === 'en' ? '26' : lang === 'ja' ? '31' : '33';
+  const ls = lang === 'en' ? '2.5' : '5';
+  return `<svg xmlns="${gdtSvgNamespace}" class="gdt-temple-stamp" viewBox="0 0 260 110" role="img" aria-label="${sub} · ${txt}">
   <rect x="7" y="7" width="246" height="96" rx="21" fill="#2a1119" stroke="#c74240" stroke-width="6" opacity=".78"/>
   <rect x="9" y="9" width="242" height="92" rx="18" fill="none" stroke="#fab877" stroke-width="1.6"/>
   <rect x="15" y="15" width="230" height="80" rx="13" fill="none" stroke="#f66d59" stroke-dasharray="10 1 3 1"/>
@@ -57,12 +64,17 @@ export const SVG_TEMPLE_STAMP_PASSED = `<svg xmlns="${gdtSvgNamespace}" class="g
   <ellipse cx="130" cy="51" rx="110" ry="36" fill="none" stroke="#e65448" opacity=".45" stroke-dasharray="3 1 7 2"/>
   <g stroke="#ffb485" opacity=".24">${gdtSealFlecks}</g>
   <path d="M18 54h14c10 0 10-12 3-12-6 0-6 7-2 7m209 5h-14c-10 0-10-12-3-12 6 0 6 7 2 7M21 61h17m184 0h17" fill="none" stroke="#fbb879" stroke-width="1.5"/>
-  <text x="130" y="63" text-anchor="middle" fill="#ffce92" stroke="#a34036" stroke-width=".55" font-family="'Songti TC','Noto Serif CJK TC',serif" font-size="33" font-weight="800" letter-spacing="5">衡斷破局</text>
+  <text x="130" y="63" text-anchor="middle" fill="#ffce92" stroke="#a34036" stroke-width=".55" font-family="'Songti TC','Noto Serif CJK TC',serif" font-size="${fs}" font-weight="800" letter-spacing="${ls}">${txt}</text>
   <path d="M47 72h166l-8 16H55Z" fill="#35151b" stroke="#bc5148"/>
-  <text x="130" y="83" text-anchor="middle" fill="#ffe0ad" font-family="system-ui,sans-serif" font-size="9" font-weight="800" letter-spacing="1.35">MISSION PASSED · DENTSU TW</text>
+  <text x="130" y="83" text-anchor="middle" fill="#ffe0ad" font-family="system-ui,sans-serif" font-size="9" font-weight="800" letter-spacing="1.35">${sub}</text>
 </svg>`;
+}
 
-export const SVG_IFRUIT_CHASSIS_TOP = `<svg xmlns="${gdtSvgNamespace}" class="gdt-ifruit" viewBox="0 0 280 28" role="img" aria-label="iFruit Taiwan · 中華電信 5G 富邦A25">
+export const SVG_TEMPLE_STAMP_PASSED = getTempleStampSvg('zh');
+
+export function getIfruitChassisSvg(lang = getLang()) {
+  const carrier = lang === 'en' ? 'Chunghwa 5G · Fubon A25' : lang === 'ja' ? '中華電信 5G · 富邦A25' : '中華電信 5G 富邦A25';
+  return `<svg xmlns="${gdtSvgNamespace}" class="gdt-ifruit" viewBox="0 0 280 28" role="img" aria-label="iFruit Taiwan · ${carrier}">
   <path d="M1 28V17Q1 1 19 1h242q18 0 18 16v11Z" fill="#121724" stroke="#54667a"/>
   <path d="M4 28V17Q4 4 19 4h242q15 0 15 13v11" fill="none" stroke="#89e6df" opacity=".43"/>
   <path d="M10 25h260M22 3h30m176 0h30" stroke="#d4a86e" opacity=".42"/>
@@ -71,12 +83,15 @@ export const SVG_IFRUIT_CHASSIS_TOP = `<svg xmlns="${gdtSvgNamespace}" class="gd
   <circle cx="154" cy="14" r="4.1" fill="#1c314b" stroke="#476881"/>
   <circle cx="154" cy="14" r="2.1" fill="#07111e"/>
   <circle cx="153" cy="13" r=".8" fill="#87a8ef"/>
-  <text x="13" y="19" fill="#d8efea" font-family="system-ui,sans-serif" font-size="9" font-weight="650">中華電信 5G 富邦A25</text>
+  <text x="13" y="19" fill="#d8efea" font-family="system-ui,sans-serif" font-size="9" font-weight="650">${carrier}</text>
   <path d="M217 18v-3m3 3v-5m3 5v-7m3 7V9" stroke="#a1f5e1" stroke-width="1.5"/>
   <path d="M232 12q5-5 10 0m-8 2q3-3 6 0m-4 2q1-1 2 0" stroke="#a1f5e1" fill="none"/>
   <rect x="247" y="10.5" width="16" height="8" rx="2" fill="none" stroke="#9ba9b2"/>
   <path d="M249 12h11v5h-11zm15 1h1v3h-1z" fill="#b8e9bd"/>
 </svg>`;
+}
+
+export const SVG_IFRUIT_CHASSIS_TOP = getIfruitChassisSvg('zh');
 
 const gdtRadarTicks = Array.from({ length: 72 }, (_, index) => {
   const start = index % 6 === 0 ? 86 : index % 2 === 0 ? 90 : 93;
@@ -89,7 +104,9 @@ const gdtRadarSweep = Array.from({ length: 38 }, (_, index) => {
   return `<path d="M100 100V17" transform="rotate(${index * 1.4} 100 100)" stroke="${color}" stroke-width="2.2" opacity="${(.006 + .22 * (index / 37) ** 2).toFixed(3)}"/>`;
 }).join('');
 
-export const SVG_RADAR_COMPASS_RING = `<svg xmlns="${gdtSvgNamespace}" class="gdt-radar" viewBox="0 0 200 200" role="img" aria-label="戰術雷達羅盤 N E S W">
+export function getRadarCompassRingSvg(lang = getLang()) {
+  const aria = lang === 'en' ? 'Tactical Radar Compass N E S W' : lang === 'ja' ? '戦術レーダーコンパス N E S W' : '戰術雷達羅盤 N E S W';
+  return `<svg xmlns="${gdtSvgNamespace}" class="gdt-radar" viewBox="0 0 200 200" role="img" aria-label="${aria}">
   <g fill="none">
     <circle cx="100" cy="100" r="98" stroke="#254e55"/>
     <circle cx="100" cy="100" r="96" stroke="#6ce2d7" opacity=".34" stroke-width="3"/>
@@ -108,6 +125,9 @@ export const SVG_RADAR_COMPASS_RING = `<svg xmlns="${gdtSvgNamespace}" class="gd
     <text x="100" y="28">N</text><text x="176" y="104">E</text><text x="100" y="180">S</text><text x="24" y="104">W</text>
   </g>
 </svg>`;
+}
+
+export const SVG_RADAR_COMPASS_RING = getRadarCompassRingSvg('zh');
 
 const gdtEscapeEntities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -169,7 +189,16 @@ export function getStatIconSvg(statKey) {
 
 const gdtFsdRails = 'M94 360Q176 257 308 170M545 360Q427 245 326 170';
 
-export const SVG_TESLA_FSD_HUD_OVERLAY = `<svg xmlns="${gdtSvgNamespace}" viewBox="0 0 640 360" role="img" aria-label="TESLA FSD v13 · AUTOPILOT ENGAGED · 車距鎖定 18m">
+export function getTeslaFsdOverlaySvg(lang = getLang()) {
+  const moto = lang === 'en' ? 'Scooter · 18m' : lang === 'ja' ? 'バイク · 18m' : '機車 · 18m';
+  const ped = lang === 'en' ? 'Ped · 24m' : lang === 'ja' ? '歩行者 · 24m' : '行人 · 24m';
+  const road = lang === 'en' ? '2026 A25 · SONGREN RD' : lang === 'ja' ? '2026 A25 · 松仁路' : '2026 A25 · 松仁路段';
+  const badge = lang === 'en'
+    ? 'TESLA FSD v13 · AUTOPILOT · GAP LOCKED 18m'
+    : lang === 'ja'
+      ? 'TESLA FSD v13 · 自動運転中 · 車間18m固定'
+      : 'TESLA FSD v13 · AUTOPILOT ENGAGED · 車距鎖定 18m';
+  return `<svg xmlns="${gdtSvgNamespace}" viewBox="0 0 640 360" role="img" aria-label="${badge}">
   <path d="M94 360Q176 257 308 170H326Q427 245 545 360Z" fill="#157eff" opacity=".16"/>
   <path d="M173 360Q223 262 312 170h10q78 98 146 190Z" fill="#288eff" opacity=".12"/>
   <g fill="none" stroke-linecap="round">
@@ -192,8 +221,8 @@ export const SVG_TESLA_FSD_HUD_OVERLAY = `<svg xmlns="${gdtSvgNamespace}" viewBo
     <path d="m386 171-2 11-5 10m5-10 7 10m-5-20-7 5m7-5 5 6 4-1"/>
   </g>
   <g font-family="system-ui, sans-serif" font-size="8" font-weight="700" fill="#cff5ff" stroke="#08233a" stroke-width="2" paint-order="stroke">
-    <text x="270" y="158">機車 · 18m</text><text x="374" y="143">行人 · 24m</text>
-    <text x="496" y="117">2026 A25 · 松仁路段</text>
+    <text x="270" y="158">${moto}</text><text x="374" y="143">${ped}</text>
+    <text x="496" y="117">${road}</text>
   </g>
   <g transform="translate(530 143)" text-anchor="middle" font-family="system-ui, sans-serif">
     <circle r="18" fill="#0c1a2b" fill-opacity=".88" stroke="#ff7a86" stroke-width="1.8"/>
@@ -201,21 +230,26 @@ export const SVG_TESLA_FSD_HUD_OVERLAY = `<svg xmlns="${gdtSvgNamespace}" viewBo
     <text y="2" fill="#fff" font-size="15" font-weight="800">50</text>
     <text y="10" fill="#d6ecff" font-size="6">km/h</text>
   </g>
-  <rect x="13" y="12" width="225" height="21" rx="10.5" fill="#09192e" fill-opacity=".87" stroke="#4db5ff" stroke-opacity=".72"/>
+  <rect x="13" y="12" width="232" height="21" rx="10.5" fill="#09192e" fill-opacity=".87" stroke="#4db5ff" stroke-opacity=".72"/>
   <g fill="none" stroke="#87ddff" stroke-width="1.1">
     <circle cx="25" cy="22.5" r="5.7"/>
     <circle cx="25" cy="23" r="1.5"/>
     <path d="M20 21q5-2 10 0m-9 0 3 2m5-2-3 2m-1 1.5v3"/>
   </g>
-  <text x="36" y="26" fill="#d6f5ff" font-family="system-ui, sans-serif" font-size="8.5" font-weight="700">TESLA FSD v13 · AUTOPILOT ENGAGED · 車距鎖定 18m</text>
+  <text x="36" y="26" fill="#d6f5ff" font-family="system-ui, sans-serif" font-size="8.2" font-weight="700">${badge}</text>
 </svg>`;
+}
+
+export const SVG_TESLA_FSD_HUD_OVERLAY = getTeslaFsdOverlaySvg('zh');
 
 const gdtFubonFloors = Array.from({ length: 54 }, (_, index) => {
   const y = 13 + index * .84;
   return `<path d="M59 ${y.toFixed(2)}h24"/>`;
 }).join('');
 
-export const SVG_FUBON_A25_WIKI_BLUEPRINT = `<svg xmlns="${gdtSvgNamespace}" viewBox="0 0 180 72" role="img" aria-label="FUBON A25 266.3m · 陶朱隱園">
+export function getFubonA25BlueprintSvg(lang = getLang()) {
+  const lbl = lang === 'en' ? 'FUBON A25 266.3m · TAO ZHU' : lang === 'ja' ? 'FUBON A25 266.3m · 陶朱隠園' : 'FUBON A25 266.3m · 陶朱隱園';
+  return `<svg xmlns="${gdtSvgNamespace}" viewBox="0 0 180 72" role="img" aria-label="${lbl}">
   <g fill="none" stroke="#78b9d5" stroke-width=".45" opacity=".34">
     <path d="M17 59h146M38 4h12m-12 55h12M42 4v55m-2-53 4-4m-4 59 4-4"/>
     <path d="M91 39.75h12m-12 19.25h12m-9-19.25V59" stroke-dasharray="1 1"/>
@@ -232,5 +266,8 @@ export const SVG_FUBON_A25_WIKI_BLUEPRINT = `<svg xmlns="${gdtSvgNamespace}" vie
   <path d="M113 42q12 3 24 0m-22 2.5q11 3 24 0m-23 2.5q11 2.5 23 0m-23 3q10 2 21 0m-22 2.5q10 3 21 0m-23 3q12 3 24 0" fill="none" stroke="#81c5a8" stroke-width=".65"/>
   <path d="M115 43h5m11 3h6m-21 4h4m10 3h6m-21 4h6" stroke="#c8e5a0" stroke-width="1" stroke-linecap="round"/>
   <path d="M17 60h146" stroke="#8cd9e8" stroke-width=".6"/>
-  <text x="90" y="69" text-anchor="middle" fill="#c7ecf5" font-family="system-ui, sans-serif" font-size="7.5" font-weight="700" letter-spacing=".55">FUBON A25 266.3m · 陶朱隱園</text>
+  <text x="90" y="69" text-anchor="middle" fill="#c7ecf5" font-family="system-ui, sans-serif" font-size="7.5" font-weight="700" letter-spacing=".55">${lbl}</text>
 </svg>`;
+}
+
+export const SVG_FUBON_A25_WIKI_BLUEPRINT = getFubonA25BlueprintSvg('zh');
