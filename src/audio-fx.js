@@ -39,6 +39,53 @@ const VOICE_PROFILES = {
   fsd: { rate: 1.08, pitch: 1.08, volume: 0.9 }
 };
 
+export const normalizeGrandmaVoiceKey = (text) =>
+  String(text || '')
+    .replace(/\uFE0F/g, '')
+    .replace(/[📞🔊👵🍲📩⚡🎯🎬🛵🚗⭐🔥🧠🎙☎\[\]【】]/g, '')
+    .trim()
+    .replace(/^阿嬤說[:：]?/, '')
+    .replace(/[「」『』""“”''‘’（）()，。！？、：；…—\-·\s]/g, '');
+
+export const GRANDMA_VOICE_CLIPS = {
+  '做生意跟煮飯一樣火候到了客人自己會來': './public/audio/grandma/quote.mp3',
+  '你們這些少年仔報表看得比吃飯還認真肚子都沒在顧先吃飯數字不會跑掉啦': './public/audio/grandma/rescue_0.mp3',
+  '什麼歸因阿嬤買菜只看一件事這攤的菜我下禮拜還想不想再來': './public/audio/grandma/rescue_1.mp3',
+  '免費的最貴這個阿嬤在菜市場六十年了你那個0.5秒的曝光連蔥都送不到一把': './public/audio/grandma/rescue_2.mp3',
+  'AI寫的文案喔很會講但是沒有鍋氣啦人家吃一口就知道有沒有用心': './public/audio/grandma/rescue_3.mp3',
+  '老闆講什麼你都說好那是跟班講出你的判斷再被罵那才是顧問來吃肉': './public/audio/grandma/rescue_4.mp3',
+  '老主顧本來就會來你還跟人家說是你吆喝來的這樣算帳菜攤早就倒了': './public/audio/grandma/ch1_quip.mp3',
+  '師傅怕徒弟徒弟就去隔壁拜別人當師傅真的有本事教出一百個徒弟你還是師傅': './public/audio/grandma/ch2_quip.mp3',
+  '景氣差菜攤也不能把招牌拆下來賣廢鐵生意回來的時候客人是看招牌找路的': './public/audio/grandma/ch3_quip.mp3',
+  '客人自己說老闆我下次還來比你偷偷記他住哪裡可靠一百倍': './public/audio/grandma/ch4_quip.mp3',
+  '嘴巴說要吃有機結帳還是挑最便宜的那一把青菜你要賣有機就要讓人覺得值得': './public/audio/grandma/ch5_quip.mp3',
+  '機器煮飯很快但客人記得的是那碗飯有沒有人的味道多煮十鍋也比不上一碗讓人想再來的': './public/audio/grandma/ch6_quip.mp3',
+  '房東又是收租的又幫你算生意好不好這樣的帳你不能全信要自己拿個小本子記': './public/audio/grandma/ch7_quip.mp3',
+  '攤位只賣給熟客生意數字很好看但哪天熟客搬家你就沒人買了要常常叫賣給路過的新面孔': './public/audio/grandma/ch8_quip.mp3',
+  '客人問哪一攤的魚好鄰居講你的名字比你拿喇叭喊一百次還有用這個叫口碑': './public/audio/grandma/ch9_quip.mp3',
+  '秤子不準是老闆的責任不是秤子的責任判斷這件事從來沒有辦法外包給別人': './public/audio/grandma/ch10_quip.mp3',
+  '少年仔早餐有吃嗎冰奶不算吐司也不算要吃飯啦': './public/audio/grandma/ch1_call.mp3',
+  '開會不要一直看手機人家講話要看著眼睛這樣才有禮貌': './public/audio/grandma/ch2_call.mp3',
+  '外面下雨雞腿便當不要邊走邊吃會滴到襯衫晚上還要見客戶': './public/audio/grandma/ch3_call.mp3',
+  '那個推銷的講話太快一直笑的人要小心簽名之前先回來問阿嬤': './public/audio/grandma/ch4_call.mp3',
+  '雞排不要一次吃那麼多啦會上火珍奶也要少糖阿嬤看你都沒在顧身體': './public/audio/grandma/ch5_call.mp3',
+  '喂你們是不是在拍什麼有些味道一喝就回到阿嬤家的廚房那句是誰寫的阿嬤現在騎電動車過去你們先不要亂砍預算等我帶鍋子到': './public/audio/grandma/ch6_call.mp3',
+  '晚餐不要又叫外送阿嬤在電鍋裡有留一份你下班回來記得吃': './public/audio/grandma/ch7_call.mp3',
+  '這麼晚還在外面坐計程車記得繫安全帶到了要傳訊息跟阿嬤說': './public/audio/grandma/ch8_call.mp3',
+  '熱炒吃太鹹回家記得喝水阿嬤有煮綠豆湯明天早上熱一下': './public/audio/grandma/ch9_call.mp3',
+  '決定好了就去做不要想太久不管結果怎樣回家阿嬤的電鍋都還是熱的': './public/audio/grandma/ch10_call.mp3',
+  '賣菜的最清楚天天來買的老主顧你站在攤位前面喊一聲他也會買': './public/audio/grandma/ch1_clue.mp3',
+  '徒弟學會了就出去開店那你就當師傅開班收學費還能抽成': './public/audio/grandma/ch2_clue.mp3',
+  '生意難做的時候更不能關門招牌熄了客人下次就不認得路了': './public/audio/grandma/ch3_clue.mp3',
+  '客人還沒開口你就先跟蹤人家回家這種生意菜市場叫做討人厭': './public/audio/grandma/ch4_clue.mp3',
+  '嘴巴說愛護地球結帳還是挑便宜的這是人之常情你不要罵人家': './public/audio/grandma/ch5_clue.mp3',
+  '機器煮的飯可以吃但客人記得的是阿嬤的味道': './public/audio/grandma/ch6_clue.mp3',
+  '又當老闆又當評審的攤位你的菜怎麼賣得贏他': './public/audio/grandma/ch7_clue.mp3',
+  '一直只賣給熟客生意看起來很好但三年後就沒有新朋友了': './public/audio/grandma/ch8_clue.mp3',
+  '客人問鄰居哪一攤好鄰居講你的名字這比貼多少海報都有用': './public/audio/grandma/ch9_clue.mp3',
+  '對老主顧多收錢阿嬤這輩子沒這樣做過你自己決定不要推給機器': './public/audio/grandma/ch10_clue.mp3'
+};
+
 class SoundEngine {
   constructor() {
     this.ctx = null;
@@ -47,6 +94,8 @@ class SoundEngine {
     this.voiceEnabled = true;
     this.speaking = false;
     this.activeVoiceRole = '';
+    this.activeAudio = null;
+    this._audioToken = 0;
     this.bgmTimer = null;
     this.bgmStep = 0;
     this.stationIndex = 0;
@@ -289,13 +338,12 @@ class SoundEngine {
     return zh[0];
   }
 
-  stopSpeech() {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      try {
-        window.speechSynthesis.cancel();
-      } catch {}
-    }
-    if (this.speaking) {
+  resolveGrandmaClip(text) {
+    return GRANDMA_VOICE_CLIPS[normalizeGrandmaVoiceKey(text)] || null;
+  }
+
+  _clearSpeechState() {
+    if (this.speaking || this.activeVoiceRole) {
       this.speaking = false;
       this.activeVoiceRole = '';
       this._updateBgmDucking();
@@ -303,25 +351,39 @@ class SoundEngine {
     }
   }
 
-  speak(text, roleKey = 'narrator', forceManual = false) {
-    if (!text || this.muted) return false;
-    if (!forceManual && !this.voiceEnabled) return false;
+  stopSpeech() {
+    this._audioToken += 1;
+    if (this.activeAudio) {
+      try {
+        this.activeAudio.onended = null;
+        this.activeAudio.onerror = null;
+        this.activeAudio.pause();
+        this.activeAudio.currentTime = 0;
+      } catch {}
+      this.activeAudio = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
+    this._clearSpeechState();
+  }
+
+  _speakWithWebSpeech(cleanText, roleKey) {
     if (typeof window === 'undefined' || !window.speechSynthesis || typeof SpeechSynthesisUtterance === 'undefined') {
       return false;
     }
 
-    this.stopSpeech();
-    if (roleKey === 'grandma') this.playTatungCooker();
-
-    const clean = String(text)
+    const speechBody = String(cleanText)
       .replace(/[「」『』\[\]【】]/g, '')
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, 180);
-    if (!clean) return false;
+    if (!speechBody) return false;
 
     const profile = VOICE_PROFILES[roleKey] || VOICE_PROFILES.narrator;
-    const utter = new SpeechSynthesisUtterance(clean);
+    const utter = new SpeechSynthesisUtterance(speechBody);
     utter.lang = 'zh-TW';
     const v = this._pickZhTwVoice(roleKey);
     if (v) utter.voice = v;
@@ -335,12 +397,7 @@ class SoundEngine {
       this._updateBgmDucking();
       if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, roleKey);
     };
-    const finish = () => {
-      this.speaking = false;
-      this.activeVoiceRole = '';
-      this._updateBgmDucking();
-      if (typeof this.onVoiceChange === 'function') this.onVoiceChange(false, '');
-    };
+    const finish = () => this._clearSpeechState();
     utter.onend = finish;
     utter.onerror = finish;
 
@@ -351,6 +408,67 @@ class SoundEngine {
       finish();
       return false;
     }
+  }
+
+  speak(text, roleKey = 'narrator', forceManual = false) {
+    if (!text || this.muted) return false;
+    if (!forceManual && !this.voiceEnabled) return false;
+
+    const clean = String(text)
+      .replace(/\uFE0F/g, '')
+      .replace(/[📞🔊👵🍲📩⚡🎯🎬🛵🚗⭐🔥🧠🎙☎]/g, '')
+      .trim();
+    if (!clean) return false;
+
+    this.stopSpeech();
+
+    if (roleKey === 'grandma') {
+      this.playTatungCooker();
+      const clipUrl = this.resolveGrandmaClip(clean);
+      if (clipUrl && typeof Audio !== 'undefined') {
+        const token = ++this._audioToken;
+        const audio = new Audio(clipUrl);
+        audio.preload = 'auto';
+        audio.volume = 1.0;
+        this.activeAudio = audio;
+        this.speaking = true;
+        this.activeVoiceRole = 'grandma';
+        this._updateBgmDucking();
+        if (typeof this.onVoiceChange === 'function') this.onVoiceChange(true, 'grandma');
+
+        audio.onended = () => {
+          if (token !== this._audioToken) return;
+          this.activeAudio = null;
+          this._clearSpeechState();
+        };
+        audio.onerror = () => {
+          if (token !== this._audioToken) return;
+          this.activeAudio = null;
+          this._clearSpeechState();
+          this._speakWithWebSpeech(clean, 'grandma');
+        };
+
+        try {
+          const playPromise = audio.play();
+          if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch((err) => {
+              if (token !== this._audioToken) return;
+              this.activeAudio = null;
+              this._clearSpeechState();
+              if (err?.name !== 'NotAllowedError') {
+                this._speakWithWebSpeech(clean, 'grandma');
+              }
+            });
+          }
+          return true;
+        } catch {
+          this.activeAudio = null;
+          this._clearSpeechState();
+        }
+      }
+    }
+
+    return this._speakWithWebSpeech(clean, roleKey);
   }
 }
 

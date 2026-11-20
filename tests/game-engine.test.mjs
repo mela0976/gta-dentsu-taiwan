@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { CHAPTERS, ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, SCOOTER_CONFIG } from '../src/story-data.js';
+import { soundFX, normalizeGrandmaVoiceKey } from '../src/audio-fx.js';
 import {
   createInitialState,
   selectRole,
@@ -105,4 +108,40 @@ test('Full 10-chapter playthrough across all 6 mini-game types reaches career re
   assert.equal(state.history.length, 10);
   const persona = determinePersona(state);
   assert.equal(persona.id, 'judge');
+});
+
+test('VoAI 春枝 voice clips map and exist for all 36 Grandma lines', () => {
+  const grandmaRole = ROLES.find((r) => r.id === 'grandma');
+  assert.ok(grandmaRole?.quote);
+
+  const lines = [
+    grandmaRole.quote,
+    ...GRANDMA_QUIPS.rescueLines,
+    ...CHAPTERS.map((ch) => ch.grandmaQuip),
+    ...CHAPTERS.map((ch) => ch.grandmaPhoneCall.text),
+    ...CHAPTERS.map((ch) => ch.roleClues.grandma),
+  ];
+  assert.equal(lines.length, 36);
+
+  const resolvedSet = new Set();
+  for (const line of lines) {
+    const clip = soundFX.resolveGrandmaClip(line);
+    assert.ok(clip, `Missing VoAI clip mapping for: ${line}`);
+    resolvedSet.add(clip);
+    const absPath = path.join(process.cwd(), clip.replace(/^\.\//, ''));
+    assert.ok(fs.existsSync(absPath), `Missing MP3 file: ${absPath}`);
+    assert.ok(fs.statSync(absPath).size > 2048, `Truncated MP3 file: ${absPath}`);
+  }
+  assert.equal(resolvedSet.size, 36);
+
+  // Also verify stripping "阿嬤說：" produces identical resolution
+  const ch1Stripped = CHAPTERS[0].grandmaQuip.replace(/^阿嬤說[:：]?/, '');
+  assert.equal(
+    normalizeGrandmaVoiceKey(CHAPTERS[0].grandmaQuip),
+    normalizeGrandmaVoiceKey(ch1Stripped)
+  );
+  assert.equal(
+    soundFX.resolveGrandmaClip(`👵 ${CHAPTERS[0].grandmaQuip}`),
+    soundFX.resolveGrandmaClip(ch1Stripped)
+  );
 });

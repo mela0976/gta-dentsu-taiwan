@@ -15,6 +15,7 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.webp': 'image/webp',
   '.mp4': 'video/mp4',
+  '.mp3': 'audio/mpeg',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml'
 };
@@ -166,6 +167,22 @@ async function run() {
   };
 
   try {
+    // 0. Verify all 36 VoAI 春枝 MP3 clips serve cleanly over HTTP
+    const grandmaClipIds = [
+      'quote',
+      ...Array.from({ length: 5 }, (_, i) => `rescue_${i}`),
+      ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip`),
+      ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call`),
+      ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue`)
+    ];
+    for (const id of grandmaClipIds) {
+      const res = await fetch(`${baseUrl}/public/audio/grandma/${id}.mp3`);
+      assert.equal(res.status, 200, `Expected HTTP 200 for ${id}.mp3, got ${res.status}`);
+      assert.ok((res.headers.get('content-type') || '').includes('audio/mpeg'), `Bad Content-Type for ${id}.mp3`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      assert.ok(buf.length > 2048, `Expected ${id}.mp3 > 2048 bytes, got ${buf.length}`);
+    }
+
     // 1. Multi-resolution geometry & interactive matrix (1024x720, 1280x800, 1920x1080)
     for (const [w, h, name] of [[1024, 720, 'compact-1024'], [1280, 800, 'laptop-1280'], [1920, 1080, 'fhd-1920']]) {
       const page = await browser.newPage({ viewport: { width: w, height: h } });
@@ -246,10 +263,14 @@ async function run() {
       await checkImagesLoaded(play, `ch${ch}-scene`);
 
       if (ch === 1) {
-        // Test phone 4 tabs + Lisa/Cindy voice UI
+        // Test phone 4 tabs + Lisa/Cindy voice UI + VoAI 春枝 Grandma tab
         await play.click('.phone-tab:has-text("讀心")');
         await play.locator('.twin-row').first().click();
         await play.waitForSelector('.replay-btn');
+        await play.click('.phone-tab:has-text("阿嬤")');
+        await play.waitForSelector('text=VoAI 聲優「春枝」');
+        await play.click('button:has-text("重聽金句")');
+        await play.click('button:has-text("重聽來電")');
         await play.click('.phone-tab:has-text("GTA6")');
         await play.waitForSelector('.gta6-analysis-card');
         await play.click('.phone-tab:has-text("LINE")');
@@ -295,6 +316,9 @@ async function run() {
       }
 
       await play.waitForSelector('.stamp-slot');
+      if (ch === 1) {
+        await play.click('button:has-text("聽春枝阿嬤配音")');
+      }
       await proofreadPage(play, FORBIDDEN_WORDS, `ch${ch}-reveal`);
       await play.click('.reveal-actions .btn-primary');
     }

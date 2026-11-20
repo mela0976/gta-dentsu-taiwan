@@ -34,6 +34,14 @@ const REQUIRED_VIDEOS = [
   'grandma-rescue.mp4'
 ];
 
+const REQUIRED_GRANDMA_CLIPS = [
+  'quote.mp3',
+  ...Array.from({ length: 5 }, (_, i) => `rescue_${i}.mp3`),
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_quip.mp3`),
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_call.mp3`),
+  ...Array.from({ length: 10 }, (_, i) => `ch${i + 1}_clue.mp3`)
+];
+
 const errors = [];
 
 if (!fs.existsSync(DIST)) {
@@ -82,6 +90,13 @@ for (const vid of REQUIRED_VIDEOS) {
   }
 }
 
+for (const clip of REQUIRED_GRANDMA_CLIPS) {
+  const p = path.join(DIST, 'public/audio/grandma', clip);
+  if (!fs.existsSync(p) || fs.statSync(p).size <= 2048) {
+    errors.push(`Missing or invalid VoAI Grandma MP3 clip: ${clip}`);
+  }
+}
+
 const standalone = path.join(DIST, 'gta-dentsu-taiwan-standalone.html');
 if (!fs.existsSync(standalone) || fs.statSync(standalone).size < 20000) {
   errors.push('Missing or truncated standalone HTML bundle.');
@@ -92,4 +107,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} Higgsfield MP4 cutscenes, 0 leaks.`);
+console.log(`CHECK PASSED: ${distFiles.length} files in dist/, ${REQUIRED_IMAGES.length} WebP images, ${REQUIRED_VIDEOS.length} Higgsfield MP4 cutscenes, ${REQUIRED_GRANDMA_CLIPS.length} VoAI MP3 clips, 0 leaks.`);

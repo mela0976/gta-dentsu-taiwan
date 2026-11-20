@@ -431,8 +431,14 @@ class GtaDentsuApp {
   }
 
   _triggerCheatCode(withRescue = true) {
-    soundFX.playTatungCooker();
-    this._setState(activateGrandmaCheat(this.state, withRescue));
+    const next = activateGrandmaCheat(this.state, withRescue);
+    this._setState(next);
+    if (withRescue && next.lastRescueMessage) {
+      const spoke = soundFX.speak(next.lastRescueMessage, 'grandma', false);
+      if (!spoke) soundFX.playTatungCooker();
+    } else {
+      soundFX.playTatungCooker();
+    }
   }
 
   _pickReply(idx) {
@@ -448,7 +454,14 @@ class GtaDentsuApp {
     this._clearStopTimer();
 
     if (next.grandmaRescues > prevRescues) {
-      soundFX.playTatungCooker();
+      this._setState(next);
+      if (next.lastRescueMessage) {
+        const spoke = soundFX.speak(next.lastRescueMessage, 'grandma', false);
+        if (!spoke) soundFX.playTatungCooker();
+      } else {
+        soundFX.playTatungCooker();
+      }
+      return;
     } else if (next.wantedStars > prevWanted) {
       soundFX.playWantedSiren();
     } else {
@@ -679,6 +692,9 @@ class GtaDentsuApp {
           soundFX.playMissionPassed();
           this.phoneTab = 'line';
           this._setState(selectRole(this.state, role.id));
+          if (role.id === 'grandma') {
+            soundFX.speak(role.quote, 'grandma', false);
+          }
         }
       }, [
         el('div', { class: 'role-lanyard' }),
@@ -1032,7 +1048,17 @@ class GtaDentsuApp {
       style: `border-color:${role.color};`
     }, [
       htmlNode('grille', SVG_IRON_GRILLE_CORNER),
-      el('div', { class: 'clue-title', style: `color:${role.color};`, text: `🕵️ ${role.name}・桌上獨家線索` }),
+      el('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;' }, [
+        el('div', { class: 'clue-title', style: `color:${role.color};margin:0;`, text: `🕵️ ${role.name}・桌上獨家線索` }),
+        role.id === 'grandma'
+          ? el('button', {
+              class: 'replay-btn',
+              'data-voice': 'grandma',
+              text: '🔊 聽春枝阿嬤',
+              onClick: () => soundFX.speak(clue, 'grandma', true)
+            })
+          : null
+      ]),
       el('div', { class: 'clue-text', text: clue }),
       el('button', {
         class: 'btn-cyan',
@@ -1222,6 +1248,7 @@ class GtaDentsuApp {
       ]);
     } else {
       bodyNode = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' }, [
+        el('div', { style: 'font-size:12px;color:var(--gold);font-weight:800;', text: '🎙️ VoAI 聲優「春枝」台味配音' }),
         el('div', { class: 'rescue-toast', style: 'font-size:14px;padding:6px 10px;', text: ch.grandmaQuip }),
         el('div', { style: 'font-size:13px;color:var(--gold);', text: `☎️ ${ch.grandmaPhoneCall.title}：「${ch.grandmaPhoneCall.text}」` }),
         el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;' }, [
@@ -1234,8 +1261,14 @@ class GtaDentsuApp {
           el('button', {
             class: 'replay-btn',
             'data-voice': 'grandma',
-            text: '🔊 重聽',
+            text: '🔊 重聽金句',
             onClick: () => soundFX.speak(ch.grandmaQuip, 'grandma', true)
+          }),
+          el('button', {
+            class: 'replay-btn',
+            'data-voice': 'grandma',
+            text: '🔊 重聽來電',
+            onClick: () => soundFX.speak(ch.grandmaPhoneCall.text, 'grandma', true)
           })
         ])
       ]);
@@ -1335,7 +1368,18 @@ class GtaDentsuApp {
 
     const stepFlow = this._renderStepFlow(phase);
     const rescueBanner = this.state.lastRescueMessage
-      ? el('div', { class: 'rescue-toast', text: `🍲 ${this.state.lastRescueMessage}` })
+      ? el('div', {
+          class: 'rescue-toast',
+          style: 'display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;'
+        }, [
+          el('span', { style: 'flex:1 1 240px;', text: `🍲 ${this.state.lastRescueMessage}` }),
+          el('button', {
+            class: 'replay-btn',
+            'data-voice': 'grandma',
+            text: '🔊 重聽阿嬤',
+            onClick: () => soundFX.speak(this.state.lastRescueMessage, 'grandma', true)
+          })
+        ])
       : null;
 
     if (phase === 'scene') {
@@ -1412,7 +1456,18 @@ class GtaDentsuApp {
             el('div', { style: 'font-size:13.5px;color:var(--gold);', text: `🇹🇼 在地元素：${ch.gta6Analysis.taiwanCraft}` })
           ])
         : null,
-      el('div', { class: 'rescue-toast', text: `👵 ${ch.grandmaQuip}` }),
+      el('div', {
+        class: 'rescue-toast',
+        style: 'display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;'
+      }, [
+        el('span', { style: 'flex:1 1 260px;', text: `👵 ${ch.grandmaQuip}` }),
+        el('button', {
+          class: 'replay-btn',
+          'data-voice': 'grandma',
+          text: '🔊 聽春枝阿嬤配音',
+          onClick: () => soundFX.speak(ch.grandmaQuip, 'grandma', true)
+        })
+      ]),
       el('div', { class: 'reveal-actions' }, [
         el('button', {
           class: 'btn-gold',
