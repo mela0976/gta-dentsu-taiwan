@@ -59,8 +59,16 @@ function stripModuleSyntax(code) {
 }
 
 const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8');
+const roleChapterFiles = fs
+  .readdirSync(path.join(ROOT, 'src/locales/role-chapters'))
+  .filter((name) => name.startsWith('role-') && name.endsWith('.js'))
+  .sort()
+  .map((name) => `src/locales/role-chapters/${name}`);
+
 const bundledModules = [
   'src/story-data.js',
+  ...roleChapterFiles,
+  'src/locales/role-chapters/index.js',
   'src/role-stories.js',
   'src/locales/ui-strings.js',
   'src/locales/story-en.js',

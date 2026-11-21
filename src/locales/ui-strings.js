@@ -347,6 +347,7 @@ export const UI_STRINGS = {
     },
     review: {
       kicker: (routeName) => `MISSION PASSED · ${routeName} 考績結算`,
+      epilogueLabel: '🎬 角色終章總評 EPILOGUE',
       totalScore: (pts) => `總積分 $${pts}`,
       scoreStats: (ok, tot, res) => `答對小互動 ${ok}／${tot} · 阿嬤救援 ${res} 次`,
       strength: (s) => `✅ 強項：${s}`,
@@ -822,6 +823,7 @@ export const UI_STRINGS = {
     },
     review: {
       kicker: (routeName) => `MISSION PASSED · ${routeName} PERFORMANCE REVIEW`,
+      epilogueLabel: '🎬 ROLE EPILOGUE',
       totalScore: (pts) => `Total $${pts}`,
       scoreStats: (ok, tot, res) => `Challenges ${ok}/${tot} · Grandma Rescues ${res}`,
       strength: (s) => `✅ Strength: ${s}`,
@@ -1297,6 +1299,7 @@ export const UI_STRINGS = {
     },
     review: {
       kicker: (routeName) => `MISSION PASSED · ${routeName} 評価レポート`,
+      epilogueLabel: '🎬 職種別エンディング総括',
       totalScore: (pts) => `総合 $${pts}`,
       scoreStats: (ok, tot, res) => `チャレンジ正解 ${ok}／${tot} · おばあちゃん救援 ${res} 回`,
       strength: (s) => `✅ 強み：${s}`,

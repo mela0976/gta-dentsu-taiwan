@@ -614,7 +614,11 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .radar-ring svg { width: 100%; height: 100%; display: block; }
 .radar-ring .gdt-radar-sweep { transform-origin: 100px 100px; animation: radarSpin 6s linear infinite; }
 @keyframes radarSpin { to { transform: rotate(384deg); } }
-.radar-dot { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--pink); border: 1px solid rgba(255, 255, 255, 0.7); pointer-events: auto; }
+.radar-dot { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; padding: 0; border-radius: 50%; background: var(--pink); border: 1px solid rgba(255, 255, 255, 0.7); pointer-events: auto; cursor: pointer; }
+.radar-dot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.role-epilogue-box { margin: 8px 0; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--cyan); background: rgba(255, 255, 255, 0.04); }
+.role-epilogue-kicker { font-size: 12.5px; font-weight: 800; letter-spacing: 0.03em; margin-bottom: 4px; }
+.role-epilogue-summary { margin: 0; font-size: 13.5px; line-height: 1.5; color: #efeafd; }
 .radar-dot.done { background: #4ade80; }
 .radar-dot.now { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; background: var(--gold); border: 2px solid #fff; box-shadow: 0 0 12px var(--gold); animation: dotPulse 1s infinite alternate; }
 @keyframes dotPulse { to { box-shadow: 0 0 22px var(--gold); } }
@@ -1265,7 +1269,15 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .delta-chip { padding: 1px 6px; font-size: 10.5px; }
   .takeaway-card .replay-btn { margin-top: 3px !important; min-height: 24px; padding: 1px 7px; font-size: 11px; }
   .gta6-stage-card { padding: 4px 8px; gap: 2px !important; }
-  .gta6-stage-card > div { font-size: 11px !important; line-height: 1.2 !important; }
+  .gta6-stage-card > div {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
   .phone-island, .phone-head { display: none; }
   .chapter-header .pill { display: none; }
   .zone-tag.is-ref { padding: 2px 8px; font-size: 11px; }
@@ -1279,7 +1291,15 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .main-stage-inner { gap: 3px; }
   .quiz-guide-box { padding: 4px 8px; gap: 1px; }
   .quiz-guide-badge { font-size: 11px; }
-  .chapter-desc { font-size: 12.8px; line-height: 1.24; }
+  .chapter-desc {
+    font-size: 12.8px;
+    line-height: 1.24;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
   .boss-callout { font-size: 12.5px; padding: 3px 8px; line-height: 1.2; }
   .line-banner { flex-wrap: nowrap; gap: 6px; }
   .line-banner > div:first-child { flex: 1 1 0; }

@@ -10,6 +10,7 @@ import {
   getLocalizedRoles,
   getLocalizedPersonas,
   getLocalizedChapterForRole,
+  getLocalizedRoleEpilogue,
   getLocalizedRouteMeta,
   getUiStrings,
 } from '../src/i18n.js';
@@ -211,6 +212,11 @@ test('All 5 roles have distinct itineraries, storylines, LINE dilemmas, replies,
     const scenes = new Set();
     const messages = new Set();
     const prompts = new Set();
+    const clues = new Set();
+    const lisas = new Set();
+    const cindys = new Set();
+    const takeaways = new Set();
+    const arcs = new Set();
     for (const rid of roleIds) {
       const ch = getChapterForRole(i, rid);
       assert.equal(ch.replies.length, 4, `${rid} Ch${i + 1} must have 4 replies`);
@@ -222,6 +228,11 @@ test('All 5 roles have distinct itineraries, storylines, LINE dilemmas, replies,
       roadSigns.add(ch.googleMap?.roadSign || '');
       scenes.add(ch.sceneDesc);
       messages.add(ch.lineMessage);
+      clues.add(ch.roleClues?.[rid] || ch.roleClue);
+      lisas.add(ch.peopleModel?.lisa);
+      cindys.add(ch.peopleModel?.cindy);
+      takeaways.add(ch.takeaway);
+      arcs.add(ch.gta6Analysis?.characterArc);
       if (i < 9) {
         assert.ok(ch.game?.prompt, `${rid} Ch${i + 1} missing game prompt`);
         prompts.add(ch.game.prompt);
@@ -238,6 +249,11 @@ test('All 5 roles have distinct itineraries, storylines, LINE dilemmas, replies,
     assert.equal(roadSigns.size, 5, `Ch${i + 1} expected 5 unique roadSign values`);
     assert.equal(scenes.size, 5, `Ch${i + 1} expected 5 unique sceneDesc values`);
     assert.equal(messages.size, 5, `Ch${i + 1} expected 5 unique lineMessage values`);
+    assert.equal(clues.size, 5, `Ch${i + 1} expected 5 unique roleClue values`);
+    assert.equal(lisas.size, 5, `Ch${i + 1} expected 5 unique peopleModel.lisa values`);
+    assert.equal(cindys.size, 5, `Ch${i + 1} expected 5 unique peopleModel.cindy values`);
+    assert.equal(takeaways.size, 5, `Ch${i + 1} expected 5 unique takeaway values`);
+    assert.equal(arcs.size, 5, `Ch${i + 1} expected 5 unique gta6Analysis.characterArc values`);
     if (i < 9) {
       assert.equal(prompts.size, 5, `Ch${i + 1} expected 5 unique game prompts`);
     }
@@ -306,6 +322,11 @@ test('Trilingual parity (zh/en/ja), zero EN CJK leaks, zero forbidden words, and
       }
 
       for (const r of roles) {
+        const ep = getLocalizedRoleEpilogue(r.id, lang);
+        assert.ok(ep?.title && ep?.summary, `${lang}/${r.id} missing role epilogue`);
+        if (lang === 'en') {
+          assert.equal(cjkRe.test(JSON.stringify(ep)), false, `EN ${r.id} epilogue leaked CJK`);
+        }
         for (let i = 0; i < CHAPTERS.length; i += 1) {
           const ch = getLocalizedChapterForRole(i, r.id, lang);
           assert.equal(ch.replies.length, 4);
@@ -313,9 +334,12 @@ test('Trilingual parity (zh/en/ja), zero EN CJK leaks, zero forbidden words, and
           const chText = JSON.stringify({
             title: ch.title,
             sceneDesc: ch.sceneDesc,
+            roleClue: ch.roleClues?.[r.id],
+            peopleModel: ch.peopleModel,
             lineMessage: ch.lineMessage,
             replies: ch.replies,
             takeaway: ch.takeaway,
+            gta6Analysis: ch.gta6Analysis,
             grandmaQuip: ch.grandmaQuip,
           });
           for (const w of FORBIDDEN) {
@@ -328,6 +352,19 @@ test('Trilingual parity (zh/en/ja), zero EN CJK leaks, zero forbidden words, and
             assert.ok(ch.game.cards[3].includes(ch.grandmaPhoneCall.triggerCardText), `${lang}/${r.id} Ch6 card[3] missing triggerCardText`);
           }
         }
+      }
+      const epTitles = new Set(roles.map((r) => getLocalizedRoleEpilogue(r.id, lang)?.title));
+      const epSummaries = new Set(roles.map((r) => getLocalizedRoleEpilogue(r.id, lang)?.summary));
+      assert.equal(epTitles.size, 5, `${lang} expected 5 unique role epilogue titles`);
+      assert.equal(epSummaries.size, 5, `${lang} expected 5 unique role epilogue summaries`);
+      for (let i = 0; i < CHAPTERS.length; i += 1) {
+        const chs = roles.map((r) => getLocalizedChapterForRole(i, r.id, lang));
+        assert.equal(new Set(chs.map((c) => c.sceneDesc)).size, 5, `${lang} Ch${i + 1} expected 5 unique sceneDesc`);
+        assert.equal(new Set(chs.map((c, idx) => c.roleClues?.[roles[idx].id])).size, 5, `${lang} Ch${i + 1} expected 5 unique roleClue`);
+        assert.equal(new Set(chs.map((c) => c.peopleModel?.lisa)).size, 5, `${lang} Ch${i + 1} expected 5 unique peopleModel.lisa`);
+        assert.equal(new Set(chs.map((c) => c.peopleModel?.cindy)).size, 5, `${lang} Ch${i + 1} expected 5 unique peopleModel.cindy`);
+        assert.equal(new Set(chs.map((c) => c.takeaway)).size, 5, `${lang} Ch${i + 1} expected 5 unique takeaway`);
+        assert.equal(new Set(chs.map((c) => c.gta6Analysis?.characterArc)).size, 5, `${lang} Ch${i + 1} expected 5 unique characterArc`);
       }
 
       if (lang !== 'zh') {

@@ -17,7 +17,8 @@ import {
   getLocalizedRouteMeta,
   getFsdLines,
   getCutsceneGrandmaLine,
-  getLocalizedChapterForRole
+  getLocalizedChapterForRole,
+  getLocalizedRoleEpilogue
 } from './i18n.js';
 import {
   CHEAT_CODE,
@@ -2253,8 +2254,8 @@ class GtaDentsuApp {
     const role = getRole(this.state.roleId);
     const src = getCutsceneUrl(this.activeCutsceneSrc || ch.cutscene);
     const isGrandmaVideo = String(src).includes('grandma');
-    const subSender = ch.baseLineSender || ch.lineSender;
-    const subMessage = ch.baseLineMessage || ch.lineMessage;
+    const subSender = ch.lineSender || ch.baseLineSender;
+    const subMessage = ch.lineMessage || ch.baseLineMessage;
     const subtitleText = isGrandmaVideo
       ? `${t('engine.grandmaName')}：「${getCutsceneGrandmaLine()}」`
       : `${subSender.name}：「${subMessage}」`;
@@ -2682,10 +2683,17 @@ class GtaDentsuApp {
     const dots = roleChapters.map((c, i) => {
       const p = points[i] || [50, 50];
       const cls = c.id === activeCh.id ? 'now' : (c.id < activeCh.id ? 'done' : '');
-      return el('span', {
+      const label = t('minimap.stationTitle', c.id, c.timeSlot, c.location);
+      return el('button', {
+        type: 'button',
         class: `radar-dot ${cls}`,
         style: `left:${p[0]}%;top:${p[1]}%;`,
-        title: t('minimap.stationTitle', c.id, c.timeSlot, c.location)
+        title: `${label} — ${c.title}`,
+        'aria-label': `${label} — ${c.title}`,
+        onClick: () => {
+          soundFX.playClick();
+          this._showToast(`📍 ${label} — ${c.title}`, 'info', 2600);
+        }
       });
     });
 
@@ -2721,7 +2729,7 @@ class GtaDentsuApp {
       }),
       el('button', {
         class: `phone-tab${this.phoneTab === 'people' ? ' is-active' : ''}`,
-        text: t('phone.tabPeople'),
+        text: `${t('phone.tabPeople')} (${this.state.askedTwins.length}/2)`,
         onClick: () => { this.phoneTab = 'people'; this.render(); }
       }),
       el('button', {
@@ -3616,6 +3624,7 @@ class GtaDentsuApp {
   _renderReview() {
     const persona = determinePersona(this.state);
     const role = getRole(this.state.roleId);
+    const epilogue = getLocalizedRoleEpilogue(role.id);
     const routeMeta = getLocalizedRouteMeta()[role.id];
     const s = this.state.stats;
     const hudStats = getHudStats();
@@ -3661,6 +3670,12 @@ class GtaDentsuApp {
               el('div', { style: 'font-size:13px;color:var(--muted);', text: t('review.scoreStats', this.state.gamesCorrectCount, this.state.gamesScoredCount, this.state.grandmaRescues) })
             ])
           ]),
+          epilogue
+            ? el('div', { class: 'role-epilogue-box', style: `border-color:${role.color};` }, [
+                el('div', { class: 'role-epilogue-kicker', style: `color:${role.color};`, text: `${t('review.epilogueLabel')} · ${epilogue.title}` }),
+                el('p', { class: 'role-epilogue-summary', text: epilogue.summary })
+              ])
+            : null,
           el('p', { style: 'margin:4px 0;', text: t('review.strength', persona.strength) }),
           el('p', { style: 'margin:4px 0;', text: t('review.blind', persona.blind) }),
           el('p', { style: 'color:var(--cyan);font-size:13.5px;margin:4px 0 0;', text: t('review.read', persona.read) })

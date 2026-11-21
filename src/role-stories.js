@@ -1,5 +1,6 @@
 // 依五大角色分流的《決策智慧》10 大時段專屬劇情、對話危機與實務題庫（純 ES Module）
 import { CHAPTERS } from './story-data.js';
+import { getRoleChapterStory, getRoleEpilogueData } from './locales/role-chapters/index.js';
 
 export const ROLE_ROUTE_META = {
   account: {
@@ -1142,14 +1143,26 @@ export function getChapterForRole(chapterIndex, roleId = 'planner') {
   const roleKey = ROLE_ROUTE_META[roleId] ? roleId : 'planner';
   const itinerary = ROLE_ITINERARIES[roleKey]?.[base.id] || {};
   const variant = ROLE_CHAPTER_VARIANTS[roleKey]?.[base.id] || {};
+  const roleStory = getRoleChapterStory(roleKey, base.id, 'zh');
+  const roleEpilogue = getRoleEpilogueData(roleKey, 'zh');
   const merged = {
     ...base,
     ...itinerary,
     ...variant,
   };
+  const mergedRoleClues = roleStory?.roleClue
+    ? { ...base.roleClues, [roleKey]: roleStory.roleClue }
+    : base.roleClues;
   const customRoadSign = variant.roadSign || itinerary.roadSign;
   return {
     ...merged,
+    sceneDesc: roleStory?.sceneDesc || merged.sceneDesc,
+    roleClues: mergedRoleClues,
+    roleClue: roleStory?.roleClue || mergedRoleClues?.[roleKey] || mergedRoleClues?.planner || '',
+    peopleModel: roleStory?.peopleModel ? { ...base.peopleModel, ...roleStory.peopleModel } : base.peopleModel,
+    takeaway: roleStory?.takeaway || base.takeaway,
+    gta6Analysis: roleStory?.gta6Analysis ? { ...base.gta6Analysis, ...roleStory.gta6Analysis } : base.gta6Analysis,
+    epilogue: roleEpilogue || null,
     mapPos: variant.mapPos || itinerary.mapPos || base.mapPos,
     googleMap: {
       ...base.googleMap,

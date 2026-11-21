@@ -7,6 +7,7 @@ import { ROLES_EN_2 } from './locales/roles-en-2.js';
 import { STORY_JA } from './locales/story-ja.js';
 import { ROLES_JA_1 } from './locales/roles-ja-1.js';
 import { ROLES_JA_2 } from './locales/roles-ja-2.js';
+import { getRoleChapterStory, getRoleEpilogueData } from './locales/role-chapters/index.js';
 
 export const SUPPORTED_LANGS = ['zh', 'en', 'ja'];
 export const LANG_STORAGE_KEY = 'gta_dentsu_lang_v1';
@@ -272,6 +273,11 @@ export function getFsdLines(lang = activeLang) {
   };
 }
 
+export function getLocalizedRoleEpilogue(roleId = 'planner', lang = activeLang) {
+  const norm = normalizeLang(lang);
+  return getRoleEpilogueData(roleId, norm) || getRoleEpilogueData('planner', norm);
+}
+
 export function getCutsceneGrandmaLine(lang = activeLang) {
   const norm = normalizeLang(lang);
   const pack = STORY_PACKS[norm];
@@ -355,6 +361,25 @@ export function getLocalizedChapterForRole(chapterIndex, roleId = 'planner', lan
         : mergeLocalizedGame(baseVariant.game, locVar?.game);
     }
   }
+
+  // Resolve localized role-exclusive story overlay across zh, en & ja
+  const roleStory = getRoleChapterStory(roleId, base.id, norm);
+  if (roleStory) {
+    ch.sceneDesc = roleStory.sceneDesc || ch.sceneDesc;
+    if (roleStory.roleClue) {
+      ch.roleClues = { ...ch.roleClues, [roleId]: roleStory.roleClue };
+    }
+    if (roleStory.peopleModel) {
+      ch.peopleModel = { ...ch.peopleModel, ...roleStory.peopleModel };
+    }
+    if (roleStory.takeaway) {
+      ch.takeaway = roleStory.takeaway;
+    }
+    if (roleStory.gta6Analysis) {
+      ch.gta6Analysis = { ...ch.gta6Analysis, ...roleStory.gta6Analysis };
+    }
+  }
+  ch.epilogue = getLocalizedRoleEpilogue(roleId, norm);
 
   // Resolve localized cutscene URL & canonical clip IDs for TTS audio playback
   const routeMeta = getLocalizedRouteMeta(norm)[roleId] || null;
