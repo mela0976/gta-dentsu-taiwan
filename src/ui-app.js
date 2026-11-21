@@ -93,7 +93,8 @@ function migrateSavedValue(key, legacyKey, isValid) {
   if (current === legacy || legacy === baseline) return current;
   try {
     if (window.confirm(t('launch.legacySaveChoice'))) {
-      localStorage.setItem(`${key}_backup`, current);
+      const latest = localStorage.getItem(key);
+      if (latest !== null) localStorage.setItem(`${key}_backup`, latest);
       localStorage.setItem(key, legacy);
       localStorage.setItem(baselineKey, legacy);
       return legacy;
@@ -102,7 +103,7 @@ function migrateSavedValue(key, legacyKey, isValid) {
   } catch {
     return localStorage.getItem(key);
   }
-  return current;
+  return localStorage.getItem(key);
 }
 
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
@@ -448,10 +449,13 @@ class GtaDentsuApp {
     }
   }
 
-  _loadMeta() {
+  _loadMeta(migrate = true) {
+    const fallback = this.careerMeta || createEmptyMeta();
     try {
-      const raw = migrateSavedValue(META_STORAGE_KEY, LEGACY_META_KEY, value => Boolean(value?.clearedRoles));
-      if (!raw) return createEmptyMeta();
+      const raw = migrate
+        ? migrateSavedValue(META_STORAGE_KEY, LEGACY_META_KEY, value => Boolean(value?.clearedRoles))
+        : localStorage.getItem(META_STORAGE_KEY);
+      if (!raw) return fallback;
       const parsed = JSON.parse(raw);
       return {
         ...createEmptyMeta(),
@@ -460,7 +464,7 @@ class GtaDentsuApp {
         achievements: Array.isArray(parsed?.achievements) ? parsed.achievements : []
       };
     } catch {
-      return createEmptyMeta();
+      return fallback;
     }
   }
 
@@ -1177,7 +1181,7 @@ class GtaDentsuApp {
       this.mobileHudExpanded = false;
     }
     const personaId = enteredReview ? determinePersona(next).id : null;
-    const { meta: nextMeta, newlyUnlocked } = updateCareerMeta(this.careerMeta, next, personaId, enteredReview);
+    const { meta: nextMeta, newlyUnlocked } = updateCareerMeta(this._loadMeta(false), next, personaId, enteredReview);
     this.careerMeta = nextMeta;
     this._saveMeta();
     this.state = next;

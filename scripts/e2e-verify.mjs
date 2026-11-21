@@ -1141,8 +1141,14 @@ async function run() {
     await saveA.click('.chapter-header .btn-primary');
     const saveB = await saveContext.newPage();
     await saveB.goto(baseUrl);
+    await saveB.evaluate(() => {
+      const key = 'gta_dentsu_meta_v2';
+      const career = JSON.parse(localStorage.getItem(key));
+      localStorage.setItem(key, JSON.stringify({ ...career, bestScore: 900 }));
+    });
     await saveA.locator('.reply-btn').first().click();
     await saveA.locator('.paper-card').first().click();
+    assert.equal(await saveA.evaluate(() => JSON.parse(localStorage.getItem('gta_dentsu_meta_v2')).bestScore), 900);
     const key = 'gta_dentsu_taiwan_v2';
     const newerSave = await saveA.evaluate(key => localStorage.getItem(key), key);
     await saveB.evaluate(() => localStorage.setItem('gta_dentsu_taiwan_v1', '{"phase":"title"}'));
