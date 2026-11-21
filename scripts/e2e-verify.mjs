@@ -110,8 +110,12 @@ async function checkDesktopGeometry(page, label, checkReveal = false) {
     const leftControlBtns = document.querySelectorAll('.track-controls .ctl-row > button').length;
 
     let takeawayH = null;
+    let revealBtnBottom = null;
+    let stageBottom = null;
     if (wantReveal) {
       takeawayH = document.querySelector('.takeaway-card')?.getBoundingClientRect()?.height || 0;
+      revealBtnBottom = Math.round(document.querySelector('.reveal-actions .btn-primary')?.getBoundingClientRect()?.bottom || 0);
+      stageBottom = Math.round(document.querySelector('.main-stage')?.getBoundingClientRect()?.bottom || 0);
     }
 
     return {
@@ -124,7 +128,9 @@ async function checkDesktopGeometry(page, label, checkReveal = false) {
       controlsH: controls ? Math.round(controls.height) : 0,
       leftControlBtns,
       controlOverlap,
-      takeawayH
+      takeawayH,
+      revealBtnBottom,
+      stageBottom
     };
   }, checkReveal);
 
@@ -136,7 +142,8 @@ async function checkDesktopGeometry(page, label, checkReveal = false) {
   assert.ok(geo.leftControlBtns <= 4, `${label}: Too many left control buttons (${geo.leftControlBtns} > 4)`);
   assert.ok(geo.controlsH <= 64, `${label}: track-controls too tall (${geo.controlsH}px)`);
   if (checkReveal) {
-    assert.ok(geo.takeawayH >= 100, `${label}: Takeaway card crushed (${geo.takeawayH}px)`);
+    assert.ok(geo.takeawayH >= 64, `${label}: Takeaway card crushed (${geo.takeawayH}px)`);
+    assert.ok(geo.revealBtnBottom <= geo.stageBottom + 2, `${label}: Reveal primary CTA clipped below .main-stage fold (${geo.revealBtnBottom} > ${geo.stageBottom})`);
   }
 }
 
@@ -281,10 +288,12 @@ async function run() {
       assert.equal(await page.locator('.role-pick-cta').count(), 5, `${name}: Expected 5 clickable footer CTAs on role cards`);
       const roleOverflow = await page.evaluate(() => ({
         sw: document.documentElement.scrollWidth > window.innerWidth,
-        sh: document.documentElement.scrollHeight > window.innerHeight + 1
+        sh: document.documentElement.scrollHeight > window.innerHeight + 1,
+        minAvatarH: Math.min(...[...document.querySelectorAll('.role-avatar-wrap')].map((n) => Math.round(n.getBoundingClientRect().height)))
       }));
       assert.equal(roleOverflow.sw, false, `${name}: Role select horizontal overflow`);
       assert.equal(roleOverflow.sh, false, `${name}: Role select vertical overflow`);
+      assert.ok(roleOverflow.minAvatarH >= 100, `${name}: Role avatar portrait crushed (${roleOverflow.minAvatarH}px < 100px)`);
 
       await page.click('.role-card');
       await page.waitForSelector('.cutscene-video');
@@ -517,21 +526,30 @@ async function run() {
     const titleMetrics = await mob375.evaluate(() => {
       const inp = document.querySelector('.cheat-input');
       const btn = document.querySelector('.hero-actions .btn-primary');
+      const bar = document.querySelector('.bottom-guide-bar');
       return {
         sw: document.documentElement.scrollWidth,
         inputFs: inp ? parseFloat(getComputedStyle(inp).fontSize) : 0,
-        startBtnH: btn ? Math.round(btn.getBoundingClientRect().height) : 0
+        startBtnH: btn ? Math.round(btn.getBoundingClientRect().height) : 0,
+        startBtnBottom: btn ? Math.round(btn.getBoundingClientRect().bottom) : 999,
+        guideTop: bar ? Math.round(bar.getBoundingClientRect().top) : 667
       };
     });
     assert.ok(titleMetrics.sw <= 375, `Mobile 375 title horizontal overflow: ${titleMetrics.sw}`);
     assert.ok(titleMetrics.inputFs >= 16, `Mobile .cheat-input fontSize too small for iOS Safari: ${titleMetrics.inputFs}px`);
     assert.ok(titleMetrics.startBtnH >= 44, `Mobile Start CTA touch target too small: ${titleMetrics.startBtnH}px`);
+    assert.ok(titleMetrics.startBtnBottom <= titleMetrics.guideTop, `Mobile 375 Start CTA clipped below bottom guide bar (${titleMetrics.startBtnBottom} > ${titleMetrics.guideTop})`);
     if (ssDir) await mob375.screenshot({ path: path.join(ssDir, 'e2e-mobile-375-title.png') });
 
     await mob375.click('.hero-actions .btn-primary');
     await mob375.waitForSelector('.role-card');
-    const rolesSw = await mob375.evaluate(() => document.documentElement.scrollWidth);
-    assert.ok(rolesSw <= 375, `Mobile 375 roles horizontal overflow: ${rolesSw}`);
+    const rolesGeo = await mob375.evaluate(() => ({
+      sw: document.documentElement.scrollWidth,
+      firstPickBottom: Math.round(document.querySelector('.role-card .role-pick-cta')?.getBoundingClientRect()?.bottom || 999),
+      guideTop: Math.round(document.querySelector('.bottom-guide-bar')?.getBoundingClientRect()?.top || 667)
+    }));
+    assert.ok(rolesGeo.sw <= 375, `Mobile 375 roles horizontal overflow: ${rolesGeo.sw}`);
+    assert.ok(rolesGeo.firstPickBottom <= rolesGeo.guideTop, `Mobile 375 first role card CTA clipped below bottom guide bar (${rolesGeo.firstPickBottom} > ${rolesGeo.guideTop})`);
     if (ssDir) await mob375.screenshot({ path: path.join(ssDir, 'e2e-mobile-375-roles.png') });
 
     await mob375.click('.role-card');

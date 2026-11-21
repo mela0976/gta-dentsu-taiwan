@@ -314,7 +314,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .role-lanyard { height: 10px; margin: 0 auto; width: 38px; border-radius: 0 0 8px 8px; background: #0a0714; border: 1px solid rgba(255, 255, 255, 0.2); border-top: 0; flex-shrink: 0; }
 .role-id-head { display: flex; justify-content: space-between; align-items: center; padding: 3px 9px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; color: var(--gold); background: rgba(255, 209, 102, 0.1); flex-shrink: 0; }
 .role-avatar-wrap { position: relative; aspect-ratio: 1 / 1; max-height: 28dvh; width: 100%; background: #170d2c; overflow: hidden; flex-shrink: 1; min-height: 0; }
-.role-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; display: block; }
+.role-avatar-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .role-rec-badge { position: absolute; top: 6px; right: 6px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 900; background: linear-gradient(135deg, #ffd166, #ff9e2c); color: #1a0f00; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55); z-index: 2; }
 .role-badge-float { position: absolute; left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 2px 7px; border-radius: 6px; font-size: 12px; font-weight: 800; background: rgba(11, 6, 22, 0.9); border: 1px solid currentColor; }
 .role-info { padding: 8px 10px 8px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
@@ -1279,11 +1279,12 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .line-banner .replay-btn { flex-shrink: 0; white-space: nowrap; min-height: 26px; padding: 2px 7px; font-size: 11.5px; }
   .boss-meta { font-size: 11.5px; }
   .replay-btn { min-height: 30px; padding: 2px 8px; font-size: 12px; }
-  .takeaway-card { min-block-size: 100px; padding: 4px 8px; }
+  .takeaway-card { padding: 4px 8px; }
   .takeaway-text { font-size: 13.5px; line-height: 1.22; padding-right: 116px; }
   .stamp-slot { width: 116px; top: 2px; right: 6px; }
   .gta6-analysis-card { padding: 5px 9px; font-size: 12px; line-height: 1.28; gap: 1px !important; }
   .rescue-toast { padding: 4px 8px; font-size: 11.5px; line-height: 1.2; }
+  .rescue-toast .replay-btn { min-height: 24px; padding: 1px 7px; font-size: 11px; }
   .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 32px; padding: 3px 10px; font-size: 13px; }
   .prompt-line { font-size: 11.5px; line-height: 1.22; }
   .replies-grid { gap: 3px; }
@@ -1318,19 +1319,29 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .chapter-header h2 { font-size: 13.5px; line-height: 1.15; }
   .quiz-guide-box { padding: 3px 7px; font-size: 11px; line-height: 1.16; }
   .chapter-desc { font-size: 12px; line-height: 1.18; }
-  .boss-callout { font-size: 11.8px; padding: 2px 7px; line-height: 1.16; }
+  .boss-callout { font-size: 11.8px; padding: 3px 7px; line-height: 1.18; }
+  .boss-callout > div:first-child { font-size: 12px !important; margin-bottom: 1px !important; }
   .prompt-line { font-size: 10.8px; line-height: 1.15; }
   .replies-grid { gap: 2px; }
   .reply-btn { min-height: 30px; font-size: 12px; padding: 2px 6px; gap: 5px; line-height: 1.14; }
   .reply-key { width: 20px; height: 20px; font-size: 11px; }
   .takeaway-card { padding: 3px 7px; }
+  .takeaway-card > div:nth-child(2) { font-size: 11px !important; margin-bottom: 1px !important; }
   .takeaway-text { font-size: 12.8px; line-height: 1.18; }
+  .takeaway-card > div:nth-child(4) { font-size: 11.5px !important; margin-top: 2px !important; }
+  .takeaway-card .replay-btn { margin-top: 2px !important; min-height: 22px; padding: 1px 7px; font-size: 10.5px; }
   .gta6-stage-card { padding: 3px 7px; }
   .gta6-stage-card > div {
     font-size: 10.5px !important;
     line-height: 1.16 !important;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: clip;
   }
   .rescue-toast { padding: 3px 7px; font-size: 11px; line-height: 1.16; }
+  .rescue-toast .replay-btn { min-height: 22px; padding: 1px 7px; font-size: 10.5px; }
   .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 28px; padding: 2px 9px; font-size: 12px; }
 }
 
@@ -1358,11 +1369,24 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .mode-chip, .hotspot-chip { min-height: 38px; font-size: 15px; padding: 2px 8px; }
   .play-grid { gap: 16px; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); }
   .review-history-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .chapter-desc { font-size: 19px; }
-  .boss-callout { font-size: 21px; padding: 12px 16px; }
-  .reply-btn { min-height: 58px; font-size: 19px; }
+  .chapter-header { padding-bottom: 4px; }
+  .chapter-header h2 { font-size: 22px; line-height: 1.2; }
+  .step-pill { padding: 3px 6px; font-size: 12px; }
+  .main-stage { gap: 5px; padding: 8px 12px; }
+  .chapter-desc { font-size: 17.5px; }
+  .boss-callout { font-size: 16.5px; padding: 7px 12px; line-height: 1.3; }
+  .delta-row { margin-top: 4px; }
+  .takeaway-card { padding: 6px 10px; }
+  .stamp-slot { width: 142px; top: 2px; }
+  .takeaway-text { font-size: 19px; line-height: 1.24; padding-right: 158px; }
+  .takeaway-card .replay-btn { min-height: 30px; padding: 2px 9px; font-size: 12.5px; margin-top: 4px !important; }
+  .gta6-stage-card { padding: 6px 10px; gap: 2px !important; }
+  .gta6-stage-card > div { font-size: 12.5px !important; line-height: 1.25 !important; }
+  .rescue-toast { padding: 6px 10px; font-size: 14px; line-height: 1.28; }
+  .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 40px; padding: 6px 16px; font-size: 16px; }
+  .reply-btn { min-height: 56px; font-size: 19px; }
   .clue-text { font-size: 17px; }
-  .phone-tab { min-height: 38px; font-size: 14.5px; }
+  .phone-tab { min-height: 36px; font-size: 14.5px; }
   .guide-text { font-size: 15.5px; }
   .guide-btn { font-size: 15px; min-height: 42px; }
   .role-info h3 { font-size: 21px; }
@@ -1371,7 +1395,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .role-special { font-size: 15px; }
   .twin-text, .twin-text b { font-size: 16px; }
   .msg-bubble { font-size: 16px; }
-  .col-right .chat-scroll { max-height: 110px; }
+  .col-right .chat-scroll { max-height: 54px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
