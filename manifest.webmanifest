@@ -1,0 +1,16 @@
+{
+  "name": "Grand Theft Agency｜電通台灣一日風雲・決策智慧 2018–2026",
+  "short_name": "GTA 電通台灣",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0616",
+  "theme_color": "#0b0616",
+  "icons": [
+    {
+      "src": "./public/images/scene-morning-scooter.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ]
+}

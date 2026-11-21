@@ -42,6 +42,9 @@ const injectedIndexHtml = rawIndexHtml.replace(
   `<script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>\n  <script type="module" src="./src/ui-app.js"></script>`
 );
 fs.writeFileSync(path.join(DIST, 'index.html'), injectedIndexHtml, 'utf8');
+if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) {
+  fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(DIST, 'manifest.webmanifest'));
+}
 copyDir(path.join(ROOT, 'src'), path.join(DIST, 'src'));
 copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 
@@ -72,6 +75,7 @@ const bundledModules = [
   'src/scooter-minigame.js',
   'src/ui-graphics.js',
   'src/launch-kit.js',
+  'src/responsive-layout.js',
   'src/ui-app.js'
 ].map((rel) => stripModuleSyntax(fs.readFileSync(path.join(ROOT, rel), 'utf8'))).join('\n\n');
 

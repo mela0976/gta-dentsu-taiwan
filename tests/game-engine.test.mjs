@@ -483,3 +483,123 @@ test('Launch kit sanitizes corrupt saves, tracks achievements & stat deltas, and
   }
   setLang('zh');
 });
+
+test('Responsive & foldable layout engine classifies cover, phone, landscape, unfolded, dual-screen, short desktop, and ultrawide accurately', async () => {
+  const { detectViewportLayout, applyViewportLayoutToRoot } = await import('../src/responsive-layout.js');
+
+  const cover280 = detectViewportLayout({ width: 280, height: 653, coarsePointer: true });
+  assert.equal(cover280.mode, 'compact');
+  assert.equal(cover280.isUltraNarrow, true);
+  assert.equal(cover280.useMobileTabs, true);
+  assert.equal(cover280.useCompactHud, true);
+
+  const flipCover320 = detectViewportLayout({ width: 320, height: 320, coarsePointer: true });
+  assert.equal(flipCover320.mode, 'compact');
+  assert.equal(flipCover320.isCoverSquare, true);
+  assert.equal(flipCover320.isUltraNarrow, true);
+  assert.equal(flipCover320.useMobileTabs, true);
+
+  const fold6Outer = detectViewportLayout({ width: 344, height: 882, coarsePointer: true });
+  assert.equal(fold6Outer.mode, 'compact');
+  assert.equal(fold6Outer.isUltraNarrow, true);
+  assert.equal(fold6Outer.useMobileTabs, true);
+
+  const phone390 = detectViewportLayout({ width: 390, height: 844, coarsePointer: true });
+  assert.equal(phone390.mode, 'compact');
+  assert.equal(phone390.isUltraNarrow, false);
+  assert.equal(phone390.useMobileTabs, true);
+
+  const landscapeSe1 = detectViewportLayout({ width: 568, height: 320, coarsePointer: true });
+  assert.equal(landscapeSe1.mode, 'compact-landscape');
+  assert.equal(landscapeSe1.useMobileTabs, true);
+  assert.equal(landscapeSe1.useCompactHud, true);
+
+  const landscapePhone = detectViewportLayout({ width: 844, height: 390, coarsePointer: true });
+  assert.equal(landscapePhone.mode, 'compact-landscape');
+  assert.equal(landscapePhone.useMobileTabs, false);
+  assert.equal(landscapePhone.useCompactHud, true);
+
+  const fold5Inner = detectViewportLayout({ width: 690, height: 829, coarsePointer: true });
+  assert.equal(fold5Inner.mode, 'medium');
+  assert.equal(fold5Inner.useMobileTabs, false);
+  assert.equal(fold5Inner.useCompactHud, false);
+
+  const pixelFoldInner = detectViewportLayout({ width: 840, height: 840, coarsePointer: true });
+  assert.equal(pixelFoldInner.mode, 'medium');
+
+  const tablet768 = detectViewportLayout({ width: 768, height: 1024, coarsePointer: true });
+  assert.equal(tablet768.mode, 'medium');
+  assert.equal(tablet768.isDesktopLocked, false);
+
+  const foldBook = detectViewportLayout({
+    width: 1114,
+    height: 720,
+    segments: [
+      { left: 0, top: 0, width: 540, height: 720 },
+      { left: 574, top: 0, width: 540, height: 720 }
+    ]
+  });
+  assert.equal(foldBook.mode, 'fold-book');
+  assert.equal(foldBook.hinge.orientation, 'vertical');
+  assert.equal(foldBook.hinge.gap, 34);
+  assert.equal(foldBook.useMobileTabs, false);
+
+  const foldFlexSeg = detectViewportLayout({
+    width: 412,
+    height: 915,
+    segments: [
+      { left: 0, top: 0, width: 412, height: 440 },
+      { left: 0, top: 465, width: 412, height: 450 }
+    ],
+    posture: 'folded',
+    coarsePointer: true
+  });
+  assert.equal(foldFlexSeg.mode, 'fold-flex');
+  assert.equal(foldFlexSeg.hinge.orientation, 'horizontal');
+  assert.equal(foldFlexSeg.hinge.gap, 25);
+  assert.equal(foldFlexSeg.useCompactHud, true);
+  assert.equal(foldFlexSeg.useMobileTabs, false);
+
+  const foldFlexPosture = detectViewportLayout({ width: 412, height: 840, posture: 'folded', coarsePointer: true });
+  assert.equal(foldFlexPosture.mode, 'fold-flex');
+  assert.equal(foldFlexPosture.hinge.orientation, 'horizontal');
+  assert.ok(foldFlexPosture.hinge.gap >= 16);
+
+  const shortDesktop = detectViewportLayout({ width: 1024, height: 540 });
+  assert.equal(shortDesktop.mode, 'desktop');
+  assert.equal(shortDesktop.isShortViewport, true);
+  assert.equal(shortDesktop.isDesktopLocked, false);
+
+  const stdDesktop = detectViewportLayout({ width: 1024, height: 720 });
+  assert.equal(stdDesktop.mode, 'desktop');
+  assert.equal(stdDesktop.isShortViewport, false);
+  assert.equal(stdDesktop.isDesktopLocked, true);
+
+  const ultrawide = detectViewportLayout({ width: 2560, height: 1080 });
+  assert.equal(ultrawide.mode, 'wide');
+  assert.equal(ultrawide.isDesktopLocked, true);
+
+  // Verify applyViewportLayoutToRoot writes attributes & CSS fold variables cleanly
+  const fakeAttrs = {};
+  const fakeProps = {};
+  const fakeDoc = {
+    documentElement: {
+      setAttribute: (k, v) => { fakeAttrs[k] = v; },
+      style: {
+        setProperty: (k, v) => { fakeProps[k] = v; },
+        removeProperty: (k) => { delete fakeProps[k]; }
+      }
+    }
+  };
+  applyViewportLayoutToRoot(fakeDoc, foldBook);
+  assert.equal(fakeAttrs['data-layout-mode'], 'fold-book');
+  assert.equal(fakeAttrs['data-fold-hinge'], 'vertical');
+  assert.equal(fakeProps['--fold-seg0-w'], '540px');
+  assert.equal(fakeProps['--fold-seg1-w'], '540px');
+  assert.equal(fakeProps['--fold-hinge-gap'], '34px');
+
+  applyViewportLayoutToRoot(fakeDoc, stdDesktop);
+  assert.equal(fakeAttrs['data-layout-mode'], 'desktop');
+  assert.equal(fakeProps['--fold-seg0-w'], undefined);
+  assert.equal(fakeProps['--fold-hinge-gap'], undefined);
+});

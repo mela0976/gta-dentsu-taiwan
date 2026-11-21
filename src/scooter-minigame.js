@@ -54,6 +54,11 @@ export class GrandmaScooterGame {
   constructor(canvas, config = {}, callbacks = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this.logicalWidth = 640;
+    this.logicalHeight = 400;
+    this._dpr = 1;
+    this._resizeObserver = null;
+    this._syncCanvasResolution();
     this.cfg = {
       durationSec: config.durationSec || config.durationSeconds || DEFAULT_CONFIG.durationSec,
       goodItems: normalizeItems(config.goodItems, true, DEFAULT_CONFIG.goodItems),
@@ -149,6 +154,18 @@ export class GrandmaScooterGame {
     };
   }
 
+  _syncCanvasResolution() {
+    if (!this.canvas) return;
+    const dpr = typeof window !== 'undefined'
+      ? Math.min(2, Math.max(1, Number(window.devicePixelRatio || 1)))
+      : 1;
+    this._dpr = dpr;
+    const targetW = Math.round(this.logicalWidth * dpr);
+    const targetH = Math.round(this.logicalHeight * dpr);
+    if (this.canvas.width !== targetW) this.canvas.width = targetW;
+    if (this.canvas.height !== targetH) this.canvas.height = targetH;
+  }
+
   moveLane(delta) {
     const next = Math.max(0, Math.min(2, this.lane + delta));
     if (next !== this.lane) {
@@ -160,6 +177,14 @@ export class GrandmaScooterGame {
   start() {
     this.running = true;
     this.paused = false;
+    this._syncCanvasResolution();
+    if (!this._resizeObserver && typeof ResizeObserver !== 'undefined' && this.canvas) {
+      this._resizeObserver = new ResizeObserver(() => {
+        this._syncCanvasResolution();
+        if (this.paused) this.render();
+      });
+      this._resizeObserver.observe(this.canvas);
+    }
     this.lastTs = performance.now();
     window.addEventListener('keydown', this._onKeyDown);
     if (this.canvas) {
@@ -221,6 +246,10 @@ export class GrandmaScooterGame {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
     if (!aborted) {
       const judgmentBonus = Math.min(18, Math.max(4, Math.round(this.score / 120)));
       const trustBonus = Math.min(18, Math.max(4, Math.round(this.collected * 2)));
@@ -276,8 +305,8 @@ export class GrandmaScooterGame {
       this.spawnCooldown = 0.52 - (1 - this.timeLeft / this.cfg.durationSec) * 0.18;
     }
 
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const w = this.logicalWidth;
+    const h = this.logicalHeight;
     const playerLane = this.lane;
 
     for (let i = this.entities.length - 1; i >= 0; i -= 1) {
@@ -477,8 +506,9 @@ export class GrandmaScooterGame {
 
   render() {
     const ctx = this.ctx;
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const w = this.logicalWidth;
+    const h = this.logicalHeight;
+    ctx.setTransform(this._dpr, 0, 0, this._dpr, 0, 0);
     const horizon = Math.round(h * 0.34);
 
     // 1. 嚴格裁切天空與台北信義天際線（絕不向路面穿模）
@@ -782,7 +812,7 @@ export class GrandmaScooterGame {
       ctx.fillStyle = '#ffd166';
       ctx.font = 'bold 11.5px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(this.bannerText, w / 2, 22);
+      ctx.fillText(this.bannerText, w / 2, 22, w - 40);
     }
   }
 }

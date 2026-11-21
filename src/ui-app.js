@@ -58,6 +58,10 @@ import {
   buildShareSummaryText,
   renderResultCardCanvas
 } from './launch-kit.js';
+import {
+  readHardwareFoldState,
+  observeViewportLayout
+} from './responsive-layout.js';
 
 const STORAGE_KEY = 'gta_dentsu_taiwan_v1';
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
@@ -164,6 +168,10 @@ class GtaDentsuApp {
     document.body.prepend(this.backdrop);
     this._mountTourOverlays();
     this._bindGlobalLaunchListeners();
+    this.layout = readHardwareFoldState(window, navigator);
+    this._layoutObserver = observeViewportLayout(window, document, navigator, (nextLayout, prevLayout) => {
+      this._handleLayoutChange(nextLayout, prevLayout);
+    });
 
     soundFX.onVoiceChange = () => this._syncVoiceIndicator();
     const startAudio = () => {
@@ -179,6 +187,27 @@ class GtaDentsuApp {
       this._ensureMapsJsLoaded();
     }
     this.render();
+  }
+
+  _handleLayoutChange(nextLayout, prevLayout) {
+    this.layout = nextLayout;
+    if (!nextLayout.useCompactHud) {
+      this.mobileHudExpanded = false;
+    }
+    this._relayoutToasts();
+    const activeTag = document.activeElement?.tagName?.toUpperCase() || '';
+    const isTyping = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+    const structureChanged = !prevLayout
+      || nextLayout.useMobileTabs !== prevLayout.useMobileTabs
+      || nextLayout.useCompactHud !== prevLayout.useCompactHud
+      || nextLayout.mode !== prevLayout.mode;
+    if (!isTyping && structureChanged && !this.scooterModalOpen) {
+      this.render();
+      return;
+    }
+    if (this.tourActive) {
+      this._syncHudTourOverlay();
+    }
   }
 
   _roadParts(ch) {
@@ -965,21 +994,22 @@ class GtaDentsuApp {
       return;
     }
 
-    if (window.innerWidth < 1024) {
+    if (this.layout?.useCompactHud) {
       if (step.selector === '.hud-bar') {
         this.mobileHudExpanded = true;
         document.querySelector('.hud-bar')?.classList.add('is-mobile-expanded');
-      } else {
-        const panelForSelector = {
-          '.scene-card': 'scene',
-          '#clue-card-panel': 'intel',
-          '.main-stage': 'mission',
-          '#phone-card-panel': 'phone'
-        }[step.selector];
-        if (panelForSelector) {
-          this.mobilePanel = panelForSelector;
-          document.querySelector('.play-grid')?.setAttribute('data-mobile-panel', panelForSelector);
-        }
+      }
+    }
+    if (this.layout?.useMobileTabs) {
+      const panelForSelector = {
+        '.scene-card': 'scene',
+        '#clue-card-panel': 'intel',
+        '.main-stage': 'mission',
+        '#phone-card-panel': 'phone'
+      }[step.selector];
+      if (panelForSelector) {
+        this.mobilePanel = panelForSelector;
+        document.querySelector('.play-grid')?.setAttribute('data-mobile-panel', panelForSelector);
       }
     }
 
@@ -994,7 +1024,7 @@ class GtaDentsuApp {
     }
     target.classList.add('tour-spotlight-target');
     this._tourHighlightEl = target;
-    if (window.innerWidth < 1024 && typeof target.scrollIntoView === 'function') {
+    if (!this.layout?.isDesktopLocked && typeof target.scrollIntoView === 'function') {
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -1089,7 +1119,7 @@ class GtaDentsuApp {
     this.state = next;
     this._saveState();
     this.render();
-    if (changedView && window.innerWidth < 1024) {
+    if (changedView && !this.layout?.isDesktopLocked) {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
     if (newlyUnlocked.length) {
@@ -1269,7 +1299,7 @@ class GtaDentsuApp {
 
   _focusHelper(target, phoneTab = null, twinId = null) {
     this.highlightTarget = target;
-    if (window.innerWidth < 1024) {
+    if (this.layout?.useMobileTabs) {
       this.mobilePanel = target === 'clue' ? 'intel' : 'phone';
     }
     if (phoneTab) this.phoneTab = phoneTab;
@@ -2812,6 +2842,7 @@ class GtaDentsuApp {
         class: 'swipe-card',
         style: 'cursor:pointer;',
         onPointerdown: (e) => {
+          try { e.currentTarget.setPointerCapture?.(e.pointerId); } catch {}
           swipeStartX = e.clientX;
           swipeMoved = false;
           cardEl.style.transition = 'none';
@@ -3038,15 +3069,15 @@ class GtaDentsuApp {
     });
 
     const modal = el('div', { class: 'modal-backdrop' }, [
-      el('div', { class: 'modal-box' }, [
-        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
+      el('div', { class: 'modal-box scooter-modal-box' }, [
+        el('div', { class: 'scooter-modal-head' }, [
           el('div', {}, [
             el('div', { class: 'gta-kicker', text: t('scooterModal.kicker') }),
             el('h2', { style: 'margin:4px 0 0 0;', text: scooterCfg.title })
           ]),
           hudText
         ]),
-        canvas,
+        el('div', { class: 'scooter-canvas-wrap' }, [canvas]),
         el('div', { class: 'scooter-controls' }, [
           steerBtn(t('scooterModal.leftBtn'), -1),
           steerBtn(t('scooterModal.rightBtn'), 1),
@@ -3057,7 +3088,7 @@ class GtaDentsuApp {
             onClick: () => this._closeScooterModal(false)
           })
         ]),
-        el('div', { style: 'font-size:13px;color:var(--muted);', text: t('scooterModal.legend') })
+        el('div', { class: 'scooter-legend', text: t('scooterModal.legend') })
       ])
     ]);
 
@@ -3102,13 +3133,12 @@ class GtaDentsuApp {
 
     let viewportNode;
     if (this.svModalMode === 'jsapi' && hasKey) {
-      const host = el('div', { class: 'scene-gmap-iframe', style: 'min-height:360px;height:52dvh;background:#0d1424;' });
+      const host = el('div', { class: 'scene-gmap-iframe sv-modal-viewport', style: 'background:#0d1424;' });
       requestAnimationFrame(() => this._mountJsStreetView(host, ch));
       viewportNode = host;
     } else {
       viewportNode = el('iframe', {
-        class: 'scene-gmap-iframe',
-        style: 'min-height:360px;height:52dvh;',
+        class: 'scene-gmap-iframe sv-modal-viewport',
         src: this._build360EmbedUrl({ ...gm, panoId: live?.panoId || gm.panoId }),
         title: t('streetViewModal.iframeTitle', ch.location),
         allowfullscreen: 'true',
@@ -3163,7 +3193,7 @@ class GtaDentsuApp {
           ])
         ]),
         el('div', { style: 'font-size:12px;color:var(--cyan);font-weight:700;', text: statusBadge }),
-        el('div', { class: 'cutscene-stage-wrap', style: 'max-height:54dvh;border-width:6px;' }, [viewportNode]),
+        el('div', { class: 'cutscene-stage-wrap sv-modal-stage' }, [viewportNode]),
         el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
           el('span', { style: 'font-size:12.5px;color:var(--muted);', text: t('streetViewModal.tip') }),
           gm.streetViewUrl
@@ -3212,7 +3242,7 @@ class GtaDentsuApp {
       el('div', { class: 'chapter-header review-head' }, [
         el('div', {}, [
           el('div', { class: 'gta-kicker', text: t('review.kicker', routeMeta?.routeName || role.name) }),
-          el('h1', { class: 'gta-title', style: 'font-size:clamp(26px,2.8vw,40px);margin-top:6px;', text: persona.name }),
+          el('h1', { class: 'gta-title review-title', text: persona.name }),
           el('p', { style: 'margin:4px 0 0 0;font-size:16px;color:var(--gold);', text: persona.title })
         ]),
         el('div', { class: 'review-right-head' }, [
@@ -3485,7 +3515,8 @@ class GtaDentsuApp {
 
     const modalOpen = Boolean(this.scooterModalOpen || this.streetViewModalOpen || this.ch6CallModalOpen);
     const isPlayPhase = !modalOpen && ['scene', 'game', 'reveal'].includes(this.state.phase);
-    const mobileTabBar = isPlayPhase
+    const showMobileTabs = isPlayPhase && Boolean(this.layout?.useMobileTabs);
+    const mobileTabBar = showMobileTabs
       ? el('nav', { class: 'mobile-tab-bar', role: 'tablist', 'aria-label': t('mobile.tabAria') }, [
           ['mission', t('mobile.tabMission')],
           ['scene', t('mobile.tabScene')],
@@ -3503,7 +3534,7 @@ class GtaDentsuApp {
             this.mobilePanel = id;
             this.mobileHudExpanded = false;
             this.render();
-            if (window.innerWidth < 1024) {
+            if (!this.layout?.isDesktopLocked) {
               window.scrollTo({ top: 0, behavior: 'instant' });
             }
           }
@@ -3511,7 +3542,7 @@ class GtaDentsuApp {
       : null;
 
     return el('div', {
-      class: `bottom-guide-bar${modalOpen ? ' is-modal-hidden' : ''}${isPlayPhase ? ' has-mobile-tabs' : ''}`,
+      class: `bottom-guide-bar${modalOpen ? ' is-modal-hidden' : ''}${showMobileTabs ? ' has-mobile-tabs' : ''}`,
       role: 'region',
       'aria-label': t('guideBar.aria')
     }, [

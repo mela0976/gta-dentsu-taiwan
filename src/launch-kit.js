@@ -281,7 +281,10 @@ export function renderResultCardCanvas({ role, persona, state, meta, hudStats, t
     drawRoundedRectPath(ctx, 840, 178, 272, 272, 15);
     ctx.clip();
     try {
-      ctx.drawImage(portraitImg, 840, 178, 272, 272);
+      const sSize = Math.min(portraitImg.naturalWidth, portraitImg.naturalHeight);
+      const sx = (portraitImg.naturalWidth - sSize) / 2;
+      const sy = Math.max(0, (portraitImg.naturalHeight - sSize) * 0.18);
+      ctx.drawImage(portraitImg, sx, sy, sSize, sSize, 840, 178, 272, 272);
     } catch {
       // ignore tainted image fallback
     }

@@ -17,6 +17,7 @@ const MIME = {
   '.mp4': 'video/mp4',
   '.mp3': 'audio/mpeg',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.svg': 'image/svg+xml'
 };
 
@@ -821,8 +822,267 @@ async function run() {
     assert.ok((await soloI18n.getAttribute('html', 'lang')).startsWith('ja'), 'Standalone click JA did not set html[lang]');
     await soloI18n.close();
 
+    // 8. Full-Spectrum Responsive & Foldable Suite + Manifest + Live Fold/Unfold/Rotate
+    const mfRes = await fetch(`${baseUrl}/manifest.webmanifest`);
+    assert.equal(mfRes.status, 200, `Expected HTTP 200 for manifest.webmanifest, got ${mfRes.status}`);
+    const mfJson = await mfRes.json();
+    assert.equal(mfJson.orientation, 'any', 'Manifest orientation must be "any" for foldables');
+
+    // 8A. Ultra-narrow Foldable Cover & Mini Flip Cover Screens (280x653, 320x320, 344x882)
+    for (const [tag, vp] of [
+      ['cover-280', { width: 280, height: 653 }],
+      ['flip-320', { width: 320, height: 320 }],
+      ['fold6-344', { width: 344, height: 882 }]
+    ]) {
+      const cp = await browser.newPage({ viewport: vp, hasTouch: true, isMobile: true });
+      attachErrorWatchers(cp, tag);
+      await cp.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+      assert.equal(await cp.getAttribute('html', 'data-layout-mode'), 'compact', `${tag}: expected compact mode`);
+      assert.ok(await cp.evaluate((vw) => document.documentElement.scrollWidth <= vw, vp.width), `${tag}: title overflow`);
+      await cp.click('.hero-actions .btn-primary');
+      await cp.waitForSelector('.role-card');
+      assert.ok(await cp.evaluate((vw) => document.documentElement.scrollWidth <= vw, vp.width), `${tag}: roles overflow`);
+      await cp.click('.role-card');
+      await cp.waitForSelector('.cutscene-video');
+      await cp.click('.chapter-header .btn-primary');
+      await cp.waitForSelector('.replies-grid');
+      assert.ok(await cp.evaluate((vw) => document.documentElement.scrollWidth <= vw, vp.width), `${tag}: scene overflow`);
+      if (tag === 'cover-280' && ssDir) await cp.screenshot({ path: path.join(ssDir, 'e2e-fold-cover-280.png') });
+      await cp.locator('.reply-btn').first().click();
+      await cp.waitForSelector('.paper-card');
+      assert.ok(await cp.evaluate((vw) => document.documentElement.scrollWidth <= vw, vp.width), `${tag}: mini-game overflow`);
+      await cp.click('.hud-mobile-toggle');
+      await cp.click('.hud-btn.is-gold');
+      await cp.waitForSelector('.scooter-canvas');
+      assert.ok(await cp.evaluate((vw) => document.documentElement.scrollWidth <= vw, vp.width), `${tag}: scooter overflow`);
+      await cp.click('.scooter-controls .btn-ghost');
+      await cp.click('.mobile-tab-btn[data-mobile-tab="scene"]');
+      await cp.click('#more-views-trigger');
+      await cp.click('#scene-more-views button:has-text("放大")');
+      await cp.waitForSelector('.sv-modal-viewport');
+      assert.ok(await cp.evaluate((vw) => document.documentElement.scrollWidth <= vw, vp.width), `${tag}: streetview modal overflow`);
+      await cp.keyboard.press('Escape');
+      await cp.close();
+    }
+
+    // 8B. Phone Landscape (667x375, 844x390): both Scene & Mission visible + Scooter landscape arcade mode
+    for (const [lTag, lVp] of [['land-667', { width: 667, height: 375 }], ['land-844', { width: 844, height: 390 }]]) {
+      const lp = await browser.newPage({ viewport: lVp, hasTouch: true, isMobile: true });
+      attachErrorWatchers(lp, lTag);
+      await lp.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+      assert.equal(await lp.getAttribute('html', 'data-layout-mode'), 'compact-landscape', `${lTag}: expected compact-landscape`);
+      await lp.click('.hero-actions .btn-primary');
+      await lp.waitForSelector('.role-card');
+      await lp.click('.role-card');
+      await lp.waitForSelector('.cutscene-video');
+      await lp.click('.chapter-header .btn-primary');
+      await lp.waitForSelector('.replies-grid');
+      const landGeo = await lp.evaluate((vw) => {
+        const sceneVis = document.querySelector('.scene-card')?.offsetParent !== null;
+        const stageVis = document.querySelector('.main-stage')?.offsetParent !== null;
+        return { sw: document.documentElement.scrollWidth, vw, sceneVis, stageVis };
+      }, lVp.width);
+      assert.ok(landGeo.sw <= landGeo.vw, `${lTag}: overflow (${landGeo.sw} > ${landGeo.vw})`);
+      assert.equal(landGeo.sceneVis && landGeo.stageVis, true, `${lTag}: expected both scene & stage visible`);
+
+      await lp.click('.hud-mobile-toggle');
+      await lp.click('.hud-btn.is-gold');
+      await lp.waitForSelector('.scooter-canvas');
+      const scooterLand = await lp.evaluate((vw) => {
+        const c = document.querySelector('.scooter-canvas')?.getBoundingClientRect();
+        const ctrl = document.querySelector('.scooter-controls')?.getBoundingClientRect();
+        return {
+          sw: document.documentElement.scrollWidth,
+          vw,
+          sideBySide: Boolean(c && ctrl && ctrl.left > c.left + 120),
+          ctrlBottom: ctrl ? Math.round(ctrl.bottom) : 999,
+          vh: window.innerHeight
+        };
+      }, lVp.width);
+      assert.ok(scooterLand.sw <= scooterLand.vw, `${lTag} scooter overflow`);
+      assert.equal(scooterLand.sideBySide, true, `${lTag}: expected landscape scooter canvas beside controls`);
+      assert.ok(scooterLand.ctrlBottom <= scooterLand.vh, `${lTag}: scooter controls pushed below landscape viewport`);
+      if (lTag === 'land-844' && ssDir) await lp.screenshot({ path: path.join(ssDir, 'e2e-landscape-844-scooter.png') });
+      await lp.close();
+    }
+
+    // 8C. Unfolded Foldables & Tablets (690x829, 840x840, 829x690, 768x1024 across zh & en)
+    for (const [mTag, mVp, mLang] of [
+      ['fold5-690-zh', { width: 690, height: 829 }, 'zh'],
+      ['fold5-690-en', { width: 690, height: 829 }, 'en'],
+      ['pixel-fold-840', { width: 840, height: 840 }, 'zh'],
+      ['fold-land-829', { width: 829, height: 690 }, 'zh'],
+      ['ipad-768', { width: 768, height: 1024 }, 'en']
+    ]) {
+      const fp = await browser.newPage({ viewport: mVp, hasTouch: true, isMobile: true });
+      attachErrorWatchers(fp, mTag);
+      await fp.goto(`${baseUrl}/index.html?lang=${mLang}`, { waitUntil: 'networkidle' });
+      assert.equal(await fp.getAttribute('html', 'data-layout-mode'), 'medium', `${mTag}: expected medium mode`);
+      assert.equal(await fp.getAttribute('html', 'data-mobile-tabs'), '0', `${mTag}: expected mobile tabs disabled`);
+      await fp.click('.hero-actions .btn-primary');
+      await fp.waitForSelector('.role-card');
+      await fp.click('.role-card');
+      await fp.waitForSelector('.cutscene-video');
+      await fp.click('.chapter-header .btn-primary');
+      await fp.waitForSelector('.replies-grid');
+      const fGeo = await fp.evaluate((vw) => {
+        const meters = [...document.querySelectorAll('.meter-box')];
+        const trunc = meters
+          .map((b) => b.querySelector('.meter-label span'))
+          .filter((sp) => sp && sp.scrollWidth > sp.clientWidth + 1)
+          .map((sp) => sp.textContent);
+        const sceneR = document.querySelector('.scene-card')?.getBoundingClientRect();
+        const stageR = document.querySelector('.main-stage')?.getBoundingClientRect();
+        return {
+          sw: document.documentElement.scrollWidth,
+          vw,
+          trunc,
+          bothVisible: Boolean(sceneR && sceneR.width > 100 && stageR && stageR.width > 100),
+          tabsVisible: Boolean(document.querySelector('.mobile-tab-bar')?.offsetParent)
+        };
+      }, mVp.width);
+      assert.ok(fGeo.sw <= fGeo.vw, `${mTag}: horizontal overflow (${fGeo.sw} > ${fGeo.vw})`);
+      assert.deepEqual(fGeo.trunc, [], `${mTag}: HUD meters truncated: ${fGeo.trunc.join(', ')}`);
+      assert.equal(fGeo.bothVisible, true, `${mTag}: expected both scene & stage visible side-by-side`);
+      assert.equal(fGeo.tabsVisible, false, `${mTag}: mobile-tab-bar should not show on medium mode`);
+      if (mTag === 'fold5-690-zh' && ssDir) await fp.screenshot({ path: path.join(ssDir, 'e2e-fold-inner-690.png') });
+      await fp.close();
+    }
+
+    // 8D. Dual-Screen Fold Book Mode (1114x720 with mocked vertical hinge 540..574)
+    const bookPage = await browser.newPage({ viewport: { width: 1114, height: 720 }, hasTouch: true });
+    attachErrorWatchers(bookPage, 'fold-book-1114');
+    await bookPage.addInitScript(() => {
+      const segs = [
+        { left: 0, top: 0, width: 540, height: 720 },
+        { left: 574, top: 0, width: 540, height: 720 }
+      ];
+      Object.defineProperty(window, 'viewport', { value: { segments: segs }, configurable: true });
+    });
+    await bookPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    assert.equal(await bookPage.getAttribute('html', 'data-layout-mode'), 'fold-book', 'Expected fold-book layout mode');
+    await bookPage.click('.hero-actions .btn-primary');
+    await bookPage.waitForSelector('.role-card');
+    await bookPage.click('.role-card');
+    await bookPage.waitForSelector('.cutscene-video');
+    await bookPage.click('.chapter-header .btn-primary');
+    await bookPage.waitForSelector('.replies-grid');
+    const bookGeo = await bookPage.evaluate(() => {
+      const left = document.querySelector('.col-left').getBoundingClientRect();
+      const right = document.querySelector('.col-right').getBoundingClientRect();
+      return { sw: document.documentElement.scrollWidth, leftRight: Math.round(left.right), rightLeft: Math.round(right.left) };
+    });
+    assert.ok(bookGeo.sw <= 1114, `fold-book horizontal overflow: ${bookGeo.sw}`);
+    assert.ok(bookGeo.leftRight <= 544, `fold-book .col-left crossed vertical hinge (right=${bookGeo.leftRight})`);
+    assert.ok(bookGeo.rightLeft >= 570, `fold-book .col-right touched vertical hinge (left=${bookGeo.rightLeft})`);
+    if (ssDir) await bookPage.screenshot({ path: path.join(ssDir, 'e2e-fold-book-1114.png') });
+    await bookPage.close();
+
+    // 8E. Foldable Flex Tabletop Mode (412x915 with mocked horizontal hinge 440..465 + folded posture)
+    const flexPage = await browser.newPage({ viewport: { width: 412, height: 915 }, hasTouch: true, isMobile: true });
+    attachErrorWatchers(flexPage, 'fold-flex-412');
+    await flexPage.addInitScript(() => {
+      const segs = [
+        { left: 0, top: 0, width: 412, height: 440 },
+        { left: 0, top: 465, width: 412, height: 450 }
+      ];
+      Object.defineProperty(window, 'viewport', { value: { segments: segs }, configurable: true });
+      Object.defineProperty(navigator, 'devicePosture', {
+        value: { type: 'folded', addEventListener() {}, removeEventListener() {} },
+        configurable: true
+      });
+    });
+    await flexPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    assert.equal(await flexPage.getAttribute('html', 'data-layout-mode'), 'fold-flex', 'Expected fold-flex layout mode');
+    await flexPage.click('.hero-actions .btn-primary');
+    await flexPage.waitForSelector('.role-card');
+    await flexPage.click('.role-card');
+    await flexPage.waitForSelector('.cutscene-video');
+    await flexPage.click('.chapter-header .btn-primary');
+    await flexPage.waitForSelector('.replies-grid');
+    const flexGeo = await flexPage.evaluate(() => {
+      const left = document.querySelector('.col-left').getBoundingClientRect();
+      const right = document.querySelector('.col-right').getBoundingClientRect();
+      return { sw: document.documentElement.scrollWidth, leftBottom: Math.round(left.bottom), rightTop: Math.round(right.top) };
+    });
+    assert.ok(flexGeo.sw <= 412, `fold-flex horizontal overflow: ${flexGeo.sw}`);
+    assert.ok(flexGeo.leftBottom <= 450, `fold-flex top pane crossed horizontal hinge (bottom=${flexGeo.leftBottom})`);
+    assert.ok(flexGeo.rightTop >= 455, `fold-flex bottom pane crossed horizontal hinge (top=${flexGeo.rightTop})`);
+    if (ssDir) await flexPage.screenshot({ path: path.join(ssDir, 'e2e-fold-flex-412.png') });
+    await flexPage.close();
+
+    // 8F. Short Desktop Window (1024x540) & Ultrawide Monitor (2560x1080)
+    const shortDesk = await browser.newPage({ viewport: { width: 1024, height: 540 } });
+    attachErrorWatchers(shortDesk, 'short-desktop-1024x540');
+    await shortDesk.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    assert.equal(await shortDesk.getAttribute('html', 'data-short-viewport'), '1', '1024x540 expected data-short-viewport=1');
+    await shortDesk.click('.hero-actions .btn-primary');
+    await shortDesk.waitForSelector('.role-card');
+    await shortDesk.click('.role-card');
+    await shortDesk.waitForSelector('.cutscene-video');
+    await shortDesk.click('.chapter-header .btn-primary');
+    await shortDesk.waitForSelector('.replies-grid');
+    const shortGeo = await shortDesk.evaluate(() => ({
+      sw: document.documentElement.scrollWidth,
+      overflowY: getComputedStyle(document.querySelector('.gta-shell')).overflowY
+    }));
+    assert.ok(shortGeo.sw <= 1024, `1024x540 overflow: ${shortGeo.sw}`);
+    assert.notEqual(shortGeo.overflowY, 'hidden', '1024x540 shell must allow vertical scrolling on short windows');
+    if (ssDir) await shortDesk.screenshot({ path: path.join(ssDir, 'e2e-short-desktop-1024x540.png') });
+    await shortDesk.close();
+
+    const ultraPage = await browser.newPage({ viewport: { width: 2560, height: 1080 } });
+    attachErrorWatchers(ultraPage, 'ultrawide-2560');
+    await ultraPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    assert.equal(await ultraPage.getAttribute('html', 'data-layout-mode'), 'wide', '2560x1080 expected wide mode');
+    await ultraPage.click('.hero-actions .btn-primary');
+    await ultraPage.waitForSelector('.role-card');
+    await ultraPage.click('.role-card');
+    await ultraPage.waitForSelector('.cutscene-video');
+    await ultraPage.click('.chapter-header .btn-primary');
+    await ultraPage.waitForSelector('.replies-grid');
+    await checkDesktopGeometry(ultraPage, 'ultrawide-2560-scene', false);
+    if (ssDir) await ultraPage.screenshot({ path: path.join(ssDir, 'e2e-ultrawide-2560.png') });
+    await ultraPage.close();
+
+    // 8G. Live Dynamic Fold / Unfold / Rotate / Resize Cycle without reload
+    const dynPage = await browser.newPage({ viewport: { width: 344, height: 882 }, hasTouch: true });
+    attachErrorWatchers(dynPage, 'dynamic-fold-unfold');
+    await dynPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    await dynPage.click('.hero-actions .btn-primary');
+    await dynPage.waitForSelector('.role-card');
+    await dynPage.click('.role-card');
+    await dynPage.waitForSelector('.cutscene-video');
+    await dynPage.click('.chapter-header .btn-primary');
+    await dynPage.waitForSelector('.replies-grid');
+
+    for (const [stepName, vp, expMode, expTabs] of [
+      ['cover-344', { width: 344, height: 882 }, 'compact', true],
+      ['unfold-768', { width: 768, height: 904 }, 'medium', false],
+      ['rotate-844', { width: 844, height: 390 }, 'compact-landscape', false],
+      ['desktop-1280', { width: 1280, height: 800 }, 'desktop', false],
+      ['refold-344', { width: 344, height: 882 }, 'compact', true]
+    ]) {
+      await dynPage.setViewportSize(vp);
+      await dynPage.waitForFunction((m) => document.documentElement.getAttribute('data-layout-mode') === m, expMode);
+      await dynPage.waitForTimeout(80);
+      const snap = await dynPage.evaluate((vw) => ({
+        sw: document.documentElement.scrollWidth,
+        vw,
+        hasTabs: document.querySelectorAll('.mobile-tab-btn').length === 4,
+        colLeftVis: document.querySelector('.col-left')?.offsetParent !== null,
+        colRightVis: document.querySelector('.col-right')?.offsetParent !== null
+      }), vp.width);
+      assert.ok(snap.sw <= snap.vw, `Dynamic resize ${stepName}: overflow (${snap.sw} > ${snap.vw})`);
+      assert.equal(snap.hasTabs, expTabs, `Dynamic resize ${stepName}: mobile-tab-bar expected=${expTabs}, got=${snap.hasTabs}`);
+      if (!expTabs) {
+        assert.equal(snap.colLeftVis && snap.colRightVis, true, `Dynamic resize ${stepName}: expected dual columns visible`);
+      }
+    }
+    await dynPage.close();
+
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
-    console.log('E2E VERIFY PASSED: zh/en/ja (354 MP3s, 9 MP4s), 1024x720, 1280x800, 1920x1080, 390x844, 0 Web Speech murmuring, decluttered left controls + #scene-more-views popover, 3-slide welcome + 7-step HUD tour, 5 distinct role itineraries/storylines/quizzes, full 10-chapter playthrough, 6 mini-games, Ch6 grandma call, review stage, copy proofread, and standalone HTML verified with 0 errors.');
+    console.log('E2E VERIFY PASSED: zh/en/ja (354 MP3s, 9 MP4s), full responsive & foldable suite (280x653, 320x320, 344x882, 375x667, 390x844, 667x375, 844x390, 690x829, 840x840, 768x1024, 1024x540, 1024x720, fold-book 1114x720, fold-flex 412x915, 1280x800, 1920x1080, 2560x1080 + live fold/unfold/rotate), 0 Web Speech murmuring, and standalone HTML verified with 0 errors.');
   } finally {
     await browser.close();
     server.close();
