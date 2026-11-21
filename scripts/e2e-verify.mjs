@@ -1145,9 +1145,9 @@ async function run() {
     const newerSave = await saveA.evaluate(key => localStorage.getItem(key), key);
     await saveB.evaluate(() => localStorage.setItem('gta_dentsu_taiwan_v1', '{"phase":"title"}'));
     assert.equal(await saveA.evaluate(key => localStorage.getItem(key), key), newerSave);
-    await saveB.locator('.lang-switch .lang-btn').filter({ hasText: /^EN$/ }).first().click();
+    await saveB.locator('.lang-switch .lang-btn[data-lang="en"]').first().click();
     assert.equal(await saveA.evaluate(key => localStorage.getItem(key), key), newerSave);
-    await saveB.locator('.lang-switch .lang-btn').filter({ hasText: /繁中/ }).first().click();
+    await saveB.locator('.lang-switch .lang-btn[data-lang="zh"]').first().click();
     const conflict = saveB.waitForEvent('dialog');
     const staleClick = saveB.locator('.reply-btn').first().click();
     const notice = await conflict;
