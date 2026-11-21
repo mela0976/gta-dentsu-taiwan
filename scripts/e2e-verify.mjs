@@ -435,6 +435,8 @@ async function run() {
             if (ch === 6 && card === 2) {
               await play.waitForSelector('.modal-box');
               await play.click('.modal-box .btn-gold');
+              await play.reload();
+              assert.equal(await play.evaluate(() => window.__gtaApp.swipeIndex), 3);
               await play.waitForSelector('.swipe-card');
             }
           }
@@ -1160,6 +1162,19 @@ async function run() {
     await voiceButton.focus();
     await saveB.keyboard.press('Enter');
     assert.ok(await voiceButton.isVisible(), 'Enter on replay button must not advance the chapter');
+    await saveB.evaluate(key => {
+      const save = JSON.parse(localStorage.getItem(key));
+      localStorage.setItem('gta_dentsu_taiwan_v1', JSON.stringify({ ...save, points: save.points + 100 }));
+    }, key);
+    const choice = saveB.waitForEvent('dialog');
+    const reload = saveB.reload();
+    const prompt = await choice;
+    assert.equal(prompt.type(), 'confirm');
+    await prompt.accept();
+    await reload;
+    assert.equal(await saveB.evaluate(key => localStorage.getItem(key + '_backup'), key), newerSave);
+    assert.equal(await saveB.evaluate(key => localStorage.getItem(key), key),
+      await saveB.evaluate(() => localStorage.getItem('gta_dentsu_taiwan_v1')));
     await saveContext.close();
 
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);

@@ -68,13 +68,43 @@ const STORAGE_KEY = 'gta_dentsu_taiwan_v2';
 const LEGACY_STORAGE_KEY = 'gta_dentsu_taiwan_v1';
 const LEGACY_META_KEY = 'gta_dentsu_meta_v1';
 
-function migrateSavedValue(key, legacyKey) {
+function migrateSavedValue(key, legacyKey, isValid) {
   const current = localStorage.getItem(key);
-  if (current !== null) return current;
   const legacy = localStorage.getItem(legacyKey);
-  if (legacy !== null) localStorage.setItem(key, legacy);
-  return legacy;
+  if (legacy === null) return current;
+  try {
+    if (!isValid(JSON.parse(legacy))) return current;
+  } catch {
+    return current;
+  }
+
+  const baselineKey = `${key}_legacy_import`;
+  if (current === null) {
+    try {
+      localStorage.setItem(key, legacy);
+      localStorage.setItem(baselineKey, legacy);
+    } catch {
+      // The legacy save remains readable even when there is no space for a copy.
+    }
+    return legacy;
+  }
+
+  const baseline = localStorage.getItem(baselineKey);
+  if (current === legacy || legacy === baseline) return current;
+  try {
+    if (window.confirm(t('launch.legacySaveChoice'))) {
+      localStorage.setItem(`${key}_backup`, current);
+      localStorage.setItem(key, legacy);
+      localStorage.setItem(baselineKey, legacy);
+      return legacy;
+    }
+    localStorage.setItem(baselineKey, legacy);
+  } catch {
+    return localStorage.getItem(key);
+  }
+  return current;
 }
+
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
 const BEGINNER_TIP_STORAGE_KEY = 'gta_dentsu_beginner_tip_v1';
 
@@ -132,13 +162,16 @@ class GtaDentsuApp {
     this.scooterModalOpen = false;
     this.scooterInstance = null;
     this.ch6CallModalOpen = false;
-    this.ch6CallDismissed = false;
+    const swipeDraft = this.state.phase === 'game' && this.state.swipeDraft;
+    this.ch6CallDismissed = Boolean(swipeDraft?.callAccepted);
     this.activeCutsceneSrc = null;
 
     // 暫存小互動即時狀態
     this.sliderVal = null;
-    this.swipeIndex = 0;
-    this.swipeChoices = [];
+    this.swipeChoices = Array.isArray(swipeDraft?.choices)
+      ? swipeDraft.choices.filter(side => side === 'left' || side === 'right').slice(0, 3)
+      : [];
+    this.swipeIndex = this.swipeChoices.length;
     this.multiSelected = new Set();
     this.stopTimer = null;
     this.stopTick = 0;
@@ -263,7 +296,9 @@ class GtaDentsuApp {
       if (state.lastGameOutcome) {
         if (ch.game && state.lastGameOutcome.submission !== undefined) {
           const reval = evaluateMiniGame(ch.game, state.lastGameOutcome.submission);
-          nextState.lastGameOutcome = { ...state.lastGameOutcome, ...reval };
+          if (reval.correct === state.lastGameOutcome.correct && reval.ratio === state.lastGameOutcome.ratio) {
+            nextState.lastGameOutcome = { ...state.lastGameOutcome, detail: reval.detail };
+          }
         } else if (!ch.game || ch.finale) {
           nextState.lastGameOutcome = { ...state.lastGameOutcome, detail: matchedReply.feedback };
         }
@@ -403,8 +438,8 @@ class GtaDentsuApp {
 
   _loadState() {
     try {
-      const raw = migrateSavedValue(STORAGE_KEY, LEGACY_STORAGE_KEY);
-      this.savedStateSnapshot = raw;
+      const raw = migrateSavedValue(STORAGE_KEY, LEGACY_STORAGE_KEY, value => Boolean(value?.stats && value?.phase));
+      this.savedStateSnapshot = localStorage.getItem(STORAGE_KEY);
       if (!raw) return createInitialState();
       const parsed = JSON.parse(raw);
       return this._localizeProgress(sanitizeLoadedState(parsed, createInitialState, CHAPTERS.length), getLang());
@@ -415,7 +450,7 @@ class GtaDentsuApp {
 
   _loadMeta() {
     try {
-      const raw = migrateSavedValue(META_STORAGE_KEY, LEGACY_META_KEY);
+      const raw = migrateSavedValue(META_STORAGE_KEY, LEGACY_META_KEY, value => Boolean(value?.clearedRoles));
       if (!raw) return createEmptyMeta();
       const parsed = JSON.parse(raw);
       return {
@@ -1121,6 +1156,10 @@ class GtaDentsuApp {
   }
 
   _setState(next) {
+    if (next.phase !== 'game' && next.swipeDraft) {
+      const { swipeDraft: _, ...withoutDraft } = next;
+      next = withoutDraft;
+    }
     if (!this._saveState(next)) return;
     const changedView = next.phase !== this.state.phase || next.chapterIndex !== this.state.chapterIndex;
     const enteredReview = next.phase === 'review' && this.state.phase !== 'review';
@@ -3029,6 +3068,19 @@ class GtaDentsuApp {
     return el('div');
   }
 
+  _acceptGrandmaCall() {
+    soundFX.playTatungCooker();
+    this.ch6CallModalOpen = false;
+    this.ch6CallDismissed = true;
+    const unlocked = { ...this.state, grandmaUnlocked: true };
+    const ch = getCurrentChapter(unlocked);
+    const next = this.swipeIndex >= ch.game.cards.length
+      ? submitMiniGame(unlocked, this.swipeChoices)
+      : { ...unlocked, swipeDraft: { callAccepted: true, choices: [...this.swipeChoices] } };
+    this._setState(next);
+    this._drainPendingToasts();
+  }
+
   _renderCh6PhoneModal() {
     const ch = getCurrentChapter(this.state);
     const call = ch.grandmaPhoneCall;
@@ -3054,17 +3106,7 @@ class GtaDentsuApp {
             class: 'btn-gold',
             style: 'flex:1 1 auto;',
             text: t('ch6Modal.acceptBtn'),
-            onClick: () => {
-              soundFX.playTatungCooker();
-              this.ch6CallModalOpen = false;
-              this.ch6CallDismissed = true;
-              const unlocked = { ...this.state, grandmaUnlocked: true };
-              const next = this.swipeIndex >= ch.game.cards.length
-                ? submitMiniGame(unlocked, this.swipeChoices)
-                : unlocked;
-              this._setState(next);
-              this._drainPendingToasts();
-            }
+            onClick: () => this._acceptGrandmaCall()
           }),
           el('button', {
             class: 'replay-btn',
@@ -3432,13 +3474,7 @@ class GtaDentsuApp {
         el('button', {
           class: 'guide-btn is-primary',
           text: t('guideBar.ch6Accept'),
-          onClick: () => {
-            soundFX.playTatungCooker();
-            this.ch6CallModalOpen = false;
-            this.ch6CallDismissed = true;
-            const next = submitMiniGame({ ...this.state, grandmaUnlocked: true }, this.swipeChoices);
-            this._setState(next);
-          }
+          onClick: () => this._acceptGrandmaCall()
         })
       );
     } else if (this.state.phase === 'title') {
