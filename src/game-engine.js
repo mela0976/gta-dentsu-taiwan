@@ -73,6 +73,11 @@ export function selectRole(state, roleId) {
     perfPicks: 0,
     gamesScoredCount: 0,
     gamesCorrectCount: 0,
+    cheatUsed: role.id === 'grandma',
+    grandmaRescues: 0,
+    lastRescueIndex: null,
+    lastRescueMessage: null,
+    chapter6PhoneTriggered: false,
     askedTwins: [],
     roleSpecialUsedThisChapter: false,
     activeReply: null,
@@ -110,7 +115,7 @@ export function activateGrandmaCheat(state, triggerRescue = true) {
     ...state,
     grandmaUnlocked: true,
     grandmaActive: true,
-    cheatUsed: true,
+    cheatUsed: triggerRescue ? true : Boolean(state.cheatUsed),
     grandmaRescues: state.grandmaRescues + (triggerRescue ? 1 : 0),
     wantedStars: triggerRescue ? 0 : state.wantedStars,
     stats: nextStats,
@@ -203,6 +208,22 @@ export function useRoleSpecial(state) {
     ? Array.from(new Set([...state.askedTwins, 'lisa', 'cindy']))
     : state.askedTwins;
 
+  const extraTwinLogs = [];
+  if (role.id === 'planner') {
+    const twins = getLocalizedTwins(getLang());
+    for (const tid of ['lisa', 'cindy']) {
+      if (!state.askedTwins.includes(tid)) {
+        extraTwinLogs.push({
+          from: twins[tid].name,
+          role: twins[tid].voice,
+          badge: 'MODEL',
+          time: ch.timeSlot,
+          text: ch.peopleModel?.[tid] || '',
+        });
+      }
+    }
+  }
+
   return {
     ...state,
     roleSpecialUsedThisChapter: true,
@@ -212,6 +233,7 @@ export function useRoleSpecial(state) {
     points: state.points + 350,
     phoneLog: [
       ...state.phoneLog,
+      ...extraTwinLogs,
       {
         from: role.name,
         role: role.specialName,

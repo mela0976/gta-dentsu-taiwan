@@ -294,7 +294,9 @@ test('All 5 roles have distinct itineraries, storylines, LINE dilemmas, replies,
     }
     assert.equal(state.phase, 'review', `${rid} did not reach review`);
     assert.equal(state.history.length, 10);
-    assert.ok(determinePersona(state).id);
+    const persona = determinePersona(state);
+    assert.ok(persona.id);
+    assert.equal(persona.id, rid === 'grandma' ? 'grandma' : 'judge', `${rid} expected ${rid === 'grandma' ? 'grandma' : 'judge'} persona even after unlock`);
   }
 });
 
@@ -686,4 +688,11 @@ test('Senior QA Suite: phase guards prevent double-submit exploits, deduplicate 
 
   const validReveal = sanitizeLoadedState(afterGame, createInitialState, 10);
   assert.equal(validReveal.phase, 'reveal');
+
+  // Senior QA: planner useRoleSpecial appends unasked Lisa & Cindy People Model logs into phoneLog
+  const plannerStart = selectRole(createInitialState(), 'planner');
+  const plannerSkill = useRoleSpecial(plannerStart);
+  assert.equal(plannerSkill.askedTwins.includes('lisa'), true);
+  assert.equal(plannerSkill.askedTwins.includes('cindy'), true);
+  assert.ok(plannerSkill.phoneLog.some((m) => m.badge === 'MODEL' && m.text.length > 0));
 });

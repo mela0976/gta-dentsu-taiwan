@@ -698,6 +698,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .paper-card { padding: 14px; border-radius: 12px; background: #f9f4e8; color: #1b2230; text-align: left; border: 3px solid transparent; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); min-height: 88px; }
 .paper-card:hover { border-color: var(--cyan); box-shadow: 0 10px 26px rgba(0, 229, 255, 0.28); }
 .paper-card.is-selected { border-color: var(--pink); background: #fff0f7; }
+.is-skill-hint { border-color: var(--cyan) !important; box-shadow: 0 0 12px rgba(0, 229, 255, 0.35); }
+.paper-card.is-skill-hint { background: #ecfeff; }
+.review-history-takeaway { font-size: 12px; color: #efeafd; margin: 2px 0; }
 .paper-card h4 { margin: 0 0 6px; font-size: 18px; }
 .paper-card ul { margin: 0; padding-left: 18px; font-size: 15px; }
 .paper-cta { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(0, 118, 255, 0.12); color: #0b4a6f; border: 1px solid rgba(0, 118, 255, 0.28); white-space: nowrap; flex-shrink: 0; }
@@ -1320,7 +1323,11 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .reply-cta { font-size: 10.5px; padding: 1px 5px; white-space: nowrap; }
   .col-right .chat-scroll { max-height: 36px; }
   .msg-bubble { padding: 4px 8px; font-size: 12.5px; }
-  .phone-frame { padding: 5px 8px; }
+  .phone-frame { padding: 5px 8px; max-height: 150px; overflow-y: auto; }
+  .col-right .twin-row { padding: 4px 7px; gap: 6px; }
+  .col-right .twin-avatar { width: 30px; height: 30px; }
+  .col-right .twin-text { font-size: 12px; line-height: 1.2; }
+  .col-right .twin-text b { font-size: 12px; }
   .phone-tab { min-height: 30px; font-size: 12.5px; }
   .clue-text { font-size: 13px; }
   .clue-card { gap: 4px; padding: 7px 10px; }
@@ -1339,6 +1346,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 @media (min-width: 1024px) and (max-height: 760px) {
   .col-right { gap: 5px; }
+  .col-right .phone-frame { max-height: 112px; overflow-y: auto; }
   .beginner-coach-banner { padding: 2px 7px; font-size: 10.5px; line-height: 1.15; }
   .main-stage { gap: 2px; padding: 4px 9px; }
   .main-stage-inner { gap: 2px; }

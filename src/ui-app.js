@@ -906,6 +906,16 @@ class GtaDentsuApp {
       text: t('launch.restartCancelBtn'),
       onClick: () => dlg.close('cancel')
     });
+    const titleBtn = el('button', {
+      type: 'button',
+      class: 'btn-cyan',
+      text: t('roleSelect.backToTitle'),
+      onClick: () => {
+        dlg.close('title');
+        this._clearStopTimer();
+        this._setState({ ...this.state, phase: 'title' });
+      }
+    });
     const confirmBtn = el('button', {
       type: 'button',
       class: 'btn-primary',
@@ -919,7 +929,7 @@ class GtaDentsuApp {
       el('div', { class: 'gta-kicker', text: t('hud.restartBtn') }),
       el('h2', { id: 'confirm-restart-title', style: 'margin:0;color:var(--gold);font-size:20px;', text: t('launch.restartDialogTitle') }),
       el('p', { style: 'margin:0;font-size:14.5px;color:#efeafd;', text: t('launch.restartDialogBody') }),
-      el('div', { style: 'display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:6px;' }, [cancelBtn, confirmBtn])
+      el('div', { style: 'display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:6px;' }, [cancelBtn, titleBtn, confirmBtn])
     ]));
     if (typeof dlg.showModal === 'function') dlg.showModal();
     else dlg.setAttribute('open', '');
@@ -1677,6 +1687,17 @@ class GtaDentsuApp {
         node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
+  }
+
+  _activateRoleSpecial() {
+    if (this.state.roleSpecialUsedThisChapter) return;
+    const role = getRole(this.state.roleId);
+    soundFX.playMissionPassed();
+    if (role.id === 'planner') {
+      this.phoneTab = 'people';
+    }
+    this._setState(useRoleSpecial(this.state));
+    this._showToast(t('launch.toastSkillUsed', role.specialName), 'info', 3000);
   }
 
   _triggerCheatCode(withRescue = true) {
@@ -2602,11 +2623,7 @@ class GtaDentsuApp {
         class: 'btn-cyan',
         disabled: this.state.roleSpecialUsedThisChapter,
         text: this.state.roleSpecialUsedThisChapter ? t('clueCard.specialUsed', role.specialName) : t('clueCard.specialReady', role.specialName),
-        onClick: () => {
-          soundFX.playMissionPassed();
-          this._setState(useRoleSpecial(this.state));
-          this._showToast(t('launch.toastSkillUsed', role.specialName), 'info', 3000);
-        }
+        onClick: () => this._activateRoleSpecial()
       })
     ]);
   }
@@ -3043,16 +3060,19 @@ class GtaDentsuApp {
           el('div', { class: 'quiz-guide-badge', text: t('stage.step1Badge', ch.roleRoute?.routeBadge || '') }),
           el('div', { class: 'prompt-line', text: t('stage.step1Prompt') })
         ]),
-        el('div', { class: 'replies-grid' }, ch.replies.map((r, idx) =>
-          el('button', {
+        el('div', { class: 'replies-grid' }, ch.replies.map((r, idx) => {
+          const leanIcon = this.state.roleSpecialUsedThisChapter
+            ? (r.lean === 'judge' ? '⚖️ ' : (r.lean === 'brand' ? '🏛️ ' : '📈 '))
+            : '';
+          return el('button', {
             class: 'reply-btn',
             onClick: () => this._pickReply(idx)
           }, [
             el('span', { class: 'reply-key', text: String(idx + 1) }),
             el('span', { class: 'reply-label', text: r.text }),
-            el('span', { class: 'reply-cta', text: t('stage.replyCta') })
-          ])
-        ))
+            el('span', { class: 'reply-cta', text: `${leanIcon}${t('stage.replyCta')}` })
+          ]);
+        }))
       ]);
     }
 
@@ -3145,6 +3165,8 @@ class GtaDentsuApp {
 
   _renderMiniGame(game) {
     if (!game) return el('div');
+    const skillActive = Boolean(this.state.roleSpecialUsedThisChapter);
+    const activeRole = skillActive ? getRole(this.state.roleId) : null;
 
     if (game.type === 'pick' || game.type === 'agent') {
       const hint = game.type === 'agent'
@@ -3153,9 +3175,10 @@ class GtaDentsuApp {
       return el('div', { style: 'display:flex;flex-direction:column;gap:12px;' }, [
         el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
         el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: hint }),
-        el('div', { class: 'paper-grid' }, game.options.map((opt, idx) =>
-          el('button', {
-            class: 'paper-card',
+        el('div', { class: 'paper-grid' }, game.options.map((opt, idx) => {
+          const isSkillHint = skillActive && game.type === 'pick' && idx === game.answer;
+          return el('button', {
+            class: `paper-card${isSkillHint ? ' is-skill-hint' : ''}`,
             onClick: () => {
               const next = submitMiniGame(this.state, idx);
               if (next.lastGameOutcome?.correct) soundFX.playMissionPassed();
@@ -3163,15 +3186,18 @@ class GtaDentsuApp {
               this._setState(next);
             }
           }, [
-            el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;' }, [
+            el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:6px;' }, [
               el('h4', { style: 'margin:0;', text: `[${idx + 1}] ${opt.title}` }),
-              el('span', { class: 'paper-cta', text: t('miniGame.cardPickCta') })
+              el('span', {
+                class: 'paper-cta',
+                text: isSkillHint ? `📡 ⚡ ${activeRole?.specialName || ''}` : t('miniGame.cardPickCta')
+              })
             ]),
             opt.lines && opt.lines.length
               ? el('ul', {}, opt.lines.map((line) => el('li', { text: line })))
               : null
-          ])
-        ))
+          ]);
+        }))
       ]);
     }
 
@@ -3195,16 +3221,20 @@ class GtaDentsuApp {
       const presets = game.max <= 10
         ? [1, 3, 5, 7, 10]
         : (game.answer <= 70 ? [20, 40, 65, 80, 95] : [20, 40, 60, 80, 95]);
+      const closestPreset = skillActive && Number.isFinite(game.answer)
+        ? presets.reduce((best, p) => (Math.abs(p - game.answer) < Math.abs(best - game.answer) ? p : best), presets[0])
+        : null;
 
       return el('div', { class: 'slider-box' }, [
         el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
         el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: t('miniGame.sliderHint') }),
         readout,
         range,
-        el('div', { class: 'preset-row' }, presets.map((val) =>
-          el('button', {
-            class: `preset-chip${this.sliderVal === val ? ' is-picked' : ''}`,
-            text: `${val} ${game.unit || ''}`,
+        el('div', { class: 'preset-row' }, presets.map((val) => {
+          const isSkillHint = closestPreset !== null && val === closestPreset;
+          return el('button', {
+            class: `preset-chip${this.sliderVal === val ? ' is-picked' : ''}${isSkillHint ? ' is-skill-hint' : ''}`,
+            text: `${isSkillHint ? '📡 ' : ''}${val} ${game.unit || ''}`,
             onClick: () => {
               soundFX.playClick();
               this.sliderVal = val;
@@ -3212,8 +3242,8 @@ class GtaDentsuApp {
               readout.textContent = `${val} ${game.unit || ''}`;
               this._persistGameDraft();
             }
-          })
-        )),
+          });
+        })),
         el('div', { style: 'display:flex;justify-content:space-between;font-size:13px;color:var(--muted);' }, [
           el('span', { text: `${game.min} ${game.unit || ''}` }),
           el('span', { text: `${game.max} ${game.unit || ''}` })
@@ -3288,13 +3318,13 @@ class GtaDentsuApp {
         el('div', { class: 'is-mobile-only', style: 'font-size:12px;color:var(--gold);font-weight:700;text-align:center;', text: t('mobile.swipeTouchHint') }),
         el('div', { class: 'swipe-actions' }, [
           el('button', {
-            class: 'btn-cyan',
-            text: t('miniGame.swipeLeftBtn', game.left),
+            class: `btn-cyan${skillActive && game.scored && game.answers?.[this.swipeIndex] === 'left' ? ' is-skill-hint' : ''}`,
+            text: `${skillActive && game.scored && game.answers?.[this.swipeIndex] === 'left' ? '📡 ' : ''}${t('miniGame.swipeLeftBtn', game.left)}`,
             onClick: () => this._pickSwipe('left')
           }),
           el('button', {
-            class: 'btn-primary',
-            text: t('miniGame.swipeRightBtn', game.right),
+            class: `btn-primary${skillActive && game.scored && game.answers?.[this.swipeIndex] === 'right' ? ' is-skill-hint' : ''}`,
+            text: `${skillActive && game.scored && game.answers?.[this.swipeIndex] === 'right' ? '📡 ' : ''}${t('miniGame.swipeRightBtn', game.right)}`,
             onClick: () => this._pickSwipe('right')
           })
         ])
@@ -3308,9 +3338,10 @@ class GtaDentsuApp {
           el('span', { class: 'pill', text: t('miniGame.multiCount', this.multiSelected.size) })
         ]),
         el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: t('miniGame.multiHint') }),
-        el('div', { class: 'paper-grid' }, game.options.map((opt, idx) =>
-          el('button', {
-            class: `paper-card${this.multiSelected.has(idx) ? ' is-selected' : ''}`,
+        el('div', { class: 'paper-grid' }, game.options.map((opt, idx) => {
+          const isSkillHint = skillActive && Boolean(game.answers?.includes(idx));
+          return el('button', {
+            class: `paper-card${this.multiSelected.has(idx) ? ' is-selected' : ''}${isSkillHint ? ' is-skill-hint' : ''}`,
             onClick: () => {
               soundFX.playClick();
               if (this.multiSelected.has(idx)) this.multiSelected.delete(idx);
@@ -3320,9 +3351,9 @@ class GtaDentsuApp {
             }
           }, [
             el('h4', { text: `${this.multiSelected.has(idx) ? '☑ ' : '☐ '}[${idx + 1}] ${opt.title}` }),
-            el('div', { style: 'font-size:13px;color:#475569;margin-top:4px;', text: this.multiSelected.has(idx) ? t('miniGame.multiSelectedText') : t('miniGame.multiUnselectedText') })
-          ])
-        )),
+            el('div', { style: 'font-size:13px;color:#475569;margin-top:4px;', text: `${isSkillHint ? '📡 ' : ''}${this.multiSelected.has(idx) ? t('miniGame.multiSelectedText') : t('miniGame.multiUnselectedText')}` })
+          ]);
+        })),
         el('button', {
           class: 'btn-primary',
           text: t('miniGame.multiSubmit'),
@@ -3765,6 +3796,7 @@ class GtaDentsuApp {
             el('div', { style: 'font-weight:800;color:var(--cyan);', text: t('review.stationMeta', hCh.year || h.year, hCh.timeSlot || h.timeSlot || '', hCh.title || h.title) }),
             (hCh.location || h.location) ? el('div', { style: 'font-size:11.5px;color:var(--muted);margin-bottom:2px;', text: `📍 ${hCh.location || h.location}` }) : null,
             el('div', { text: t('review.repliedPrefix', hRep?.text || h.replyText) }),
+            hCh.takeaway ? el('div', { class: 'review-history-takeaway', text: `📌 「${hCh.takeaway}」` }) : null,
             el('div', { style: 'color:var(--gold);', text: `${h.correct ? t('review.correctTag') : t('review.triedTag')} · +$${h.pointsEarned.toLocaleString()}` })
           ]);
         }))
@@ -3875,15 +3907,12 @@ class GtaDentsuApp {
           class: 'guide-btn is-primary',
           disabled: this.state.roleSpecialUsedThisChapter,
           text: this.state.roleSpecialUsedThisChapter ? t('guideBar.skillDone', role.specialName) : t('guideBar.skillReady', role.specialName),
-          onClick: () => {
-            soundFX.playMissionPassed();
-            this._setState(useRoleSpecial(this.state));
-            this._showToast(t('launch.toastSkillUsed', role.specialName), 'info', 3000);
-          }
+          onClick: () => this._activateRoleSpecial()
         })
       );
     } else if (this.state.phase === 'game') {
       const ch = getCurrentChapter(this.state);
+      const role = getRole(this.state.roleId);
       const g = ch.game;
       if (g?.type === 'pick' || g?.type === 'agent') {
         text = t('guideBar.gamePick');
@@ -3899,6 +3928,12 @@ class GtaDentsuApp {
       actions.push(
         el('button', { class: 'guide-btn', text: t('guideBar.gameClue'), onClick: () => this._focusHelper('clue') }),
         el('button', { class: 'guide-btn', text: t('guideBar.gameAsk'), onClick: () => this._focusHelper('phone', 'people', 'cindy') }),
+        el('button', {
+          class: 'guide-btn is-primary',
+          disabled: this.state.roleSpecialUsedThisChapter,
+          text: this.state.roleSpecialUsedThisChapter ? t('guideBar.skillDone', role.specialName) : t('guideBar.skillReady', role.specialName),
+          onClick: () => this._activateRoleSpecial()
+        }),
         el('button', { class: 'guide-btn', text: t('guideBar.gameGrandma'), onClick: () => this._triggerCheatCode(true) })
       );
     } else if (this.state.phase === 'reveal') {
