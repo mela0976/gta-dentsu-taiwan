@@ -1390,3 +1390,267 @@ dialog.hud-tour-popover :where(button, [tabindex]):focus-visible {
     font-size: 11px;
   }
 }
+
+/* ─── Launch Readiness: Deltas, Toasts, Confirm Dialog, Achievements & Share Card ─── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.delta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.delta-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.delta-chip.is-up {
+  background: rgba(74, 222, 128, 0.16);
+  border: 1px solid rgba(74, 222, 128, 0.55);
+  color: #86efac;
+}
+.delta-chip.is-down {
+  background: rgba(255, 59, 107, 0.16);
+  border: 1px solid rgba(255, 59, 107, 0.55);
+  color: #fda4af;
+}
+
+.meta-progress-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(168, 255, 62, 0.12);
+  border: 1px solid rgba(168, 255, 62, 0.45);
+  color: var(--lime);
+}
+.role-card.is-cleared {
+  border-color: rgba(74, 222, 128, 0.55);
+}
+.role-cleared-badge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  background: rgba(74, 222, 128, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.65);
+  color: #86efac;
+  white-space: nowrap;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 8px;
+}
+.ach-badge {
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  opacity: 0.52;
+}
+.ach-badge.is-unlocked {
+  opacity: 1;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.14), rgba(0, 229, 255, 0.1));
+  border-color: var(--gold);
+  box-shadow: 0 4px 16px rgba(255, 209, 102, 0.18);
+}
+.ach-title {
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+.ach-desc {
+  font-size: 12px;
+  color: #e6dcf7;
+  line-height: 1.35;
+}
+
+.share-card-panel {
+  border-color: rgba(0, 229, 255, 0.48);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.share-preview {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(8, 5, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f4edff;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.copy-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.copy-button {
+  min-inline-size: max(24px, var(--target-size));
+  min-block-size: max(44px, var(--target-size));
+}
+.copy-tip {
+  padding: 3px 9px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  background: rgba(10, 40, 20, 0.94);
+  border: 1px solid var(--lime);
+  color: var(--lime);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+  white-space: nowrap;
+}
+.copy-button[data-copied] + .copy-tip,
+.copy-button[data-failed] + .copy-tip {
+  opacity: 1;
+}
+.copy-button[data-failed] + .copy-tip {
+  background: rgba(48, 12, 24, 0.94);
+  border-color: var(--danger);
+  color: #fda4af;
+}
+@media (max-width: 639px) {
+  .share-actions > button,
+  .copy-wrap,
+  .copy-wrap .copy-button { width: 100%; }
+}
+
+dialog.confirm-modal {
+  width: min(440px, calc(100vw - 24px));
+  margin: auto;
+  padding: 0;
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #170e2e, #0b0616);
+  color: #f8f3ff;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+}
+dialog.confirm-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+dialog.confirm-modal::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(7, 4, 15, 0.84);
+  backdrop-filter: blur(8px);
+}
+.confirm-modal-inner {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toast-region {
+  position: fixed;
+  inset: auto;
+  pointer-events: none;
+  z-index: 90;
+}
+.app-toast {
+  position: fixed;
+  inset: auto max(16px, env(safe-area-inset-right, 0px)) calc(74px + var(--toast-idx, 0) * 56px + env(safe-area-inset-bottom, 0px)) auto;
+  margin: 0;
+  pointer-events: auto;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: max-content;
+  max-width: min(380px, calc(100vw - 32px));
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--cyan);
+  background: rgba(14, 9, 30, 0.96);
+  color: #f8f3ff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.72);
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 180ms ease-out, transform 180ms ease-out, bottom 180ms ease-out, display 180ms ease-out;
+  transition-behavior: allow-discrete;
+}
+.app-toast:is(:popover-open, .\:popover-open),
+.app-toast[open] {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+@starting-style {
+  .app-toast:is(:popover-open, .\:popover-open),
+  .app-toast[open] {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.app-toast.is-gold {
+  border-color: var(--gold);
+  box-shadow: 0 12px 32px rgba(255, 209, 102, 0.25);
+}
+.toast-msg {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.35;
+}
+.toast-close {
+  flex-shrink: 0;
+  min-inline-size: max(30px, var(--target-size));
+  min-block-size: max(30px, var(--target-size));
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e6dcf7;
+  font-size: 13px;
+  font-weight: 800;
+}
+@media (max-width: 1023px) {
+  .app-toast {
+    inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(76px + var(--toast-idx, 0) * 58px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+    margin: 0 auto;
+    width: auto;
+    max-width: 440px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-toast,
+  .copy-tip {
+    transition: opacity 10ms linear;
+    transform: none;
+  }
+}

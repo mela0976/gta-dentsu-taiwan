@@ -428,6 +428,46 @@ export const UI_STRINGS = {
       evalSlider: (val, unit, rev) => `你拉了 ${val}${unit}。${rev}`,
       evalSwipe: (hits, tot, rev) => `答對 ${hits}／${tot} 句。${rev}`,
       evalMulti: (right, tot, wrong, rev) => `抓對 ${right}／${tot} 項（誤選 ${wrong} 項）。${rev}`
+    },
+    launch: {
+      metaProgress: (cleared, totalRoles, ach, totalAch) => `🏆 已通關 ${cleared}／${totalRoles} 職能 · 成就 ${ach}／${totalAch}`,
+      roleClearedTag: '✓ 已通關',
+      roleBestScore: (pts) => `最高 $${pts}`,
+      achievementsTitle: '🏆 台北一日職涯成就',
+      achievements: {
+        first_shift: { icon: '🏁', title: '台北初出勤', desc: '完成任一職能全日 10 站通關' },
+        sharp_judge: { icon: '🎯', title: '鷹眼決策師', desc: '單局實戰答對率達 80% 以上' },
+        grandma_blessed: { icon: '🍲', title: '阿嬤認證電鍋組', desc: '召喚阿嬤或解鎖 AMA666 秘技' },
+        scooter_ace: { icon: '🛵', title: '松仁路車神', desc: '2026 電動車極速閃避突破 1,200 分' },
+        mind_reader: { icon: '🧠', title: '雙軌洞察大師', desc: '同站觸發必殺技並諮詢雙胞胎顧問' },
+        multi_role: { icon: '👑', title: '電通全能總監', desc: '完成至少 2 位不同角色全線通關' }
+      },
+      toastRegionAria: '遊戲即時通知',
+      toastClose: '關閉通知',
+      toastAchUnlocked: (title) => `🏆 解鎖成就：${title}`,
+      toastSkillUsed: (name) => `⚡ 必殺技發動：${name}`,
+      toastScooterDone: (score) => `🛵 電動車完賽！獲得 ${score} 分並消除 1 顆通緝星`,
+      toastMuted: '🔇 已靜音（按 M 可切換）',
+      toastUnmuted: '🔊 音效已開啟',
+      shareTitle: '📣 炫耀你的電通台北一日戰績',
+      downloadCardBtn: '📥 下載成績單圖卡 (PNG)',
+      copyShareBtn: '📋 複製戰績分享文案',
+      copyShareAria: '複製電通台灣一日風雲戰績分享文案',
+      copiedOk: '已複製！',
+      copiedFail: '複製失敗',
+      nativeShareBtn: '🔗 立即分享給同事',
+      cardDownloaded: '📥 已下載成績單 PNG 圖卡！',
+      shareTemplate: ({ roleName, personaName, points, correct, total, achCount, achTotal, url }) =>
+        `【電通台灣一日風雲 2018–2026】我擔任「${roleName}」獲得稱號《${personaName}》！總積分 $${points}｜答對 ${correct}/${total} 關｜成就 ${achCount}/${achTotal} 🏆 來挑戰看看你能拿幾分：${url}`,
+      cardSubtitle: '電通台灣一日風雲 · 決策智慧 2018–2026',
+      cardAccuracy: (c, tot) => `實戰答對 ${c}／${tot}`,
+      cardMilestones: (a, tot) => `成就 ${a}／${tot}`,
+      restartDialogTitle: '確定要重新開始嗎？',
+      restartDialogBody: '目前的章節進度會歸零，但你已解鎖的職涯成就與角色通關紀錄都會完整保留！',
+      restartCancelBtn: '繼續遊玩',
+      restartConfirmBtn: '↺ 確定重開',
+      deltaPoints: (d) => `💰 ${d > 0 ? '+' : ''}$${d.toLocaleString()}`,
+      deltaWanted: (d) => `⭐ 通緝 ${d > 0 ? '+' : ''}${d}`
     }
   },
 
@@ -860,6 +900,46 @@ export const UI_STRINGS = {
       evalSlider: (val, unit, rev) => `You picked ${val}${unit}. ${rev}`,
       evalSwipe: (hits, tot, rev) => `Matched ${hits}/${tot}. ${rev}`,
       evalMulti: (right, tot, wrong, rev) => `Caught ${right}/${tot} (${wrong} extra). ${rev}`
+    },
+    launch: {
+      metaProgress: (cleared, totalRoles, ach, totalAch) => `🏆 ${cleared}/${totalRoles} Roles Cleared · ${ach}/${totalAch} Milestones`,
+      roleClearedTag: '✓ CLEARED',
+      roleBestScore: (pts) => `Best $${pts}`,
+      achievementsTitle: '🏆 Taipei Shift Milestones',
+      achievements: {
+        first_shift: { icon: '🏁', title: 'First Clock-In', desc: 'Complete all 10 stops with any role' },
+        sharp_judge: { icon: '🎯', title: 'Razor Judgment', desc: 'Score 80%+ accuracy on mini-games in a run' },
+        grandma_blessed: { icon: '🍲', title: 'Grandma Approved', desc: 'Summon Grandma rescue or unlock AMA666' },
+        scooter_ace: { icon: '🛵', title: 'Songren Turbo Ace', desc: 'Hit 1,200+ pts in 2026 Scooter Rush' },
+        mind_reader: { icon: '🧠', title: 'Dual Intel Master', desc: 'Use role special & consult AI twins on the same stop' },
+        multi_role: { icon: '👑', title: 'Agency Multiverse', desc: 'Clear full shifts across 2+ distinct roles' }
+      },
+      toastRegionAria: 'Game notifications',
+      toastClose: 'Dismiss notification',
+      toastAchUnlocked: (title) => `🏆 Milestone Unlocked: ${title}`,
+      toastSkillUsed: (name) => `⚡ Special Triggered: ${name}`,
+      toastScooterDone: (score) => `🛵 Scooter Rush done! ${score} pts & -1 Wanted Star`,
+      toastMuted: '🔇 Audio muted (press M to toggle)',
+      toastUnmuted: '🔊 Audio enabled',
+      shareTitle: '📣 Share Your Taipei Shift Result',
+      downloadCardBtn: '📥 Download Result Card (PNG)',
+      copyShareBtn: '📋 Copy Share Text',
+      copyShareAria: 'Copy Taipei Shift result share text',
+      copiedOk: 'Copied!',
+      copiedFail: 'Copy failed',
+      nativeShareBtn: '🔗 Share Result',
+      cardDownloaded: '📥 Result card PNG downloaded!',
+      shareTemplate: ({ roleName, personaName, points, correct, total, achCount, achTotal, url }) =>
+        `[Grand Theft Agency Taipei 2018-2026] I clocked in as ${roleName} & earned "${personaName}"! $${points} pts | ${correct}/${total} solved | ${achCount}/${achTotal} milestones 🏆 Challenge my shift: ${url}`,
+      cardSubtitle: 'Grand Theft Agency · Decision Wisdom 2018–2026',
+      cardAccuracy: (c, tot) => `Accuracy ${c}/${tot}`,
+      cardMilestones: (a, tot) => `Milestones ${a}/${tot}`,
+      restartDialogTitle: 'Restart Current Shift?',
+      restartDialogBody: 'Current chapter progress will reset, while your unlocked milestones and cleared role records stay saved.',
+      restartCancelBtn: 'Keep Playing',
+      restartConfirmBtn: '↺ Restart Shift',
+      deltaPoints: (d) => `💰 ${d > 0 ? '+' : ''}$${d.toLocaleString()}`,
+      deltaWanted: (d) => `⭐ Wanted ${d > 0 ? '+' : ''}${d}`
     }
   },
 
@@ -1292,6 +1372,46 @@ export const UI_STRINGS = {
       evalSlider: (val, unit, rev) => `選択値：${val}${unit}。${rev}`,
       evalSwipe: (hits, tot, rev) => `${tot}問中 ${hits}問正解。${rev}`,
       evalMulti: (right, tot, wrong, rev) => `${tot}個中 ${right}個正解（誤選択 ${wrong}個）。${rev}`
+    },
+    launch: {
+      metaProgress: (cleared, totalRoles, ach, totalAch) => `🏆 ${cleared}／${totalRoles} 職種クリア · 実績 ${ach}／${totalAch}`,
+      roleClearedTag: '✓ クリア済',
+      roleBestScore: (pts) => `最高 $${pts}`,
+      achievementsTitle: '🏆 台北24時キャリア実績',
+      achievements: {
+        first_shift: { icon: '🏁', title: '台北初出勤', desc: 'いずれかの職種で全10駅を完走' },
+        sharp_judge: { icon: '🎯', title: '鋭眼ストラテジスト', desc: '1プレイの実務ミニゲーム正答率80%以上' },
+        grandma_blessed: { icon: '🍲', title: 'おばあちゃん公認', desc: '緊急救済発動または裏技AMA666解放' },
+        scooter_ace: { icon: '🛵', title: '松仁路の爆走王', desc: '2026電動バイクで1,200点以上を達成' },
+        mind_reader: { icon: '🧠', title: '両面インテリ', desc: '同駅で職種スキルと双子顧問の両方を活用' },
+        multi_role: { icon: '👑', title: '電通マルチ統括', desc: '2つ以上の異なる職種ルートをクリア' }
+      },
+      toastRegionAria: 'ゲーム通知',
+      toastClose: '通知を閉じる',
+      toastAchUnlocked: (title) => `🏆 実績解除：${title}`,
+      toastSkillUsed: (name) => `⚡ スキル発動：${name}`,
+      toastScooterDone: (score) => `🛵 バイク完走！${score} 点獲得＆手配星 -1`,
+      toastMuted: '🔇 ミュート中（Mキーで切替）',
+      toastUnmuted: '🔊 サウンドON',
+      shareTitle: '📣 台北24時の戦績をシェア',
+      downloadCardBtn: '📥 戦績カードを保存 (PNG)',
+      copyShareBtn: '📋 戦績テキストをコピー',
+      copyShareAria: '戦績シェアテキストをコピー',
+      copiedOk: 'コピー完了！',
+      copiedFail: 'コピー失敗',
+      nativeShareBtn: '🔗 同僚にシェア',
+      cardDownloaded: '📥 戦績カード PNG を保存しました！',
+      shareTemplate: ({ roleName, personaName, points, correct, total, achCount, achTotal, url }) =>
+        `【電通台湾24時 2018–2026】「${roleName}」で称号《${personaName}》を獲得！総スコア $${points}｜正答 ${correct}/${total} 問｜実績 ${achCount}/${achTotal} 🏆 挑戦はこちら：${url}`,
+      cardSubtitle: '電通台湾24時・意思決定の知恵 2018–2026',
+      cardAccuracy: (c, tot) => `正答 ${c}／${tot}`,
+      cardMilestones: (a, tot) => `実績 ${a}／${tot}`,
+      restartDialogTitle: '最初からやり直しますか？',
+      restartDialogBody: '現在の章の進行はリセットされますが、解除済みの実績と職種クリア記録は保持されます。',
+      restartCancelBtn: 'プレイを続ける',
+      restartConfirmBtn: '↺ やり直す',
+      deltaPoints: (d) => `💰 ${d > 0 ? '+' : ''}$${d.toLocaleString()}`,
+      deltaWanted: (d) => `⭐ 手配星 ${d > 0 ? '+' : ''}${d}`
     }
   }
 };

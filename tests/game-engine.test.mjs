@@ -396,3 +396,90 @@ test('All 354 Google Gemini TTS MP3 clips (zh/en/ja x 118) and 9 AAC MP4 cutscen
   }
   soundFX.setLang('zh');
 });
+
+test('Launch kit sanitizes corrupt saves, tracks achievements & stat deltas, and builds clean share summaries', async () => {
+  const { getLocalizedRole, t } = await import('../src/i18n.js');
+  const {
+    ACHIEVEMENT_IDS,
+    createEmptyMeta,
+    sanitizeLoadedState,
+    computeStatDeltas,
+    updateCareerMeta,
+    buildShareSummaryText
+  } = await import('../src/launch-kit.js');
+
+  const recovered = sanitizeLoadedState(
+    {
+      phase: 'invalid_phase',
+      roleId: 'grandma',
+      grandmaUnlocked: false,
+      chapterIndex: 99,
+      wantedStars: 12,
+      stats: { stamina: 999, streetCred: -20, realLift: 50, brandTrust: 50, judgment: 50 }
+    },
+    createInitialState,
+    10
+  );
+  assert.equal(recovered.phase, 'title');
+  assert.equal(recovered.roleId, 'planner');
+  assert.equal(recovered.chapterIndex, 9);
+  assert.equal(recovered.wantedStars, 5);
+  assert.equal(recovered.stats.stamina, 100);
+  assert.equal(recovered.stats.streetCred, 0);
+
+  const s0 = selectRole(createInitialState(), 'planner');
+  const s1 = chooseReply(s0, 2);
+  const deltas = computeStatDeltas(s0, s1);
+  assert.ok(deltas.some((d) => d.key === 'points' && d.delta === 1000));
+
+  let meta = createEmptyMeta();
+  const r1 = updateCareerMeta(
+    meta,
+    {
+      roleId: 'planner',
+      points: 35000,
+      gamesScoredCount: 8,
+      gamesCorrectCount: 7,
+      grandmaUnlocked: true,
+      grandmaRescues: 1,
+      scooterBestScore: 1500,
+      roleSpecialUsedThisChapter: true,
+      askedTwins: ['lisa']
+    },
+    'judge',
+    true
+  );
+  meta = r1.meta;
+  assert.equal(r1.newlyUnlocked.includes('first_shift'), true);
+  assert.equal(r1.newlyUnlocked.includes('sharp_judge'), true);
+  assert.equal(r1.newlyUnlocked.includes('grandma_blessed'), true);
+  assert.equal(r1.newlyUnlocked.includes('scooter_ace'), true);
+  assert.equal(r1.newlyUnlocked.includes('mind_reader'), true);
+
+  const r2 = updateCareerMeta(
+    meta,
+    { roleId: 'account', points: 28000, gamesScoredCount: 8, gamesCorrectCount: 4, askedTwins: [] },
+    'balance',
+    true
+  );
+  assert.equal(r2.meta.achievements.length, ACHIEVEMENT_IDS.length);
+  assert.equal(r2.newlyUnlocked.includes('multi_role'), true);
+
+  for (const lang of ['zh', 'en', 'ja']) {
+    setLang(lang);
+    const role = getLocalizedRole('planner', lang);
+    const txt = buildShareSummaryText({
+      role,
+      persona: determinePersona({ roleId: 'planner', gamesCorrectCount: 7, perfPicks: 4 }),
+      state: { points: 35000, gamesCorrectCount: 7, gamesScoredCount: 8 },
+      meta: r2.meta,
+      lang,
+      tFn: t
+    });
+    assert.ok(txt.includes('mela0976.github.io/gta-dentsu-taiwan'));
+    if (lang === 'en') {
+      assert.equal(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(txt), false, `EN share leaked CJK: ${txt}`);
+    }
+  }
+  setLang('zh');
+});

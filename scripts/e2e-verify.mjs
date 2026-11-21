@@ -218,6 +218,20 @@ async function run() {
       attachErrorWatchers(page, name);
       await page.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
       await checkImagesLoaded(page, `${name}-title`);
+      if (name === 'compact-1024') {
+        const metaCheck = await page.evaluate(() => ({
+          ogTitle: document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '',
+          ogImage: document.querySelector('meta[property="og:image"]')?.getAttribute('content') || '',
+          twitterCard: document.querySelector('meta[name="twitter:card"]')?.getAttribute('content') || '',
+          preloadHero: document.querySelector('link[rel="preload"][as="image"]')?.getAttribute('fetchpriority') || '',
+          heroImgPriority: document.querySelector('.hero-media img')?.getAttribute('fetchpriority') || ''
+        }));
+        assert.ok(metaCheck.ogTitle.length > 5, 'Missing og:title metadata');
+        assert.ok(metaCheck.ogImage.includes('scene-morning-scooter.webp'), 'Missing og:image metadata');
+        assert.equal(metaCheck.twitterCard, 'summary_large_image', 'Missing twitter:card metadata');
+        assert.equal(metaCheck.preloadHero, 'high', 'Missing LCP image preload fetchpriority=high');
+        assert.equal(metaCheck.heroImgPriority, 'high', 'Hero LCP <img> missing fetchpriority=high');
+      }
       const titleBounds = await page.evaluate(() => {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
@@ -434,6 +448,7 @@ async function run() {
       }
 
       await play.waitForSelector('.stamp-slot');
+      assert.ok(await play.locator('.delta-chip').count() >= 1, `ch${ch}: expected stat delta chips on reveal stage`);
       if (ch === 1) {
         await play.click('button:has-text("聽台灣阿嬤配音")');
       }
@@ -446,17 +461,49 @@ async function run() {
     const reviewCheck = await play.evaluate(() => ({
       historyCards: document.querySelectorAll('.review-history-grid > div').length,
       stamp: Boolean(document.querySelector('.review-stamp svg')),
+      achCount: document.querySelectorAll('.ach-badge').length,
+      achUnlocked: document.querySelectorAll('.ach-badge.is-unlocked').length,
+      hasSharePreview: Boolean(document.querySelector('#share-summary-text')?.textContent?.includes('mela0976.github.io')),
       overflowX: document.documentElement.scrollWidth > window.innerWidth,
       replayBtnBottom: document.querySelector('.review-actions .btn-primary').getBoundingClientRect().bottom,
       guideTop: document.querySelector('.bottom-guide-bar').getBoundingClientRect().top
     }));
     assert.equal(reviewCheck.historyCards, 10, 'Expected 10 chapter history items on review stage');
     assert.equal(reviewCheck.stamp, true, 'Missing temple stamp on review stage');
+    assert.equal(reviewCheck.achCount, 6, 'Expected 6 career milestone badges on review stage');
+    assert.ok(reviewCheck.achUnlocked >= 1, 'Expected at least 1 unlocked achievement on review completion');
+    assert.equal(reviewCheck.hasSharePreview, true, 'Missing share summary text on review stage');
     assert.equal(reviewCheck.overflowX, false, 'Horizontal overflow on review stage');
+
+    // Verify Invoker copy button + PNG card download + native Restart <dialog> + mute persistence
+    await play.click('.copy-button');
+    await play.waitForFunction(() => Boolean(document.querySelector('.copy-tip')?.textContent?.trim()));
+    await play.click('.share-actions .btn-gold');
+    await play.waitForTimeout(150);
+
     await play.locator('.review-actions .btn-primary').scrollIntoViewIfNeeded();
     if (ssDir) await play.screenshot({ path: path.join(ssDir, 'e2e-review-1280.png') });
     await play.click('.review-actions .btn-primary');
     await play.waitForSelector('.role-grid');
+    assert.ok(await play.locator('.role-cleared-badge').count() >= 1, 'Expected cleared badge on role card after finishing shift');
+
+    // Test native <dialog> Restart confirm & audio mute persistence across reload
+    await play.click('.role-card');
+    await play.waitForSelector('.hud-bar');
+    await play.click('[data-mute-btn]');
+    await play.click('.hud-bar button:has-text("重開")');
+    await play.waitForSelector('dialog.confirm-modal[open]');
+    await play.click('dialog.confirm-modal .btn-ghost');
+    assert.equal(await play.locator('dialog.confirm-modal[open]').count(), 0, 'Confirm dialog did not close on cancel');
+    await play.click('.hud-bar button:has-text("重開")');
+    await play.waitForSelector('dialog.confirm-modal[open]');
+    await play.click('dialog.confirm-modal .btn-primary');
+    await play.waitForSelector('.role-grid');
+    await play.reload({ waitUntil: 'networkidle' });
+    await play.click('.role-card');
+    await play.waitForSelector('[data-mute-btn]');
+    const persistedMute = await play.textContent('[data-mute-btn]');
+    assert.ok(persistedMute.includes('靜音'), `Expected muted preference to persist across reload, got "${persistedMute}"`);
     await play.close();
 
     // 3. Mobile responsive checks (320x568, 375x667, 390x844 with touch + trilingual)

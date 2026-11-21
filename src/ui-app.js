@@ -47,6 +47,17 @@ import {
   getTeslaFsdOverlaySvg,
   getFubonA25BlueprintSvg
 } from './ui-graphics.js';
+import {
+  META_STORAGE_KEY,
+  AUDIO_PREFS_KEY,
+  ACHIEVEMENT_IDS,
+  createEmptyMeta,
+  sanitizeLoadedState,
+  computeStatDeltas,
+  updateCareerMeta,
+  buildShareSummaryText,
+  renderResultCardCanvas
+} from './launch-kit.js';
 
 const STORAGE_KEY = 'gta_dentsu_taiwan_v1';
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
@@ -94,9 +105,14 @@ class GtaDentsuApp {
     this.root = root;
     initLang();
     soundFX.setLang(getLang());
+    const audioPrefs = this._loadAudioPrefs();
+    this.muted = Boolean(audioPrefs.muted);
+    soundFX.setMuted(this.muted);
+    soundFX.setVoiceEnabled(audioPrefs.voiceEnabled !== false);
+    soundFX.stationIndex = Number(audioPrefs.stationIndex || 0);
+    this.careerMeta = this._loadMeta();
     this.state = this._loadState();
     this.phoneTab = 'line'; // 'line' | 'people' | 'grandma' | 'gta6'
-    this.muted = false;
     this.scooterModalOpen = false;
     this.scooterInstance = null;
     this.ch6CallModalOpen = false;
@@ -133,6 +149,13 @@ class GtaDentsuApp {
     this._tourInvokerEl = null;
     this.mobileHudExpanded = false;
     this.mobilePanel = 'mission'; // 'mission' | 'scene' | 'phone' | 'intel'
+    this.lastStatDeltas = [];
+    this.restartDialogOpen = false;
+    this._pendingToasts = [];
+    this._toastTimers = new WeakMap();
+    this._copyTimers = new WeakMap();
+    this._lastCopyMessage = '';
+    this._lastToastTrigger = null;
 
     // 全螢幕動態場景氛圍背景（放在 #app 之外，render 時只換圖）
     this.backdrop = el('div', { class: 'ambient-backdrop', 'aria-hidden': 'true' });
@@ -140,9 +163,11 @@ class GtaDentsuApp {
     document.body.prepend(this.veil);
     document.body.prepend(this.backdrop);
     this._mountTourOverlays();
+    this._bindGlobalLaunchListeners();
 
     soundFX.onVoiceChange = () => this._syncVoiceIndicator();
     const startAudio = () => {
+      if (this.muted) return;
       soundFX._ensureCtx();
       soundFX.startBGM();
     };
@@ -177,6 +202,9 @@ class GtaDentsuApp {
     const lang = setLang(nextLang);
     soundFX.setLang(lang);
     this.activeCutsceneSrc = this.activeCutsceneSrc ? getCutsceneUrl(this.activeCutsceneSrc, lang) : null;
+    if (this.toastRegion) this.toastRegion.setAttribute('aria-label', t('launch.toastRegionAria'));
+    if (this.srToastContext) this.srToastContext.textContent = t('launch.toastRegionAria');
+    if (this.srLiveRegion) this.srLiveRegion.textContent = '';
     if (this.state.roleId) {
       const ch = getCurrentChapter(this.state);
       const nextState = { ...this.state };
@@ -335,13 +363,277 @@ class GtaDentsuApp {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return createInitialState();
       const parsed = JSON.parse(raw);
-      if (!parsed || !parsed.stats || typeof parsed.chapterIndex !== 'number') {
-        return createInitialState();
-      }
-      return { ...createInitialState(), ...parsed };
+      return sanitizeLoadedState(parsed, createInitialState, CHAPTERS.length);
     } catch {
       return createInitialState();
     }
+  }
+
+  _loadMeta() {
+    try {
+      const raw = localStorage.getItem(META_STORAGE_KEY);
+      if (!raw) return createEmptyMeta();
+      const parsed = JSON.parse(raw);
+      return {
+        ...createEmptyMeta(),
+        ...(parsed && typeof parsed === 'object' ? parsed : {}),
+        clearedRoles: { ...((parsed && parsed.clearedRoles) || {}) },
+        achievements: Array.isArray(parsed?.achievements) ? parsed.achievements : []
+      };
+    } catch {
+      return createEmptyMeta();
+    }
+  }
+
+  _saveMeta() {
+    try {
+      localStorage.setItem(META_STORAGE_KEY, JSON.stringify(this.careerMeta));
+    } catch {}
+  }
+
+  _loadAudioPrefs() {
+    try {
+      const raw = localStorage.getItem(AUDIO_PREFS_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  _saveAudioPrefs() {
+    try {
+      localStorage.setItem(AUDIO_PREFS_KEY, JSON.stringify({
+        muted: Boolean(this.muted),
+        voiceEnabled: Boolean(soundFX.voiceEnabled),
+        stationIndex: Number(soundFX.stationIndex || 0)
+      }));
+    } catch {}
+  }
+
+  _bindGlobalLaunchListeners() {
+    if (typeof document === 'undefined') return;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        soundFX.pauseForBackground();
+        document.querySelectorAll('.cutscene-video').forEach((v) => {
+          try { if (!v.paused) v.pause(); } catch {}
+        });
+        if (this.scooterInstance) this.scooterInstance.pause();
+        this._clearStopTimer();
+      } else {
+        soundFX.resumeFromBackground();
+        if (this.scooterInstance) this.scooterInstance.resume();
+        const ch = getCurrentChapter(this.state);
+        if (this.state.phase === 'game' && ch?.game?.type === 'stop' && !this.stopFinished && !this.stopTimer) {
+          this.render();
+        }
+      }
+    });
+    window.addEventListener('pagehide', () => soundFX.pauseForBackground());
+
+    const dispatchCopy = (button, target, cmd) => {
+      if (button && target) this._handleCopyCommand(button, target, cmd);
+    };
+    document.addEventListener('command', (event) => {
+      if (typeof event.command === 'string' && event.command.startsWith('--copy')) {
+        dispatchCopy(event.source, event.target, event.command);
+      }
+    }, true);
+    if (!('CommandEvent' in window)) {
+      document.addEventListener('click', (event) => {
+        const button = event.target?.closest?.('button[command^="--copy"]');
+        if (!button) return;
+        const target = document.getElementById(button.getAttribute('commandfor') || '');
+        if (target) dispatchCopy(button, target, button.getAttribute('command'));
+      });
+    }
+  }
+
+  _legacyCopyText(text) {
+    const field = Object.assign(document.createElement('textarea'), { value: text });
+    field.setAttribute('readonly', '');
+    field.style.cssText = 'position:fixed;inset-block-start:0;opacity:0';
+    document.body.append(field);
+    field.select();
+    try { return document.execCommand('copy'); } catch { return false; } finally { field.remove(); }
+  }
+
+  async _handleCopyCommand(button, target) {
+    const text = target.matches('input, textarea') ? target.value : (target.innerText || target.textContent || '').trim();
+    if (!text) return;
+    let ok = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        ok = true;
+      } else {
+        ok = this._legacyCopyText(text);
+      }
+    } catch {
+      ok = this._legacyCopyText(text);
+    }
+
+    const tip = button.nextElementSibling;
+    if (!tip) return;
+    clearTimeout(this._copyTimers.get(button));
+    button.removeAttribute('data-copied');
+    button.removeAttribute('data-failed');
+    let msg = ok ? t('launch.copiedOk') : t('launch.copiedFail');
+    if (msg === this._lastCopyMessage) msg += '\u00A0';
+    this._lastCopyMessage = msg;
+    tip.textContent = '';
+    void button.offsetWidth;
+    button.setAttribute(ok ? 'data-copied' : 'data-failed', '');
+    requestAnimationFrame(() => { tip.textContent = msg; });
+    this._copyTimers.set(button, setTimeout(() => {
+      button.removeAttribute('data-copied');
+      button.removeAttribute('data-failed');
+      tip.textContent = '';
+    }, 2200));
+  }
+
+  _isAnyModalOpen() {
+    return Boolean(
+      this.welcomeDialogOpen
+      || this.restartDialogOpen
+      || this.scooterModalOpen
+      || this.streetViewModalOpen
+      || this.ch6CallModalOpen
+    );
+  }
+
+  _relayoutToasts() {
+    if (!this.toastRegion) return;
+    [...this.toastRegion.children].forEach((node, idx) => {
+      node.style.setProperty('--toast-idx', String(idx));
+    });
+  }
+
+  _dismissToast(toast, restoreFocus = false) {
+    if (!toast || !toast.isConnected) return;
+    clearTimeout(this._toastTimers.get(toast));
+    try {
+      if (typeof toast.hidePopover === 'function' && toast.matches(':popover-open')) {
+        toast.hidePopover();
+      }
+    } catch {}
+    toast.removeAttribute('open');
+    const nextToast = [...(this.toastRegion?.children || [])].find((n) => n !== toast && n.classList?.contains('app-toast'));
+    toast.remove();
+    this._relayoutToasts();
+    if (restoreFocus) {
+      if (nextToast) {
+        nextToast.querySelector('.toast-close')?.focus();
+      } else if (this._lastToastTrigger?.isConnected) {
+        this._lastToastTrigger.focus();
+      }
+    }
+  }
+
+  _drainPendingToasts() {
+    if (this._isAnyModalOpen() || !this._pendingToasts.length) return;
+    const queued = this._pendingToasts.splice(0, 3);
+    queued.forEach((item) => this._showToast(item.message, item.kind, item.durationMs));
+  }
+
+  _showToast(message, kind = 'info', durationMs = 3600) {
+    if (typeof document === 'undefined' || !this.toastRegion || !message) return;
+    if (this._isAnyModalOpen()) {
+      this._pendingToasts.push({ message, kind, durationMs });
+      return;
+    }
+    this._lastToastTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    while (this.toastRegion.children.length >= 3) {
+      this._dismissToast(this.toastRegion.firstElementChild, false);
+    }
+
+    const toastId = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const closeBtn = el('button', {
+      type: 'button',
+      class: 'toast-close',
+      popovertarget: toastId,
+      popovertargetaction: 'hide',
+      'aria-label': t('launch.toastClose'),
+      text: '✕',
+      onClick: () => this._dismissToast(toast, true)
+    });
+    const toast = el('div', {
+      id: toastId,
+      popover: 'manual',
+      class: `app-toast is-${kind}`,
+      role: 'status'
+    }, [
+      el('span', { class: 'toast-msg', text: message }),
+      closeBtn
+    ]);
+    this.toastRegion.appendChild(toast);
+    this._relayoutToasts();
+
+    try {
+      if (typeof toast.showPopover === 'function') toast.showPopover();
+      else toast.setAttribute('open', '');
+    } catch {
+      toast.setAttribute('open', '');
+    }
+
+    try {
+      if (typeof document.ariaNotify === 'function') {
+        document.ariaNotify(message);
+      } else if (this.srLiveRegion) {
+        this.srLiveRegion.textContent = '';
+        requestAnimationFrame(() => { if (this.srLiveRegion) this.srLiveRegion.textContent = message; });
+      }
+    } catch {}
+
+    const scheduleHide = () => {
+      clearTimeout(this._toastTimers.get(toast));
+      this._toastTimers.set(toast, setTimeout(() => {
+        if (!toast.isConnected) return;
+        if (toast.matches(':focus-within')) {
+          scheduleHide();
+          return;
+        }
+        this._dismissToast(toast, false);
+      }, durationMs));
+    };
+    toast.addEventListener('focusout', () => scheduleHide());
+    scheduleHide();
+  }
+
+  _openRestartConfirm() {
+    soundFX.playClick();
+    if (!this.confirmRestartDialog) {
+      this._resetGame();
+      return;
+    }
+    this.restartDialogOpen = true;
+    const dlg = this.confirmRestartDialog;
+    dlg.innerHTML = '';
+    const cancelBtn = el('button', {
+      type: 'button',
+      class: 'btn-ghost',
+      text: t('launch.restartCancelBtn'),
+      onClick: () => dlg.close('cancel')
+    });
+    const confirmBtn = el('button', {
+      type: 'button',
+      class: 'btn-primary',
+      text: t('launch.restartConfirmBtn'),
+      onClick: () => {
+        dlg.close('confirm');
+        this._resetGame();
+      }
+    });
+    dlg.appendChild(el('div', { class: 'confirm-modal-inner' }, [
+      el('div', { class: 'gta-kicker', text: t('hud.restartBtn') }),
+      el('h2', { id: 'confirm-restart-title', style: 'margin:0;color:var(--gold);font-size:20px;', text: t('launch.restartDialogTitle') }),
+      el('p', { style: 'margin:0;font-size:14.5px;color:#efeafd;', text: t('launch.restartDialogBody') }),
+      el('div', { style: 'display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:6px;' }, [cancelBtn, confirmBtn])
+    ]));
+    if (typeof dlg.showModal === 'function') dlg.showModal();
+    else dlg.setAttribute('open', '');
   }
 
   _saveState() {
@@ -402,9 +694,48 @@ class GtaDentsuApp {
       dlg.addEventListener('close', () => {
         dlg.returnValue = '';
         this.welcomeDialogOpen = false;
+        this._drainPendingToasts();
       });
       document.body.appendChild(dlg);
       this.welcomeDialog = dlg;
+    }
+
+    if (!this.confirmRestartDialog) {
+      const cDlg = document.createElement('dialog');
+      cDlg.className = 'confirm-modal';
+      cDlg.setAttribute('aria-labelledby', 'confirm-restart-title');
+      cDlg.setAttribute('closedby', 'any');
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        const outside = (e) => {
+          const r = cDlg.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        let pressedOutside = false;
+        cDlg.addEventListener('pointerdown', (e) => { pressedOutside = outside(e); });
+        cDlg.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e)) cDlg.close(); });
+      }
+      cDlg.addEventListener('close', () => {
+        cDlg.returnValue = '';
+        this.restartDialogOpen = false;
+        this._drainPendingToasts();
+      });
+      document.body.appendChild(cDlg);
+      this.confirmRestartDialog = cDlg;
+    }
+
+    if (!this.toastRegion) {
+      const srCtx = el('p', { id: 'sr-toast-context', class: 'sr-only', text: t('launch.toastRegionAria') });
+      const srLive = el('div', { id: 'sr-live-region', class: 'sr-only', 'aria-live': 'polite' });
+      const region = el('div', {
+        id: 'toast-region',
+        class: 'toast-region',
+        role: 'region',
+        'aria-label': t('launch.toastRegionAria')
+      });
+      document.body.append(srCtx, srLive, region);
+      this.srToastContext = srCtx;
+      this.srLiveRegion = srLive;
+      this.toastRegion = region;
     }
 
     if (!this.hudTourPopover) {
@@ -737,6 +1068,13 @@ class GtaDentsuApp {
 
   _setState(next) {
     const changedView = next.phase !== this.state.phase || next.chapterIndex !== this.state.chapterIndex;
+    const enteredReview = next.phase === 'review' && this.state.phase !== 'review';
+    const enteredDeltaPhase = (next.phase === 'game' || next.phase === 'reveal') && next.phase !== this.state.phase;
+    if (enteredDeltaPhase) {
+      this.lastStatDeltas = computeStatDeltas(this.state, next);
+    } else if (next.phase === 'scene' || next.phase === 'role' || next.phase === 'title') {
+      this.lastStatDeltas = [];
+    }
     if (this.state.phase === 'cutscene' && next.phase !== 'cutscene') {
       soundFX.setCutscenePlaying(false);
     }
@@ -744,11 +1082,22 @@ class GtaDentsuApp {
       this.mobilePanel = 'mission';
       this.mobileHudExpanded = false;
     }
+    const personaId = enteredReview ? determinePersona(next).id : null;
+    const { meta: nextMeta, newlyUnlocked } = updateCareerMeta(this.careerMeta, next, personaId, enteredReview);
+    this.careerMeta = nextMeta;
+    this._saveMeta();
     this.state = next;
     this._saveState();
     this.render();
     if (changedView && window.innerWidth < 1024) {
       window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (newlyUnlocked.length) {
+      const achStrings = t('launch.achievements') || {};
+      newlyUnlocked.forEach((id) => {
+        const item = achStrings[id];
+        if (item?.title) this._showToast(t('launch.toastAchUnlocked', `${item.icon} ${item.title}`), 'gold', 4200);
+      });
     }
   }
 
@@ -790,7 +1139,7 @@ class GtaDentsuApp {
   }
 
   _handleGlobalKey(e) {
-    if (this.welcomeDialog?.open) return;
+    if (this.welcomeDialog?.open || this.confirmRestartDialog?.open) return;
     if (this.tourActive && e.key === 'Escape') {
       e.preventDefault();
       this._finishHudTour(true);
@@ -805,6 +1154,12 @@ class GtaDentsuApp {
       if (this.cheatBuffer === CHEAT_CODE) {
         this._triggerCheatCode(true);
       }
+    }
+
+    if ((e.key === 'm' || e.key === 'M') && !e.ctrlKey && !e.metaKey && !e.altKey && !this.cheatBuffer.endsWith('AM')) {
+      e.preventDefault();
+      this._toggleMute(true);
+      return;
     }
 
     if (this.scooterModalOpen || this.ch6CallModalOpen || this.streetViewModalOpen) {
@@ -1038,6 +1393,7 @@ class GtaDentsuApp {
     this.scooterModalOpen = false;
     this._restoreStation();
     this.render();
+    this._drainPendingToasts();
   }
 
   render() {
@@ -1085,6 +1441,8 @@ class GtaDentsuApp {
       el('img', {
         src: './public/images/scene-morning-scooter.webp',
         alt: t('titleScreen.heroAlt'),
+        fetchpriority: 'high',
+        decoding: 'async',
         onerror: (e) => { e.target.style.display = 'none'; }
       }),
       htmlNode('hero-fsd', getTeslaFsdOverlaySvg()),
@@ -1200,11 +1558,15 @@ class GtaDentsuApp {
     const roles = getLocalizedRoles();
     const routeMap = getLocalizedRouteMeta();
     const hudStats = getHudStats();
+    const clearedMap = this.careerMeta?.clearedRoles || {};
+    const clearedCount = Object.keys(clearedMap).length;
+    const achCount = (this.careerMeta?.achievements || []).length;
     const topBar = el('div', { class: 'panel role-topbar' }, [
       el('div', {}, [
         el('div', { class: 'gta-kicker', text: t('roleSelect.kicker') }),
         el('h2', { text: t('roleSelect.heading') }),
-        el('p', { class: 'role-topbar-hint', text: t('roleSelect.hint') })
+        el('p', { class: 'role-topbar-hint', text: t('roleSelect.hint') }),
+        el('div', { class: 'meta-progress-pill', text: t('launch.metaProgress', clearedCount, roles.length, achCount, ACHIEVEMENT_IDS.length) })
       ]),
       el('div', { class: 'cheat-bar' }, [
         this._renderLangSwitch(false),
@@ -1233,7 +1595,8 @@ class GtaDentsuApp {
     const grid = el('div', { class: 'role-grid' }, roles.map((role, idx) => {
       const locked = role.id === 'grandma' && !this.state.grandmaUnlocked;
       const isRec = role.id === 'planner';
-      const cls = `role-card${role.id === 'grandma' ? ' is-grandma' : ''}${isRec ? ' is-recommended' : ''}${locked ? ' is-locked' : ''}`;
+      const clearedRec = clearedMap[role.id];
+      const cls = `role-card${role.id === 'grandma' ? ' is-grandma' : ''}${isRec ? ' is-recommended' : ''}${clearedRec ? ' is-cleared' : ''}${locked ? ' is-locked' : ''}`;
       const route = routeMap[role.id] || {};
       return el('button', {
         class: cls,
@@ -1251,7 +1614,10 @@ class GtaDentsuApp {
         el('div', { class: 'role-lanyard' }),
         el('div', { class: 'role-id-head' }, [
           el('span', { text: t('roleSelect.cardHeaderBrand') }),
-          el('span', { text: `WANTED #0${idx + 1}` })
+          el('span', { style: 'display:inline-flex;align-items:center;gap:4px;' }, [
+            clearedRec ? el('span', { class: 'role-cleared-badge', text: t('launch.roleClearedTag'), title: t('launch.roleBestScore', Number(clearedRec.bestScore || 0).toLocaleString()) }) : null,
+            el('span', { text: `WANTED #0${idx + 1}` })
+          ])
         ]),
         el('div', { class: 'role-avatar-wrap' }, [
           el('img', {
@@ -1313,19 +1679,24 @@ class GtaDentsuApp {
 
   _toggleVoice(btn) {
     soundFX.toggleVoice();
+    this._saveAudioPrefs();
     const txt = btn.querySelector('.hud-btn-text');
     if (txt) txt.textContent = `${soundFX.voiceEnabled ? '🎙️' : '🔇'} ${this._voiceBtnLabel()}`;
     btn.setAttribute('aria-pressed', String(soundFX.voiceEnabled));
   }
 
-  _toggleMute() {
+  _toggleMute(withToast = false) {
     this.muted = !this.muted;
     soundFX.setMuted(this.muted);
+    this._saveAudioPrefs();
     document.querySelectorAll('.cutscene-video').forEach((v) => {
       v.muted = this.muted;
     });
     if (!this.muted) soundFX.startBGM();
     document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = this.muted ? t('hud.soundMuted') : t('hud.soundOn'); });
+    if (withToast) {
+      this._showToast(this.muted ? t('launch.toastMuted') : t('launch.toastUnmuted'), 'info', 2400);
+    }
   }
 
   _renderHud() {
@@ -1347,6 +1718,7 @@ class GtaDentsuApp {
       text: `📻 ${curStationName}`,
       onClick: (e) => {
         const st = soundFX.nextStation();
+        this._saveAudioPrefs();
         const name = (t('radioStations') || {})[st.id] || st.short;
         e.currentTarget.textContent = `📻 ${name}`;
       }
@@ -1450,11 +1822,10 @@ class GtaDentsuApp {
         }),
         helpBtn,
         el('button', {
+          type: 'button',
           class: 'hud-btn',
           text: t('hud.restartBtn'),
-          onClick: () => {
-            if (window.confirm(t('hud.restartConfirm'))) this._resetGame();
-          }
+          onClick: () => this._openRestartConfirm()
         }),
         this._renderLangSwitch(true),
         helpPopover
@@ -1816,6 +2187,7 @@ class GtaDentsuApp {
         onClick: () => {
           soundFX.playMissionPassed();
           this._setState(useRoleSpecial(this.state));
+          this._showToast(t('launch.toastSkillUsed', role.specialName), 'info', 3000);
         }
       })
     ]);
@@ -1982,7 +2354,7 @@ class GtaDentsuApp {
                 this._speakTwin(ch, tid, false);
               }
             }, [
-              el('img', { class: 'twin-avatar', src: twin.image, alt: twin.name, onerror: (e) => { e.target.style.display = 'none'; } }),
+              el('img', { class: 'twin-avatar', src: twin.image, alt: twin.name, loading: 'lazy', decoding: 'async', onerror: (e) => { e.target.style.display = 'none'; } }),
               el('div', { class: 'twin-text' }, [
                 el('b', { text: twin.name }),
                 el('span', { text: asked ? `「${ch.peopleModel[tid]}」` : t('phone.clickAsk') })
@@ -2094,6 +2466,25 @@ class GtaDentsuApp {
       showRoadLabels: true
     });
     setTimeout(() => hostEl.querySelector('.dismissButton')?.click(), 450);
+  }
+
+  _renderDeltaChips() {
+    if (!Array.isArray(this.lastStatDeltas) || !this.lastStatDeltas.length) return null;
+    const statsMeta = Object.fromEntries(getHudStats().map((m) => [m.key, m]));
+    return el('div', { class: 'delta-row', 'aria-live': 'polite' }, this.lastStatDeltas.map((d) => {
+      let text = '';
+      let isPositive = d.delta > 0;
+      if (d.key === 'points') {
+        text = t('launch.deltaPoints', d.delta);
+      } else if (d.key === 'wantedStars') {
+        text = t('launch.deltaWanted', d.delta);
+        isPositive = d.delta < 0;
+      } else {
+        const label = statsMeta[d.key]?.label || d.key;
+        text = `${label} ${d.delta > 0 ? '+' : ''}${d.delta}`;
+      }
+      return el('span', { class: `delta-chip ${isPositive ? 'is-up' : 'is-down'}`, text });
+    }));
   }
 
   _renderStepFlow(phase) {
@@ -2250,7 +2641,10 @@ class GtaDentsuApp {
         stepFlow,
         rescueBanner,
         this.state.activeReply
-          ? el('div', { style: 'padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-size:15px;color:#e0d6f7;', text: t('stage.activeReplyLine', this.state.activeReply.text, this.state.activeReply.feedback) })
+          ? el('div', { style: 'padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-size:15px;color:#e0d6f7;' }, [
+              el('div', { text: t('stage.activeReplyLine', this.state.activeReply.text, this.state.activeReply.feedback) }),
+              this._renderDeltaChips()
+            ])
           : null,
         el('div', { class: 'quiz-guide-box' }, [
           el('div', { class: 'quiz-guide-badge', text: t('stage.step2Badge', ch.roleRoute?.routeBadge || '') }),
@@ -2270,7 +2664,8 @@ class GtaDentsuApp {
       rescueBanner,
       el('div', { class: 'boss-callout', style: `border-color:${out.correct ? 'var(--lime)' : 'var(--orange)'};` }, [
         el('div', { style: 'font-size:15px;color:var(--gold);margin-bottom:4px;', text: `${badgeText} · +$${out.pointsEarned.toLocaleString()}` }),
-        el('div', { text: out.detail })
+        el('div', { text: out.detail }),
+        this._renderDeltaChips()
       ]),
       el('div', { class: 'panel takeaway-card' }, [
         htmlNode('stamp-slot', getTempleStampSvg()),
@@ -2607,6 +3002,7 @@ class GtaDentsuApp {
                 this.swipeChoices
               );
               this._setState(next);
+              this._drainPendingToasts();
             }
           }),
           el('button', {
@@ -2682,6 +3078,8 @@ class GtaDentsuApp {
           this.scooterModalOpen = false;
           this._restoreStation();
           this._setState(completeScooterRun(this.state, result));
+          this._showToast(t('launch.toastScooterDone', Number(result?.score || 0).toLocaleString()), 'gold', 3800);
+          this._drainPendingToasts();
         }
       });
       this.scooterInstance.start();
@@ -2719,7 +3117,17 @@ class GtaDentsuApp {
       });
     }
 
-    return el('div', { class: 'modal-backdrop' }, [
+    return el('div', {
+      class: 'modal-backdrop',
+      onClick: (e) => {
+        if (e.target === e.currentTarget) {
+          soundFX.playClick();
+          this.streetViewModalOpen = false;
+          this.render();
+          this._drainPendingToasts();
+        }
+      }
+    }, [
       el('div', { class: 'modal-box', style: 'width:min(880px,100%);' }, [
         el('div', { style: 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
           el('div', {}, [
@@ -2749,6 +3157,7 @@ class GtaDentsuApp {
                 soundFX.playClick();
                 this.streetViewModalOpen = false;
                 this.render();
+                this._drainPendingToasts();
               }
             })
           ])
@@ -2780,6 +3189,24 @@ class GtaDentsuApp {
     const hudStats = getHudStats();
     const grandmaRole = getLocalizedRoles().find((r) => r.id === 'grandma');
     const grandmaQuote = grandmaRole?.quote || '做生意跟煮飯一樣，火候到了，客人自己會來。';
+    const unlockedSet = new Set(this.careerMeta?.achievements || []);
+    const achStrings = t('launch.achievements') || {};
+    const shareText = buildShareSummaryText({
+      role,
+      persona,
+      state: this.state,
+      meta: this.careerMeta,
+      lang: getLang(),
+      tFn: t
+    });
+    const reviewPortrait = el('img', {
+      src: role.image,
+      alt: role.name,
+      class: 'hud-avatar',
+      loading: 'lazy',
+      decoding: 'async',
+      onerror: (e) => { e.target.style.display = 'none'; }
+    });
 
     return el('section', { class: 'panel review-stage' }, [
       el('div', { class: 'chapter-header review-head' }, [
@@ -2796,7 +3223,7 @@ class GtaDentsuApp {
       el('div', { class: 'review-top-grid' }, [
         el('div', { class: 'panel', style: 'border-color:var(--cyan);' }, [
           el('div', { style: 'display:flex;align-items:center;gap:12px;margin-bottom:8px;' }, [
-            el('img', { src: role.image, alt: role.name, class: 'hud-avatar' }),
+            reviewPortrait,
             el('div', {}, [
               el('div', { style: 'font-weight:800;font-size:17px;', text: role.name }),
               el('div', { style: 'font-size:13px;color:var(--muted);', text: t('review.scoreStats', this.state.gamesCorrectCount, this.state.gamesScoredCount, this.state.grandmaRescues) })
@@ -2812,6 +3239,74 @@ class GtaDentsuApp {
             el('span', { text: st.fullLabel || st.label }),
             el('strong', { style: 'color:var(--gold);', text: String(s[st.key]) })
           ]))
+        ])
+      ]),
+      el('div', { class: 'panel' }, [
+        el('h3', { style: 'margin:0 0 8px 0;font-size:16px;', text: t('launch.achievementsTitle') }),
+        el('div', { class: 'achievements-grid' }, ACHIEVEMENT_IDS.map((id) => {
+          const info = achStrings[id] || { icon: '🏆', title: id, desc: '' };
+          const isUnlocked = unlockedSet.has(id);
+          return el('div', { class: `ach-badge${isUnlocked ? ' is-unlocked' : ''}` }, [
+            el('div', { class: 'ach-title', text: `${info.icon} ${info.title}` }),
+            el('div', { class: 'ach-desc', text: info.desc })
+          ]);
+        }))
+      ]),
+      el('div', { class: 'panel share-card-panel' }, [
+        el('h3', { style: 'margin:0 0 8px 0;font-size:16px;color:var(--gold);', text: t('launch.shareTitle') }),
+        el('pre', { id: 'share-summary-text', class: 'share-preview', text: shareText }),
+        el('div', { class: 'share-actions' }, [
+          el('button', {
+            type: 'button',
+            class: 'btn-gold',
+            text: t('launch.downloadCardBtn'),
+            onClick: () => {
+              soundFX.playMissionPassed();
+              const dataUrl = renderResultCardCanvas({
+                role,
+                persona,
+                state: this.state,
+                meta: this.careerMeta,
+                hudStats,
+                tFn: t,
+                portraitImg: reviewPortrait
+              });
+              if (dataUrl) {
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = `gta-dentsu-${role.id}-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                this._showToast(t('launch.cardDownloaded'), 'gold', 3200);
+              }
+            }
+          }),
+          el('span', { class: 'copy-wrap' }, [
+            el('button', {
+              type: 'button',
+              class: 'btn-cyan copy-button',
+              command: '--copy',
+              commandfor: 'share-summary-text',
+              'aria-label': t('launch.copyShareAria'),
+              text: t('launch.copyShareBtn')
+            }),
+            el('span', { class: 'copy-tip', role: 'status' })
+          ]),
+          typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+            ? el('button', {
+                type: 'button',
+                class: 'btn-ghost',
+                text: t('launch.nativeShareBtn'),
+                onClick: () => {
+                  navigator.share({
+                    title: t('docTitle'),
+                    text: shareText,
+                    url: window.location.href
+                  }).catch(() => {});
+                }
+              })
+            : null
         ])
       ]),
       el('div', { class: 'panel' }, [
@@ -2941,6 +3436,7 @@ class GtaDentsuApp {
           onClick: () => {
             soundFX.playMissionPassed();
             this._setState(useRoleSpecial(this.state));
+            this._showToast(t('launch.toastSkillUsed', role.specialName), 'info', 3000);
           }
         })
       );

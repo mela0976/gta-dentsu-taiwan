@@ -210,6 +210,7 @@ class SoundEngine {
     this.stationIndex = 0;
     this.onVoiceChange = null;
     this._noiseBuffer = null;
+    this._bgPausedBgm = false;
   }
 
   setLang(lang) {
@@ -292,6 +293,31 @@ class SoundEngine {
   setVoiceEnabled(enabled) {
     this.voiceEnabled = Boolean(enabled);
     if (!this.voiceEnabled) this.stopSpeech();
+  }
+
+  pauseForBackground() {
+    this._bgPausedBgm = Boolean(this.bgmTimer);
+    this.stopBGM();
+    if (this.activeAudio && typeof this.activeAudio.pause === 'function') {
+      try { this.activeAudio.pause(); } catch {}
+    }
+    if (this.ctx && this.ctx.state === 'running') {
+      this.ctx.suspend().catch(() => {});
+    }
+  }
+
+  resumeFromBackground() {
+    if (this.muted) {
+      this._bgPausedBgm = false;
+      return;
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+    if (this._bgPausedBgm) {
+      this._bgPausedBgm = false;
+      this.startBGM();
+    }
   }
 
   toggleVoice() {

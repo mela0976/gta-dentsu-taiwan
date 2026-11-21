@@ -92,6 +92,7 @@ export class GrandmaScooterGame {
     this.spawnCooldown = 0.45;
     this.roadOffset = 0;
     this.running = false;
+    this.paused = false;
     this.rafId = null;
     this.lastTs = 0;
     this.bannerText = this.labels.initBanner;
@@ -158,6 +159,7 @@ export class GrandmaScooterGame {
 
   start() {
     this.running = true;
+    this.paused = false;
     this.lastTs = performance.now();
     window.addEventListener('keydown', this._onKeyDown);
     if (this.canvas) {
@@ -167,12 +169,38 @@ export class GrandmaScooterGame {
       this.canvas.addEventListener('pointercancel', this._onPointerCancel);
     }
     const loop = (ts) => {
-      if (!this.running) return;
+      if (!this.running || this.paused) return;
       const dt = Math.min(0.05, Math.max(0.001, (ts - this.lastTs) / 1000));
       this.lastTs = ts;
       this.update(dt);
       this.render();
-      if (this.running) {
+      if (this.running && !this.paused) {
+        this.rafId = requestAnimationFrame(loop);
+      }
+    };
+    this.rafId = requestAnimationFrame(loop);
+  }
+
+  pause() {
+    if (!this.running || this.paused) return;
+    this.paused = true;
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  resume() {
+    if (!this.running || !this.paused) return;
+    this.paused = false;
+    this.lastTs = performance.now();
+    const loop = (ts) => {
+      if (!this.running || this.paused) return;
+      const dt = Math.min(0.05, Math.max(0.001, (ts - this.lastTs) / 1000));
+      this.lastTs = ts;
+      this.update(dt);
+      this.render();
+      if (this.running && !this.paused) {
         this.rafId = requestAnimationFrame(loop);
       }
     };
@@ -181,6 +209,7 @@ export class GrandmaScooterGame {
 
   stop(aborted = false) {
     this.running = false;
+    this.paused = false;
     window.removeEventListener('keydown', this._onKeyDown);
     if (this.canvas) {
       this.canvas.removeEventListener('pointerdown', this._onPointerDown);

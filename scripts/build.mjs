@@ -71,6 +71,7 @@ const bundledModules = [
   'src/game-engine.js',
   'src/scooter-minigame.js',
   'src/ui-graphics.js',
+  'src/launch-kit.js',
   'src/ui-app.js'
 ].map((rel) => stripModuleSyntax(fs.readFileSync(path.join(ROOT, rel), 'utf8'))).join('\n\n');
 
@@ -79,6 +80,8 @@ const standaloneHtml = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0616" />
+  <meta name="description" content="電通台灣一日風雲《決策智慧 2018–2026》互動職場冒險（單檔離線版）。" />
   <title>Grand Theft Agency｜電通台灣一日風雲・決策智慧 2018–2026（單檔版）</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23006b54'/><rect x='2' y='2' width='28' height='28' rx='6' fill='none' stroke='%23ffffff' stroke-width='2'/><text x='16' y='21' text-anchor='middle' font-family='sans-serif' font-size='13' font-weight='bold' fill='%23ffffff'>A25</text></svg>" />
   <style>\n${css}\n  </style>
