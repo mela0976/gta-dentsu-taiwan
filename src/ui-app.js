@@ -3115,7 +3115,7 @@ class GtaDentsuApp {
         stepFlow,
         rescueBanner,
         this.state.activeReply
-          ? el('div', { style: 'padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-size:15px;color:#e0d6f7;' }, [
+          ? el('div', { class: 'reply-feedback-box' }, [
               el('div', { text: t('stage.activeReplyLine', this.state.activeReply.text, this.state.activeReply.feedback) }),
               this._renderDeltaChips()
             ])
@@ -3204,9 +3204,9 @@ class GtaDentsuApp {
       const hint = game.type === 'agent'
         ? t('miniGame.hintAgent')
         : t('miniGame.hintPick');
-      return el('div', { style: 'display:flex;flex-direction:column;gap:12px;' }, [
-        el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
-        el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: hint }),
+      return el('div', { class: 'minigame-wrap' }, [
+        el('h3', { class: 'minigame-prompt', text: game.prompt }),
+        el('div', { class: 'minigame-hint', text: hint }),
         el('div', { class: 'paper-grid' }, game.options.map((opt, idx) => {
           const isSkillHint = skillActive && game.type === 'pick' && idx === game.answer;
           return el('button', {
@@ -3257,9 +3257,9 @@ class GtaDentsuApp {
         ? presets.reduce((best, p) => (Math.abs(p - game.answer) < Math.abs(best - game.answer) ? p : best), presets[0])
         : null;
 
-      return el('div', { class: 'slider-box' }, [
-        el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
-        el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: t('miniGame.sliderHint') }),
+      return el('div', { class: 'slider-box minigame-wrap' }, [
+        el('h3', { class: 'minigame-prompt', text: game.prompt }),
+        el('div', { class: 'minigame-hint', text: t('miniGame.sliderHint') }),
         readout,
         range,
         el('div', { class: 'preset-row' }, presets.map((val) => {
@@ -3340,12 +3340,12 @@ class GtaDentsuApp {
         }
       }, cardText);
 
-      return el('div', { style: 'display:flex;flex-direction:column;gap:10px;' }, [
-        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;' }, [
-          el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
-          el('span', { class: 'pill', text: t('miniGame.swipeCounter', this.swipeIndex + 1, game.cards.length) })
+      return el('div', { class: 'minigame-wrap' }, [
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;' }, [
+          el('h3', { class: 'minigame-prompt', text: game.prompt }),
+          el('span', { class: 'pill', style: 'flex-shrink:0;', text: t('miniGame.swipeCounter', this.swipeIndex + 1, game.cards.length) })
         ]),
-        el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: t('miniGame.swipeHint', game.left, game.right) }),
+        el('div', { class: 'minigame-hint', text: t('miniGame.swipeHint', game.left, game.right) }),
         cardEl,
         el('div', { class: 'is-mobile-only', style: 'font-size:12px;color:var(--gold);font-weight:700;text-align:center;', text: t('mobile.swipeTouchHint') }),
         el('div', { class: 'swipe-actions' }, [
@@ -3364,12 +3364,12 @@ class GtaDentsuApp {
     }
 
     if (game.type === 'multi') {
-      return el('div', { style: 'display:flex;flex-direction:column;gap:12px;' }, [
-        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;' }, [
-          el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
-          el('span', { class: 'pill', text: t('miniGame.multiCount', this.multiSelected.size) })
+      return el('div', { class: 'minigame-wrap' }, [
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;' }, [
+          el('h3', { class: 'minigame-prompt', text: game.prompt }),
+          el('span', { class: 'pill', style: 'flex-shrink:0;', text: t('miniGame.multiCount', this.multiSelected.size) })
         ]),
-        el('div', { style: 'font-size:13px;color:var(--cyan);font-weight:700;', text: t('miniGame.multiHint') }),
+        el('div', { class: 'minigame-hint', text: t('miniGame.multiHint') }),
         el('div', { class: 'paper-grid' }, game.options.map((opt, idx) => {
           const isSkillHint = skillActive && Boolean(game.answers?.includes(idx));
           return el('button', {
@@ -3411,8 +3411,7 @@ class GtaDentsuApp {
       const tickLabel = el('div', { class: 'pill', text: t('miniGame.stopWeek', this.stopTick, game.ticks) });
       const statusPill = el('div', { class: 'rescue-toast', style: 'padding:8px 12px;font-size:14px;', text: getStopStatusText(this.stopTick) });
       const brakeBtn = el('button', {
-        class: `btn-primary${isOptimalTick(this.stopTick) ? ' is-skill-hint' : ''}`,
-        style: 'font-size:19px;min-height:56px;',
+        class: `btn-primary stop-brake-btn${isOptimalTick(this.stopTick) ? ' is-skill-hint' : ''}`,
         text: `${isOptimalTick(this.stopTick) ? '📡 ⚡ ' : ''}${t('miniGame.stopBrakeBtn')}`,
         onClick: () => {
           this._clearStopTimer();
@@ -3446,9 +3445,9 @@ class GtaDentsuApp {
         }, game.intervalMs || 700);
       }
 
-      return el('div', { style: 'display:flex;flex-direction:column;gap:12px;' }, [
-        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;' }, [
-          el('h3', { style: 'margin:0;font-size:20px;color:var(--gold);', text: game.prompt }),
+      return el('div', { class: 'minigame-wrap' }, [
+        el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;' }, [
+          el('h3', { class: 'minigame-prompt', text: game.prompt }),
           tickLabel
         ]),
         statusPill,

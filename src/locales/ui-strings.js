@@ -1203,8 +1203,8 @@ export const UI_STRINGS = {
     },
     phone: {
       tabLine: (n) => `💬 LINE (${n})`,
-      tabPeople: '🧠 本音分析',
-      tabGrandma: '👵 おばあちゃん',
+      tabPeople: '🧠 本音',
+      tabGrandma: '👵 ばあちゃん',
       tabGta6: '🎬 GTA6',
       peopleIntro: '電通2026《People Model》デジタル双子。タップで本音を聴けます（専用ボイス再生）：',
       clickAsk: 'クリックして聴く（+250 pts / 判断+2）',

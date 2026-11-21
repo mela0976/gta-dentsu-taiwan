@@ -670,6 +670,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .replies-grid { grid-template-columns: 1fr 1fr; }
   .step-flow-bar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+@container stage (inline-size >= 380px) {
+  .paper-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @container stage (inline-size < 340px) {
   .stop-arena, .swipe-actions { grid-template-columns: 1fr; }
 }
@@ -695,15 +698,19 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .reply-btn:focus-visible .reply-cta { opacity: 1; background: var(--cyan); color: #08121f; }
 @media (hover: none) { .reply-cta { opacity: 1; } }
 
+.reply-feedback-box { padding: 8px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); font-size: 14.5px; color: #e0d6f7; line-height: 1.35; }
+.minigame-wrap { display: flex; flex-direction: column; gap: 10px; }
+.minigame-prompt { margin: 0; font-size: 19px; color: var(--gold); line-height: 1.28; }
+.minigame-hint { font-size: 13px; color: var(--cyan); font-weight: 700; line-height: 1.3; }
 .paper-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 10px; }
-.paper-card { padding: 14px; border-radius: 12px; background: #f9f4e8; color: #1b2230; text-align: left; border: 3px solid transparent; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); min-height: 88px; }
+.paper-card { padding: 12px; border-radius: 12px; background: #f9f4e8; color: #1b2230; text-align: left; border: 2px solid transparent; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); min-height: 0; }
 .paper-card:hover { border-color: var(--cyan); box-shadow: 0 10px 26px rgba(0, 229, 255, 0.28); }
 .paper-card.is-selected { border-color: var(--pink); background: #fff0f7; }
 .is-skill-hint { border-color: var(--cyan) !important; box-shadow: 0 0 12px rgba(0, 229, 255, 0.35); }
 .paper-card.is-skill-hint { background: #ecfeff; }
 .review-history-takeaway { font-size: 12px; color: #efeafd; margin: 2px 0; }
-.paper-card h4 { margin: 0 0 6px; font-size: 18px; }
-.paper-card ul { margin: 0; padding-left: 18px; font-size: 15px; }
+.paper-card h4 { margin: 0 0 5px; font-size: 16.5px; line-height: 1.24; }
+.paper-card ul { margin: 0; padding-left: 16px; font-size: 14px; line-height: 1.3; }
 .paper-cta { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(0, 118, 255, 0.12); color: #0b4a6f; border: 1px solid rgba(0, 118, 255, 0.28); white-space: nowrap; flex-shrink: 0; }
 .slider-box { padding: 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); display: flex; flex-direction: column; gap: 12px; }
 .slider-readout { font-size: 36px; font-weight: 900; color: var(--gold); text-align: center; }
@@ -949,8 +956,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .scene-subtitle { white-space: normal; font-size: 12.5px; }
 
   .bottom-guide-bar:not(.has-mobile-tabs) .guide-main { display: none; }
-  .bottom-guide-bar:not(.has-mobile-tabs) .guide-actions { flex-wrap: nowrap; gap: 6px; }
-  .bottom-guide-bar:not(.has-mobile-tabs) .guide-btn { font-size: 12.5px; padding: 6px 8px; flex: 1 1 0; overflow: hidden; text-overflow: ellipsis; }
+  .bottom-guide-bar:not(.has-mobile-tabs) .guide-actions { flex-wrap: wrap; gap: 5px; }
+  .bottom-guide-bar:not(.has-mobile-tabs) .guide-btn { font-size: 11.5px; padding: 5px 6px; flex: 1 1 auto; }
 
   .hero-media { min-height: 112px; max-height: 140px; aspect-ratio: 16 / 7; }
   .hero-a25 { display: none; }
@@ -1096,6 +1103,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 :root[data-layout-mode="medium"] .meter-icon { width: 12px; height: 12px; }
 :root[data-layout-mode="medium"] .meter-label { font-size: 10.5px; }
 :root[data-layout-mode="medium"] .hud-btn { min-height: max(36px, var(--target-size)); font-size: 12px; padding: 3px 8px; flex: 0 1 auto; }
+:root[data-layout-mode="medium"] .phone-tab { font-size: 11px; padding: 2px 3px; }
 :root[data-layout-mode="medium"] .lang-switch.is-hud .lang-btn { min-height: 34px; padding: 4px 8px; font-size: 11.5px; }
 :root[data-layout-mode="medium"] .play-grid {
   display: grid;
@@ -1188,9 +1196,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .modal-box { max-height: calc(100dvh - 88px); }
   .scene-media-viewport { width: min(100%, calc((100dvh - var(--stage-reserve)) * 16 / 9)); min-width: 200px; }
 
-  .hud-bar { grid-template-columns: minmax(175px, 0.56fr) minmax(370px, 1.88fr) auto; gap: 8px; padding: 6px 12px; flex-shrink: 0; }
+  .hud-bar { grid-template-columns: minmax(170px, 0.52fr) minmax(350px, 1.4fr) auto; gap: 8px; padding: 6px 12px; flex-shrink: 0; }
   .hud-meters { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px 6px; }
-  .hud-right { justify-content: flex-end; flex-wrap: wrap; max-width: 410px; }
+  .hud-right { justify-content: flex-end; flex-wrap: wrap; max-width: 540px; }
+  .hud-btn.is-radio .hud-btn-text { display: inline-block; max-width: 155px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
   .review-stage, .cutscene-stage { flex: 1; min-height: 0; overflow-y: auto; }
   .ctl-row { flex-wrap: nowrap; }
   .mode-chip, .hotspot-chip { min-height: 30px; padding: 2px 5px; font-size: 12px; min-width: 0; }
@@ -1244,7 +1253,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .role-topbar { flex-wrap: nowrap; padding: 5px 12px; gap: 10px; }
   .role-topbar > div:first-child { flex: 1 1 0; min-width: 0; }
   .role-topbar h2 { font-size: 17px; margin: 2px 0 0; line-height: 1.2; }
-  .role-topbar-hint { font-size: 11.5px; margin: 1px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-topbar-hint { font-size: 11.5px; margin: 1px 0 0; line-height: 1.22; }
   .role-topbar .cheat-bar { flex-shrink: 0; flex-wrap: nowrap; gap: 5px; }
   .role-topbar .cheat-bar button { min-height: max(30px, var(--target-size)) !important; padding: 3px 9px !important; font-size: 12px !important; }
   .role-avatar-wrap { min-height: 108px; }
@@ -1312,7 +1321,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .replay-btn { min-height: 30px; padding: 2px 8px; font-size: 12px; }
   .takeaway-card { padding: 4px 8px; }
   .takeaway-text { font-size: 13.5px; line-height: 1.22; padding-right: 116px; }
-  .takeaway-source { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .takeaway-source { font-size: 11.5px !important; line-height: 1.22; white-space: normal; overflow: visible; padding-right: 116px; }
   .stamp-slot { width: 116px; top: 2px; right: 6px; }
   .gta6-analysis-card { padding: 5px 9px; font-size: 12px; line-height: 1.28; gap: 1px !important; }
   .rescue-toast { padding: 4px 8px; font-size: 11.5px; line-height: 1.2; }
@@ -1323,6 +1332,24 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .reply-btn { min-height: 33px; font-size: 12.8px; padding: 2px 7px; gap: 6px; line-height: 1.18; }
   .reply-key { width: 22px; height: 22px; font-size: 12px; }
   .reply-cta { font-size: 10.5px; padding: 1px 5px; white-space: nowrap; }
+  .reply-feedback-box { padding: 4px 8px; font-size: 11.5px; line-height: 1.22; }
+  .minigame-wrap { gap: 5px; }
+  .minigame-prompt { font-size: 14.5px; line-height: 1.18; }
+  .minigame-hint { font-size: 11px; line-height: 1.2; }
+  .paper-grid { gap: 5px; }
+  .paper-card { padding: 6px 8px; border-width: 2px; }
+  .paper-card h4 { font-size: 12.6px; line-height: 1.16; margin: 0 0 2px; }
+  .paper-card ul { font-size: 11.2px; line-height: 1.18; padding-left: 13px; }
+  .paper-cta { font-size: 10px; padding: 1px 5px; }
+  .slider-box { padding: 7px 10px; gap: 4px; }
+  .slider-readout { font-size: 22px; }
+  .preset-chip { min-height: 28px; padding: 2px 9px; font-size: 12px; }
+  .swipe-card { padding: 10px 12px; min-height: 68px; font-size: 14.5px; }
+  .swipe-actions { margin-top: 4px; gap: 8px; }
+  .swipe-actions button { min-height: 36px; font-size: 13px; }
+  .stop-arena { padding: 7px 10px; gap: 8px; }
+  .stop-metric { padding: 6px; }
+  .stop-val { font-size: 22px; }
   .col-right .chat-scroll { max-height: 36px; }
   .msg-bubble { padding: 4px 8px; font-size: 12.5px; }
   .phone-frame { padding: 5px 8px; max-height: 150px; overflow-y: auto; }
@@ -1330,38 +1357,75 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .col-right .twin-avatar { width: 30px; height: 30px; }
   .col-right .twin-text { font-size: 12px; line-height: 1.2; }
   .col-right .twin-text b { font-size: 12px; }
-  .phone-tab { min-height: 30px; font-size: 12.5px; }
-  .clue-text { font-size: 13px; }
-  .clue-card { gap: 4px; padding: 7px 10px; }
-  .clue-card .btn-cyan { min-height: 32px; padding: 4px 10px; font-size: 12.5px; }
+  .phone-tab { min-height: 30px; font-size: 11.5px; padding: 2px 3px; }
+  .clue-text { font-size: 12.2px; line-height: 1.24; }
+  .clue-card { gap: 3px; padding: 6px 9px; }
+  .clue-card .btn-cyan { min-height: 30px; padding: 3px 10px; font-size: 12px; }
   .dock-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
   .radar-stage { width: 100%; height: auto; max-height: 114px; }
   .hud-bar { padding: 4px 10px; }
   .hud-meters { gap: 4px 4px; }
   .meter-box { grid-template-columns: 12px minmax(0, 1fr); column-gap: 2px; }
   .meter-icon { width: 12px; height: 12px; }
-  .hud-right { max-width: 392px; gap: 3px; }
+  .hud-right { max-width: 520px; gap: 3px; }
   .hud-btn { min-height: 28px; font-size: 11px; padding: 2px 5px; }
   .score-pill { font-size: 17px; padding: 2px 8px; }
   .wanted-box { font-size: 13px; }
   .meter-label { font-size: 10px; }
 }
 @media (min-width: 1024px) and (max-height: 760px) {
+  .hero-crest { width: min(132px, 34%); }
+  .hero-body { padding: 7px 14px; gap: 3px; }
+  .hero-story-card { padding: 4px 8px; }
+  .gta-subtitle { font-size: 12px; line-height: 1.24; }
+  .quickstart-strip { padding: 4px 7px; }
+  .hero-actions button { min-height: 32px; padding: 4px 10px; font-size: 12.5px; }
+  .role-avatar-wrap { min-height: 74px; }
+  .role-card .role-info { padding: 4px 6px 5px; gap: 1px; }
+  .role-info h3 { font-size: 14px; }
+  .role-pick-cta { padding: 2px 6px; margin-top: 1px; font-size: 10.5px; }
   .col-right { gap: 5px; }
   .col-right .phone-frame { max-height: 112px; overflow-y: auto; }
+  .phone-tab { min-height: 26px; font-size: 11px; padding: 2px 3px; }
   .beginner-coach-banner { padding: 2px 7px; font-size: 10.5px; line-height: 1.15; }
-  .main-stage { gap: 2px; padding: 4px 9px; }
-  .main-stage-inner { gap: 2px; }
+  .main-stage { gap: 1px; padding: 3px 9px; }
+  .main-stage-inner { gap: 1px; }
   .chapter-header { padding-bottom: 2px; }
-  .chapter-header h2 { font-size: 13.5px; line-height: 1.15; }
-  .quiz-guide-box { padding: 3px 7px; font-size: 11px; line-height: 1.16; }
+  .chapter-header h2 { font-size: 13px; line-height: 1.14; }
+  .step-pill { padding: 1px 5px; font-size: 10.5px; }
+  .quiz-guide-box { padding: 2px 7px; font-size: 10.5px; line-height: 1.14; }
   .chapter-desc { font-size: 12px; line-height: 1.18; }
   .boss-callout { font-size: 11.8px; padding: 3px 7px; line-height: 1.18; }
   .boss-callout > div:first-child { font-size: 12px !important; margin-bottom: 1px !important; }
-  .prompt-line { font-size: 10.8px; line-height: 1.15; }
+  .prompt-line { font-size: 10.5px; line-height: 1.12; }
   .replies-grid { gap: 2px; }
   .reply-btn { min-height: 30px; font-size: 12px; padding: 2px 6px; gap: 5px; line-height: 1.14; }
   .reply-key { width: 20px; height: 20px; font-size: 11px; }
+  .reply-feedback-box { padding: 2px 7px; font-size: 10.5px; line-height: 1.12; }
+  .minigame-wrap { gap: 3px; }
+  .minigame-prompt { font-size: 12.5px; line-height: 1.12; }
+  .minigame-hint { font-size: 10px; line-height: 1.12; }
+  .paper-grid { gap: 3px; }
+  .paper-card { padding: 3px 6px; }
+  .paper-card h4 { font-size: 11px; line-height: 1.1; margin: 0 0 1px; }
+  .paper-card ul { font-size: 9.6px; line-height: 1.1; padding-left: 11px; }
+  .paper-cta { font-size: 9.5px; padding: 1px 4px; }
+  .minigame-wrap .btn-primary { min-height: 28px; padding: 2px 10px; font-size: 12px; }
+  .slider-box { padding: 5px 8px; gap: 3px; }
+  .slider-readout { font-size: 18px; }
+  .preset-chip { min-height: 24px; padding: 1px 8px; font-size: 11px; }
+  .swipe-card { padding: 7px 10px; min-height: 52px; font-size: 13.5px; }
+  .swipe-actions { margin-top: 3px; gap: 6px; }
+  .swipe-actions button { min-height: 32px; font-size: 12px; }
+  .stop-arena { padding: 5px 8px; gap: 6px; }
+  .stop-metric { padding: 4px; }
+  .stop-val { font-size: 19px; }
+  .stop-brake-btn { font-size: 14px; min-height: 34px; }
+  .paper-card h4 { font-size: 11.4px; line-height: 1.13; margin: 0 0 1px; }
+  .paper-card ul { font-size: 10px; line-height: 1.13; padding-left: 11px; }
+  .clue-text { font-size: 11.6px; line-height: 1.2; }
+  .clue-card { gap: 2px; padding: 5px 8px; }
+  .clue-card .btn-cyan { min-height: 28px; padding: 2px 8px; font-size: 11.5px; }
   .takeaway-card { padding: 3px 7px; }
   .takeaway-card > div:nth-child(2) { font-size: 11px !important; margin-bottom: 1px !important; }
   .takeaway-text { font-size: 12.8px; line-height: 1.18; }
@@ -1386,8 +1450,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 @media (min-width: 1600px) {
   :root { --stage-reserve: 500px; }
   .gta-shell { padding: 14px 28px 74px 28px; gap: 12px; }
-  .hud-bar { grid-template-columns: minmax(250px, 0.78fr) minmax(420px, 1.85fr) auto; padding: 8px 18px; gap: 14px; }
-  .hud-right { max-width: 520px; gap: 8px; }
+  .hud-bar { grid-template-columns: minmax(240px, 0.72fr) minmax(400px, 1.4fr) auto; padding: 8px 18px; gap: 14px; }
+  .hud-right { max-width: 700px; gap: 6px; }
+  .hud-btn.is-radio .hud-btn-text { max-width: 175px; }
   .meter-icon { width: 18px; height: 18px; }
   .meter-box { grid-template-columns: 18px minmax(0, 1fr); column-gap: 5px; }
   .hud-avatar-frame { width: 66px; height: 66px; }
@@ -1416,13 +1481,27 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .takeaway-card { padding: 6px 10px; }
   .stamp-slot { width: 142px; top: 2px; }
   .takeaway-text { font-size: 19px; line-height: 1.24; padding-right: 158px; }
+  .takeaway-source { padding-right: 150px; white-space: normal; overflow-wrap: anywhere; }
   .takeaway-card .replay-btn { min-height: 30px; padding: 2px 9px; font-size: 12.5px; margin-top: 4px !important; }
   .gta6-stage-card { padding: 6px 10px; gap: 2px !important; }
   .gta6-stage-card > div { font-size: 12.5px !important; line-height: 1.25 !important; }
   .rescue-toast { padding: 6px 10px; font-size: 14px; line-height: 1.28; }
   .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 40px; padding: 6px 16px; font-size: 16px; }
   .reply-btn { min-height: 56px; font-size: 19px; }
-  .clue-text { font-size: 17px; }
+  .reply-feedback-box { padding: 6px 10px; font-size: 13.5px; line-height: 1.3; }
+  .minigame-wrap { gap: 6px; }
+  .minigame-prompt { font-size: 17px; line-height: 1.24; }
+  .minigame-hint { font-size: 12.5px; }
+  .paper-grid { gap: 8px; }
+  .paper-card { padding: 7px 9px; }
+  .paper-card h4 { font-size: 14px; line-height: 1.2; }
+  .paper-card ul { font-size: 12.2px; line-height: 1.2; }
+  .stop-arena { padding: 10px; gap: 10px; }
+  .stop-val { font-size: 28px; }
+  .swipe-card { padding: 16px 14px; min-height: 96px; font-size: 18.5px; }
+  .clue-text { font-size: 13.5px; line-height: 1.28; }
+  .clue-card { padding: 7px 10px; gap: 4px; }
+  .clue-card .replay-btn { min-height: 28px; padding: 2px 8px; font-size: 12px; }
   .phone-tab { min-height: 36px; font-size: 14.5px; }
   .guide-text { font-size: 15.5px; }
   .guide-btn { font-size: 15px; min-height: 42px; }
