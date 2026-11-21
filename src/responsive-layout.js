@@ -74,15 +74,6 @@ export function detectViewportLayout({
       };
       mode = 'fold-flex';
     }
-  } else if (safePosture === 'folded' && h >= 420 && w <= 960) {
-    const segH = Math.floor(h * 0.48);
-    hinge = {
-      orientation: 'horizontal',
-      gap: Math.max(16, Math.round(h * 0.04)),
-      seg0: { left: 0, top: 0, width: w, height: segH },
-      seg1: { left: 0, top: Math.ceil(h * 0.52), width: w, height: segH }
-    };
-    mode = 'fold-flex';
   } else if (h <= 500 && w >= 480 && w < 1024) {
     mode = 'compact-landscape';
   } else if (w < 660) {

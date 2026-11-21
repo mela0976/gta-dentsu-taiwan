@@ -74,7 +74,6 @@ p, li { text-wrap: pretty; }
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1920px;
   margin: 0 auto;
   min-height: 100dvh;
   height: auto;
@@ -938,19 +937,35 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .bottom-guide-bar:not(.has-mobile-tabs) .guide-actions { flex-wrap: nowrap; gap: 6px; }
   .bottom-guide-bar:not(.has-mobile-tabs) .guide-btn { font-size: 12.5px; padding: 6px 8px; flex: 1 1 0; overflow: hidden; text-overflow: ellipsis; }
 
-  .hero-media { min-height: 156px; aspect-ratio: 16 / 9; }
-  .hero-body { padding: 12px 14px 16px; gap: 8px; }
+  .hero-media { min-height: 112px; max-height: 140px; aspect-ratio: 16 / 7; }
+  .hero-a25 { display: none; }
+  .hero-body { padding: 10px 12px 12px; gap: 6px; }
   .hero-top-row { align-items: center; flex-wrap: nowrap; gap: 6px; }
-  .hero-crest { width: 118px; flex-shrink: 1; }
-  .hero-actions { order: 4; }
-  .quickstart-strip { order: 5; }
-  .plate-box.is-optional { order: 6; width: 100%; }
-  .hero-actions .btn-primary { width: 100%; justify-content: center; font-size: 16px; }
+  .hero-crest { width: 104px; flex-shrink: 1; }
+  .hero-story-card { order: 5; padding: 7px 10px; gap: 2px; }
+  .hero-story-card .gta-subtitle { font-size: 13px; line-height: 1.32; }
+  .hero-actions { order: 4; gap: 7px; }
+  .quickstart-strip { order: 6; }
+  .plate-box.is-optional { order: 7; width: 100%; }
+  .hero-actions .btn-primary { width: 100%; justify-content: center; font-size: 15.5px; min-height: 44px; padding: 8px 14px; }
   .hero-actions .btn-cyan,
   .hero-actions .btn-gold { flex: 1 1 calc(50% - 6px); font-size: 13.5px; padding: 8px 10px; min-height: 44px; }
 
-  .role-topbar .cheat-bar { width: 100%; }
-  .role-topbar .cheat-bar button { min-height: 44px; font-size: 13px; flex: 1 1 auto; }
+  .role-topbar { padding: 8px 10px; gap: 6px; }
+  .role-topbar h2 { font-size: 15.5px; margin: 2px 0 0; line-height: 1.22; }
+  .role-topbar-hint { font-size: 11.5px; margin: 2px 0 0; line-height: 1.25; }
+  .role-topbar .cheat-bar { width: 100%; gap: 5px; }
+  .role-topbar .cheat-bar .lang-switch { flex: 1 1 100%; justify-content: center; }
+  .role-topbar .cheat-bar button { min-height: 44px; font-size: 12px; padding: 4px 8px !important; flex: 1 1 0; }
+  .role-topbar .cheat-bar .lang-btn { flex: 1 1 0; }
+  .role-info { padding: 6px 9px; gap: 3px; }
+  .role-info h3 { font-size: 15.5px; }
+  .role-info p { font-size: 12px; line-height: 1.26; }
+  .role-route-summary { display: none; }
+  .role-bars { gap: 1px; }
+  .role-bar-row svg { width: 13px; height: 13px; }
+  .role-card .seg-bar { height: 5px; }
+  .role-pick-cta { min-height: 40px; }
 
   .cutscene-stage-wrap { border-top-width: 6px; border-bottom-width: 6px; }
   .cutscene-subtitle { position: static; padding: 8px 10px; font-size: 14px; background: rgba(11, 6, 22, 0.92); text-shadow: none; }
@@ -1212,14 +1227,39 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .plate-box.is-optional .btn-ghost { min-height: 28px; font-size: 12px; padding: 2px 7px; }
   .hero-actions { gap: 6px; margin-top: 2px; }
   .hero-actions button { min-height: 38px; padding: 5px 12px; font-size: 13.5px; }
-  .role-topbar { padding: 6px 12px; gap: 6px; }
-  .role-topbar h2 { font-size: 19px; }
-  .role-topbar-hint { font-size: 12px; margin-top: 2px; }
+  .role-topbar { flex-wrap: nowrap; padding: 5px 12px; gap: 10px; }
+  .role-topbar > div:first-child { flex: 1 1 0; min-width: 0; }
+  .role-topbar h2 { font-size: 17px; margin: 2px 0 0; line-height: 1.2; }
+  .role-topbar-hint { font-size: 11.5px; margin: 1px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-topbar .cheat-bar { flex-shrink: 0; flex-wrap: nowrap; gap: 5px; }
+  .role-topbar .cheat-bar button { min-height: 30px !important; padding: 3px 9px !important; font-size: 12px !important; }
+  .role-avatar-wrap { min-height: 108px; }
   .role-card .role-info { padding: 5px 7px 6px; gap: 2px; }
-  .role-route-summary { font-size: 10.5px; line-height: 1.2; }
-  .role-route-itinerary { font-size: 10.5px; line-height: 1.2; }
-  .role-info .role-quote { font-size: 11px; line-height: 1.2; }
+  .role-info h3 { font-size: 15px; line-height: 1.15; }
+  .role-info p { font-size: 11.5px; line-height: 1.2; }
+  .role-route-pill { font-size: 10.5px; padding: 1px 6px; }
+  .role-route-summary,
+  .role-route-itinerary,
+  .role-info .role-quote {
+    font-size: 10.5px;
+    line-height: 1.18;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: clip;
+  }
+  .role-special { font-size: 11px; padding: 1px 6px; }
+  .role-info .replay-btn { font-size: 10.5px !important; padding: 1px 6px !important; min-height: 20px !important; }
+  .role-bars { gap: 2px; padding-top: 2px; }
+  .role-bar-row { grid-template-columns: 14px 1fr; gap: 4px; }
+  .role-bar-row svg { width: 13px; height: 13px; }
   .role-pick-cta { margin-top: 2px; padding: 3px 6px; font-size: 11px; }
+  .delta-row { margin-top: 3px; gap: 4px; }
+  .delta-chip { padding: 1px 6px; font-size: 10.5px; }
+  .takeaway-card .replay-btn { margin-top: 3px !important; min-height: 24px; padding: 1px 7px; font-size: 11px; }
+  .gta6-stage-card { padding: 4px 8px; gap: 2px !important; }
+  .gta6-stage-card > div { font-size: 11px !important; line-height: 1.2 !important; }
   .phone-island, .phone-head { display: none; }
   .chapter-header .pill { display: none; }
   .zone-tag.is-ref { padding: 2px 8px; font-size: 11px; }
@@ -1240,12 +1280,12 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .line-banner .replay-btn { flex-shrink: 0; white-space: nowrap; min-height: 26px; padding: 2px 7px; font-size: 11.5px; }
   .boss-meta { font-size: 11.5px; }
   .replay-btn { min-height: 30px; padding: 2px 8px; font-size: 12px; }
-  .takeaway-card { padding: 6px 10px; }
-  .takeaway-text { font-size: 15px; line-height: 1.28; padding-right: 124px; }
+  .takeaway-card { min-block-size: 100px; padding: 4px 8px; }
+  .takeaway-text { font-size: 13.5px; line-height: 1.22; padding-right: 116px; }
   .stamp-slot { width: 116px; top: 2px; right: 6px; }
   .gta6-analysis-card { padding: 5px 9px; font-size: 12px; line-height: 1.28; gap: 1px !important; }
-  .rescue-toast { padding: 5px 9px; font-size: 13px; line-height: 1.28; }
-  .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 36px; padding: 5px 12px; font-size: 14px; }
+  .rescue-toast { padding: 4px 8px; font-size: 11.5px; line-height: 1.2; }
+  .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 32px; padding: 3px 10px; font-size: 13px; }
   .prompt-line { font-size: 11.5px; line-height: 1.22; }
   .replies-grid { gap: 3px; }
   .reply-btn { min-height: 33px; font-size: 12.8px; padding: 2px 7px; gap: 6px; line-height: 1.18; }
@@ -1284,6 +1324,20 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .replies-grid { gap: 2px; }
   .reply-btn { min-height: 30px; font-size: 12px; padding: 2px 6px; gap: 5px; line-height: 1.14; }
   .reply-key { width: 20px; height: 20px; font-size: 11px; }
+  .takeaway-card { padding: 3px 7px; }
+  .takeaway-text { font-size: 12.8px; line-height: 1.18; }
+  .gta6-stage-card { padding: 3px 7px; }
+  .gta6-stage-card > div {
+    font-size: 10.5px !important;
+    line-height: 1.16 !important;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: clip;
+  }
+  .rescue-toast { padding: 3px 7px; font-size: 11px; line-height: 1.16; }
+  .reveal-actions .btn-primary, .reveal-actions .btn-gold { min-height: 28px; padding: 2px 9px; font-size: 12px; }
 }
 
 /* ─── Full HD ─── */
@@ -1651,10 +1705,11 @@ dialog.hud-tour-popover :where(button, [tabindex]):focus-visible {
   color: #fda4af;
 }
 
+.role-kicker-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .meta-progress-pill {
   display: inline-flex;
   align-items: center;
-  margin-top: 6px;
+  margin-top: 0;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 12px;
@@ -1913,7 +1968,6 @@ dialog.confirm-modal::backdrop {
 /* ─── Ultrawide Screens (>= 2100px, e.g. 2560x1080 / 3440x1440) ─── */
 @media (min-width: 2100px) {
   .gta-shell {
-    max-width: 2160px;
     padding-inline: clamp(28px, 3dvw, 56px);
   }
 }
@@ -1926,7 +1980,7 @@ dialog.confirm-modal::backdrop {
     column-gap: var(--fold-hinge-gap, calc(env(viewport-segment-left 1 0, 50%) - env(viewport-segment-right 0 0, 50%)));
     grid-template-rows: auto auto;
     padding: 6px 0;
-    gap: 6px 0;
+    row-gap: 6px;
   }
   .hud-identity { grid-column: 1; grid-row: 1; padding-inline: 12px; }
   .hud-meters { grid-column: 1; grid-row: 2; padding-inline: 12px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -1940,7 +1994,7 @@ dialog.confirm-modal::backdrop {
     grid-template-columns: var(--fold-seg0-w, env(viewport-segment-width 0 0, 1fr)) var(--fold-seg1-w, env(viewport-segment-width 1 0, 1fr));
     column-gap: var(--fold-hinge-gap, calc(env(viewport-segment-left 1 0, 50%) - env(viewport-segment-right 0 0, 50%)));
   }
-  .play-grid, .hero-card { gap: 0; }
+  .play-grid, .hero-card { row-gap: 0; }
   .hero-card { border-width: 0; }
   .hero-media { margin-inline-start: 10px; border-radius: 16px; }
   .hero-body { padding-inline: 14px 16px; }
@@ -1993,7 +2047,7 @@ dialog.confirm-modal::backdrop {
 :root[data-layout-mode="fold-book"] .modal-box { width: min(calc(var(--fold-seg1-w, 50dvw) - 32px), 760px); }
 
 /* ─── Foldable Flex / Tabletop Mode (Top Display vs Bottom Deck across Horizontal Hinge) ─── */
-@media (vertical-viewport-segments: 2), (device-posture: folded) {
+@media (vertical-viewport-segments: 2) {
   .gta-shell { height: 100dvh; overflow: hidden; padding: 0; gap: 0; }
   .play-grid {
     flex: 1;
@@ -2011,14 +2065,20 @@ dialog.confirm-modal::backdrop {
 :root[data-layout-mode="fold-flex"] .hud-bar { min-height: 54px; padding: 5px 10px; border-radius: 0 0 12px 12px; flex-shrink: 0; position: relative; top: auto; }
 :root[data-layout-mode="fold-flex"] .mobile-scene-peek,
 :root[data-layout-mode="fold-flex"] .mobile-tab-bar { display: none !important; }
-:root[data-layout-mode="fold-flex"] .play-grid {
-  flex: 1;
-  min-height: 0;
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  grid-template-rows: calc(var(--fold-seg0-h, 48dvh) - 58px) minmax(0, 1fr);
-  row-gap: max(14px, var(--fold-hinge-gap, 20px));
+:root[data-layout-mode="fold-flex"] .gta-shell:has(> .play-grid) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) var(--fold-hinge-gap) var(--fold-seg1-h);
 }
+:root[data-layout-mode="fold-flex"] .play-grid {
+  grid-row: 2 / 5;
+  display: grid !important;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+}
+:root[data-layout-mode="fold-flex"] .play-grid > .col-right { grid-row: 3; }
 :root[data-layout-mode="fold-flex"] .play-grid > .col-left {
   display: flex !important;
   min-height: 0;

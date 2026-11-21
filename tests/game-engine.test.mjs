@@ -561,9 +561,9 @@ test('Responsive & foldable layout engine classifies cover, phone, landscape, un
   assert.equal(foldFlexSeg.useMobileTabs, false);
 
   const foldFlexPosture = detectViewportLayout({ width: 412, height: 840, posture: 'folded', coarsePointer: true });
-  assert.equal(foldFlexPosture.mode, 'fold-flex');
-  assert.equal(foldFlexPosture.hinge.orientation, 'horizontal');
-  assert.ok(foldFlexPosture.hinge.gap >= 16);
+  assert.equal(foldFlexPosture.mode, 'compact');
+  assert.equal(foldFlexPosture.hinge.orientation, 'none');
+  assert.equal(foldFlexPosture.useMobileTabs, true);
 
   const shortDesktop = detectViewportLayout({ width: 1024, height: 540 });
   assert.equal(shortDesktop.mode, 'desktop');

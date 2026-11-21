@@ -1593,10 +1593,12 @@ class GtaDentsuApp {
     const achCount = (this.careerMeta?.achievements || []).length;
     const topBar = el('div', { class: 'panel role-topbar' }, [
       el('div', {}, [
-        el('div', { class: 'gta-kicker', text: t('roleSelect.kicker') }),
+        el('div', { class: 'role-kicker-row' }, [
+          el('div', { class: 'gta-kicker', text: t('roleSelect.kicker') }),
+          el('div', { class: 'meta-progress-pill', text: t('launch.metaProgress', clearedCount, roles.length, achCount, ACHIEVEMENT_IDS.length) })
+        ]),
         el('h2', { text: t('roleSelect.heading') }),
-        el('p', { class: 'role-topbar-hint', text: t('roleSelect.hint') }),
-        el('div', { class: 'meta-progress-pill', text: t('launch.metaProgress', clearedCount, roles.length, achCount, ACHIEVEMENT_IDS.length) })
+        el('p', { class: 'role-topbar-hint', text: t('roleSelect.hint') })
       ]),
       el('div', { class: 'cheat-bar' }, [
         this._renderLangSwitch(false),
@@ -2711,7 +2713,7 @@ class GtaDentsuApp {
         })
       ]),
       ch.gta6Analysis
-        ? el('div', { class: 'panel', style: 'border-color:rgba(255,79,163,0.45);display:flex;flex-direction:column;gap:4px;' }, [
+        ? el('div', { class: 'panel gta6-stage-card', style: 'border-color:rgba(255,79,163,0.45);display:flex;flex-direction:column;gap:4px;' }, [
             el('div', { style: 'font-size:13px;font-weight:800;color:var(--pink);', text: t('stage.gta6Title', ch.gta6Analysis.trailerScene) }),
             el('div', { style: 'font-size:14px;color:#efeafd;', text: `🎭 ${ch.gta6Analysis.characterArc}` }),
             el('div', { style: 'font-size:13.5px;color:var(--gold);', text: t('stage.gta6Local', ch.gta6Analysis.taiwanCraft) })

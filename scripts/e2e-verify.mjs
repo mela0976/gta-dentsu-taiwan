@@ -949,15 +949,14 @@ async function run() {
       await fp.close();
     }
 
-    // 8D. Dual-Screen Fold Book Mode (1114x720 with mocked vertical hinge 540..574)
+    // 8D. Dual-Screen Fold Book Mode (1114x720 with emulated vertical hinge 540..574)
     const bookPage = await browser.newPage({ viewport: { width: 1114, height: 720 }, hasTouch: true });
     attachErrorWatchers(bookPage, 'fold-book-1114');
-    await bookPage.addInitScript(() => {
-      const segs = [
-        { left: 0, top: 0, width: 540, height: 720 },
-        { left: 574, top: 0, width: 540, height: 720 }
-      ];
-      Object.defineProperty(window, 'viewport', { value: { segments: segs }, configurable: true });
+    const bookDevice = await bookPage.context().newCDPSession(bookPage);
+    await bookDevice.send('Emulation.setDeviceMetricsOverride', {
+      width: 1114, height: 720, deviceScaleFactor: 1, mobile: true,
+      displayFeature: { orientation: 'vertical', offset: 540, maskLength: 34 },
+      devicePosture: { type: 'folded' }
     });
     await bookPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
     assert.equal(await bookPage.getAttribute('html', 'data-layout-mode'), 'fold-book', 'Expected fold-book layout mode');
@@ -973,24 +972,19 @@ async function run() {
       return { sw: document.documentElement.scrollWidth, leftRight: Math.round(left.right), rightLeft: Math.round(right.left) };
     });
     assert.ok(bookGeo.sw <= 1114, `fold-book horizontal overflow: ${bookGeo.sw}`);
-    assert.ok(bookGeo.leftRight <= 544, `fold-book .col-left crossed vertical hinge (right=${bookGeo.leftRight})`);
-    assert.ok(bookGeo.rightLeft >= 570, `fold-book .col-right touched vertical hinge (left=${bookGeo.rightLeft})`);
+    assert.ok(bookGeo.leftRight <= 540, `fold-book .col-left crossed vertical hinge (right=${bookGeo.leftRight})`);
+    assert.ok(bookGeo.rightLeft >= 574, `fold-book .col-right touched vertical hinge (left=${bookGeo.rightLeft})`);
     if (ssDir) await bookPage.screenshot({ path: path.join(ssDir, 'e2e-fold-book-1114.png') });
     await bookPage.close();
 
-    // 8E. Foldable Flex Tabletop Mode (412x915 with mocked horizontal hinge 440..465 + folded posture)
+    // 8E. Foldable Flex Tabletop Mode (412x915 with emulated horizontal hinge 440..465 + folded posture)
     const flexPage = await browser.newPage({ viewport: { width: 412, height: 915 }, hasTouch: true, isMobile: true });
     attachErrorWatchers(flexPage, 'fold-flex-412');
-    await flexPage.addInitScript(() => {
-      const segs = [
-        { left: 0, top: 0, width: 412, height: 440 },
-        { left: 0, top: 465, width: 412, height: 450 }
-      ];
-      Object.defineProperty(window, 'viewport', { value: { segments: segs }, configurable: true });
-      Object.defineProperty(navigator, 'devicePosture', {
-        value: { type: 'folded', addEventListener() {}, removeEventListener() {} },
-        configurable: true
-      });
+    const flexDevice = await flexPage.context().newCDPSession(flexPage);
+    await flexDevice.send('Emulation.setDeviceMetricsOverride', {
+      width: 412, height: 915, deviceScaleFactor: 1, mobile: true,
+      displayFeature: { orientation: 'horizontal', offset: 440, maskLength: 25 },
+      devicePosture: { type: 'folded' }
     });
     await flexPage.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
     assert.equal(await flexPage.getAttribute('html', 'data-layout-mode'), 'fold-flex', 'Expected fold-flex layout mode');
@@ -1006,9 +1000,16 @@ async function run() {
       return { sw: document.documentElement.scrollWidth, leftBottom: Math.round(left.bottom), rightTop: Math.round(right.top) };
     });
     assert.ok(flexGeo.sw <= 412, `fold-flex horizontal overflow: ${flexGeo.sw}`);
-    assert.ok(flexGeo.leftBottom <= 450, `fold-flex top pane crossed horizontal hinge (bottom=${flexGeo.leftBottom})`);
-    assert.ok(flexGeo.rightTop >= 455, `fold-flex bottom pane crossed horizontal hinge (top=${flexGeo.rightTop})`);
+    assert.ok(flexGeo.leftBottom <= 440, `fold-flex top pane crossed horizontal hinge (bottom=${flexGeo.leftBottom})`);
+    assert.ok(flexGeo.rightTop >= 465, `fold-flex bottom pane crossed horizontal hinge (top=${flexGeo.rightTop})`);
     if (ssDir) await flexPage.screenshot({ path: path.join(ssDir, 'e2e-fold-flex-412.png') });
+    const repliesBeforeUnfold = await flexPage.locator('.reply-btn').allTextContents();
+    const unfoldedViewport = { width: 768, height: 904, deviceScaleFactor: 1, mobile: true };
+    await flexDevice.send('Emulation.setDeviceMetricsOverride', unfoldedViewport);
+    await flexPage.waitForFunction(() => document.documentElement.dataset.layoutMode === 'medium');
+    assert.deepEqual(await flexPage.locator('.reply-btn').allTextContents(), repliesBeforeUnfold);
+    await flexPage.locator('.reply-btn').first().click();
+    await flexPage.waitForSelector('.paper-card');
     await flexPage.close();
 
     // 8F. Short Desktop Window (1024x540) & Ultrawide Monitor (2560x1080)
@@ -1043,6 +1044,7 @@ async function run() {
     await ultraPage.waitForSelector('.replies-grid');
     await checkDesktopGeometry(ultraPage, 'ultrawide-2560-scene', false);
     if (ssDir) await ultraPage.screenshot({ path: path.join(ssDir, 'e2e-ultrawide-2560.png') });
+    assert.equal(await ultraPage.locator('.gta-shell').evaluate(shell => shell.clientWidth), 2560);
     await ultraPage.close();
 
     // 8G. Live Dynamic Fold / Unfold / Rotate / Resize Cycle without reload
