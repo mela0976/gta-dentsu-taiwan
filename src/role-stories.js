@@ -1160,6 +1160,7 @@ export function getChapterForRole(chapterIndex, roleId = 'planner') {
     roleClues: mergedRoleClues,
     roleClue: roleStory?.roleClue || mergedRoleClues?.[roleKey] || mergedRoleClues?.planner || '',
     peopleModel: roleStory?.peopleModel ? { ...base.peopleModel, ...roleStory.peopleModel } : base.peopleModel,
+    baseTakeaway: base.takeaway,
     takeaway: roleStory?.takeaway || base.takeaway,
     gta6Analysis: roleStory?.gta6Analysis ? { ...base.gta6Analysis, ...roleStory.gta6Analysis } : base.gta6Analysis,
     epilogue: roleEpilogue || null,

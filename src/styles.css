@@ -384,8 +384,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hud-sign svg { width: 100%; display: block; height: auto; }
 .hud-time { font-size: 12px; font-weight: 800; color: var(--cyan); letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hud-name { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hud-pips { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; height: 4px; }
-.hud-pips i { background: rgba(255, 255, 255, 0.16); }
+.hud-pips { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; height: 6px; }
+.hud-pips i { background: rgba(255, 255, 255, 0.16); border-radius: 2px; cursor: pointer; }
+.hud-pips i:focus-visible { outline: 1.5px solid var(--cyan); outline-offset: 1px; }
 .hud-pips i.done { background: var(--lime); }
 .hud-pips i.now { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
 
@@ -1311,6 +1312,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .replay-btn { min-height: 30px; padding: 2px 8px; font-size: 12px; }
   .takeaway-card { padding: 4px 8px; }
   .takeaway-text { font-size: 13.5px; line-height: 1.22; padding-right: 116px; }
+  .takeaway-source { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .stamp-slot { width: 116px; top: 2px; right: 6px; }
   .gta6-analysis-card { padding: 5px 9px; font-size: 12px; line-height: 1.28; gap: 1px !important; }
   .rescue-toast { padding: 4px 8px; font-size: 11.5px; line-height: 1.2; }

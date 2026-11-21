@@ -363,6 +363,7 @@ export function getLocalizedChapterForRole(chapterIndex, roleId = 'planner', lan
   }
 
   // Resolve localized role-exclusive story overlay across zh, en & ja
+  const baseTakeaway = ch.takeaway;
   const roleStory = getRoleChapterStory(roleId, base.id, norm);
   if (roleStory) {
     ch.sceneDesc = roleStory.sceneDesc || ch.sceneDesc;
@@ -380,6 +381,7 @@ export function getLocalizedChapterForRole(chapterIndex, roleId = 'planner', lan
     }
   }
   ch.epilogue = getLocalizedRoleEpilogue(roleId, norm);
+  ch.baseTakeaway = baseTakeaway;
 
   // Resolve localized cutscene URL & canonical clip IDs for TTS audio playback
   const routeMeta = getLocalizedRouteMeta(norm)[roleId] || null;

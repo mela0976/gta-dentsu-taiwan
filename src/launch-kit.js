@@ -227,7 +227,7 @@ function drawWrappedText(ctx, text, x, y, maxW, lineH, maxLines = 3) {
   return cy;
 }
 
-export function renderResultCardCanvas({ role, persona, state, meta, hudStats, tFn, portraitImg = null }) {
+export function renderResultCardCanvas({ role, persona, epilogue = null, state, meta, hudStats, tFn, portraitImg = null }) {
   if (typeof document === 'undefined') return '';
   const canvas = document.createElement('canvas');
   canvas.width = 1200;
@@ -283,7 +283,7 @@ export function renderResultCardCanvas({ role, persona, state, meta, hudStats, t
 
   ctx.fillStyle = '#ff6ad5';
   ctx.font = 'bold 24px "PingFang TC", "Noto Sans TC", system-ui, sans-serif';
-  drawWrappedText(ctx, `${role?.name || ''} · ${persona?.title || ''}`, 64, 222, 700, 32, 2);
+  drawWrappedText(ctx, `${role?.name || ''} · ${persona?.title || ''}${epilogue?.title ? `｜${epilogue.title}` : ''}`, 64, 222, 700, 32, 2);
 
   // Score pill on top-right
   drawRoundedRectPath(ctx, 820, 64, 312, 86, 14);

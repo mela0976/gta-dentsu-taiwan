@@ -185,7 +185,7 @@ class GtaDentsuApp {
     soundFX.stationIndex = Number(audioPrefs.stationIndex || 0);
     this.careerMeta = this._loadMeta();
     this._saveMeta();
-    this.state = this._loadState();
+    this.state = this._localizeProgress(this._loadState(), getLang());
     this.phoneTab = 'line'; // 'line' | 'people' | 'grandma' | 'gta6'
     this.scooterModalOpen = false;
     this.scooterInstance = null;
@@ -316,6 +316,7 @@ class GtaDentsuApp {
     if (this.srToastContext) this.srToastContext.textContent = t('launch.toastRegionAria');
     if (this.srLiveRegion) this.srLiveRegion.textContent = '';
     this.state = this._localizeProgress(this.state, lang);
+    this._saveState(this.state);
     this.render();
     if (this.welcomeDialogOpen) {
       this._renderWelcomeDialog();
@@ -2205,8 +2206,32 @@ class GtaDentsuApp {
           htmlNode('hud-sign', SVG_ROAD_SIGN_BADGE(roadZh, roadEn)),
           el('div', { class: 'hud-time', text: t('hud.timeMeta', ch.timeSlot, ch.id, ch.year) }),
           el('div', { class: 'hud-name', text: `${role.name}｜${ch.location}` }),
-          el('div', { class: 'hud-pips', 'aria-hidden': 'true' }, CHAPTERS.map((c) =>
-            el('i', { class: c.id < ch.id ? 'done' : (c.id === ch.id ? 'now' : '') })))
+          el('div', { class: 'hud-pips' }, CHAPTERS.map((c, idx) => {
+            const pCh = getLocalizedChapterForRole(idx, this.state.roleId);
+            const isDone = c.id < ch.id;
+            const pipTitle = `Ch.${pCh.id} (${pCh.timeSlot}) · ${pCh.title}｜${pCh.location}`;
+            const announcePip = () => {
+              soundFX.playClick();
+              const msg = isDone && pCh.takeaway
+                ? `✓ Ch.${pCh.id} ${pCh.timeSlot}《${pCh.title}》｜「${pCh.takeaway}」`
+                : `📍 Ch.${pCh.id} ${pCh.timeSlot}《${pCh.title}》｜${pCh.location}`;
+              this._showToast(msg, 'info', 2800);
+            };
+            return el('i', {
+              class: isDone ? 'done' : (c.id === ch.id ? 'now' : ''),
+              role: 'button',
+              tabindex: '0',
+              title: pipTitle,
+              'aria-label': pipTitle,
+              onClick: announcePip,
+              onKeydown: (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  announcePip();
+                }
+              }
+            });
+          }))
         ]),
         el('div', { class: 'hud-mobile-summary' }, [
           el('div', { class: 'hud-mobile-stats' }, [
@@ -3102,6 +3127,9 @@ class GtaDentsuApp {
     // phase === 'reveal'
     const out = this.state.lastGameOutcome || { scored: false, correct: true, detail: '', pointsEarned: 0 };
     const badgeText = out.scored ? (out.correct ? t('stage.revealBadgeCorrect') : t('stage.revealBadgeTried')) : t('stage.revealBadgeDone');
+    const sourceLine = (ch.baseTakeaway && ch.baseTakeaway !== ch.takeaway)
+      ? `${t('stage.takeawaySource', ch.book, ch.source)} · 「${ch.baseTakeaway}」`
+      : t('stage.takeawaySource', ch.book, ch.source);
     return el('main', { class: 'panel main-stage is-action-focus' }, [
       actionZoneTag,
       header,
@@ -3116,7 +3144,7 @@ class GtaDentsuApp {
         htmlNode('stamp-slot', getTempleStampSvg()),
         el('div', { style: 'font-size:13px;font-weight:800;color:var(--cyan);margin-bottom:4px;', text: t('stage.takeawayBadge') }),
         el('div', { class: 'takeaway-text', text: `「${ch.takeaway}」` }),
-        el('div', { style: 'font-size:14px;color:var(--muted);margin-top:4px;', text: t('stage.takeawaySource', ch.book, ch.source) }),
+        el('div', { class: 'takeaway-source', style: 'font-size:14px;color:var(--muted);margin-top:4px;', text: sourceLine }),
         el('button', {
           class: 'replay-btn',
           style: 'margin-top:6px;',
@@ -3373,20 +3401,38 @@ class GtaDentsuApp {
         if (tick <= (game.goodUntilTick ?? 4)) return t('miniGame.stopStatusWarn');
         return t('miniGame.stopStatusDanger');
       };
+      const isOptimalTick = (tick) => skillActive && tick >= 2 && tick <= (game.goodUntilTick ?? 4);
       const repEl = el('div', { class: 'stop-val', style: 'color:var(--lime);', text: String(game.report.start + this.stopTick * game.report.perTick) });
       const freshEl = el('div', { class: 'stop-val', style: 'color:var(--danger);', text: `${game.fresh.start + this.stopTick * game.fresh.perTick}${game.fresh.unit}` });
       const tickLabel = el('div', { class: 'pill', text: t('miniGame.stopWeek', this.stopTick, game.ticks) });
       const statusPill = el('div', { class: 'rescue-toast', style: 'padding:8px 12px;font-size:14px;', text: getStopStatusText(this.stopTick) });
+      const brakeBtn = el('button', {
+        class: `btn-primary${isOptimalTick(this.stopTick) ? ' is-skill-hint' : ''}`,
+        style: 'font-size:19px;min-height:56px;',
+        text: `${isOptimalTick(this.stopTick) ? '📡 ⚡ ' : ''}${t('miniGame.stopBrakeBtn')}`,
+        onClick: () => {
+          this._clearStopTimer();
+          this.stopFinished = true;
+          const next = submitMiniGame(this.state, this.stopTick);
+          if (next.lastGameOutcome?.correct) soundFX.playMissionPassed();
+          else soundFX.playWantedSiren();
+          this._setState(next);
+        }
+      });
 
       this.updateStopDisplay = () => {
         repEl.textContent = String(game.report.start + this.stopTick * game.report.perTick);
         freshEl.textContent = `${game.fresh.start + this.stopTick * game.fresh.perTick}${game.fresh.unit}`;
         tickLabel.textContent = t('miniGame.stopWeek', this.stopTick, game.ticks);
         statusPill.textContent = getStopStatusText(this.stopTick);
+        const opt = isOptimalTick(this.stopTick);
+        brakeBtn.className = `btn-primary${opt ? ' is-skill-hint' : ''}`;
+        brakeBtn.textContent = `${opt ? '📡 ⚡ ' : ''}${t('miniGame.stopBrakeBtn')}`;
       };
       if (!this.stopTimer && !this.stopFinished && !this._isAnyModalOpen()) {
         this.stopTimer = setInterval(() => {
           this.stopTick += 1;
+          this._persistGameDraft();
           this.updateStopDisplay();
           if (this.stopTick >= game.ticks) {
             this._clearStopTimer();
@@ -3412,19 +3458,7 @@ class GtaDentsuApp {
             freshEl
           ])
         ]),
-        el('button', {
-          class: 'btn-primary',
-          style: 'font-size:19px;min-height:56px;',
-          text: t('miniGame.stopBrakeBtn'),
-          onClick: () => {
-            this._clearStopTimer();
-            this.stopFinished = true;
-            const next = submitMiniGame(this.state, this.stopTick);
-            if (next.lastGameOutcome?.correct) soundFX.playMissionPassed();
-            else soundFX.playWantedSiren();
-            this._setState(next);
-          }
-        })
+        brakeBtn
       ]);
     }
 
@@ -3743,6 +3777,7 @@ class GtaDentsuApp {
               const dataUrl = renderResultCardCanvas({
                 role,
                 persona,
+                epilogue,
                 state: this.state,
                 meta: this.careerMeta,
                 hudStats,
