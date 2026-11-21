@@ -68,7 +68,9 @@ export function sanitizeLoadedState(raw, fallbackFactory, chapterCount = 10) {
   const maxIdx = Math.max(0, Number(chapterCount || 10) - 1);
   const roleId = VALID_ROLES.has(raw.roleId) ? raw.roleId : base.roleId;
   let phase = VALID_PHASES.has(raw.phase) ? raw.phase : base.phase;
-  if ((phase === 'game' || phase === 'reveal') && !raw.activeReply && phase === 'game') {
+  if (phase === 'game' && !raw.activeReply) {
+    phase = 'scene';
+  } else if (phase === 'reveal' && (!raw.activeReply || !raw.lastGameOutcome)) {
     phase = 'scene';
   }
   const grandmaUnlocked = Boolean(raw.grandmaUnlocked);

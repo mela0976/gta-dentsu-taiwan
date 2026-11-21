@@ -1,12 +1,14 @@
 // 主介面控制器：GTA 6 × 台灣街頭工藝《決策智慧：電通台灣一日風雲》（Diegetic Game HUD）
 import { PEOPLE_MODEL_TWINS, CHAPTERS } from './story-data.js';
 import {
+  SUPPORTED_LANGS,
   initLang,
   getLang,
   setLang,
   t,
   getUiStrings,
   getCutsceneUrl,
+  getLocalizedRole,
   getLocalizedRoles,
   getLocalizedTwins,
   getLocalizedGrandmaQuips,
@@ -311,10 +313,194 @@ class GtaDentsuApp {
     }
   }
 
+  _localizeTimeSlot(timeStr, roleId, lang) {
+    if (!timeStr) return timeStr;
+    for (const srcLang of SUPPORTED_LANGS) {
+      for (let ci = 0; ci < CHAPTERS.length; ci += 1) {
+        if (getLocalizedChapterForRole(ci, roleId, srcLang).timeSlot === timeStr) {
+          return getLocalizedChapterForRole(ci, roleId, lang).timeSlot;
+        }
+      }
+    }
+    return timeStr;
+  }
+
+  _localizePhoneLogEntry(entry, state, lang) {
+    if (!entry || typeof entry !== 'object') return entry;
+    const roleId = state.roleId || 'planner';
+    const dstUi = getUiStrings(lang).engine || {};
+    const dstQuips = getLocalizedGrandmaQuips(lang);
+    const dstTwins = getLocalizedTwins(lang);
+    const dstRole = getLocalizedRole(roleId, lang);
+    const mappedTime = this._localizeTimeSlot(entry.time, roleId, lang);
+
+    if (entry.badge === 'AMA666') {
+      let nextText = entry.text;
+      for (const srcLang of SUPPORTED_LANGS) {
+        const idx = (getLocalizedGrandmaQuips(srcLang).rescueLines || []).indexOf(entry.text);
+        if (idx >= 0) {
+          nextText = dstQuips.rescueLines[idx % dstQuips.rescueLines.length];
+          break;
+        }
+      }
+      return {
+        ...entry,
+        from: dstUi.grandmaName || entry.from,
+        role: dstUi.grandmaRole || entry.role,
+        time: mappedTime,
+        text: nextText
+      };
+    }
+
+    if (entry.badge === 'RESCUE') {
+      let nextText = entry.text;
+      for (const srcLang of SUPPORTED_LANGS) {
+        const srcQ = getLocalizedGrandmaQuips(srcLang);
+        const idx = (srcQ.rescueLines || []).findIndex((line) => `${srcQ.rescueTitle} ${line}` === entry.text);
+        if (idx >= 0) {
+          nextText = `${dstQuips.rescueTitle} ${dstQuips.rescueLines[idx % dstQuips.rescueLines.length]}`;
+          break;
+        }
+      }
+      return {
+        ...entry,
+        from: dstUi.grandmaEmergencyFrom || entry.from,
+        role: dstUi.grandmaEmergencyRole || entry.role,
+        time: mappedTime,
+        text: nextText
+      };
+    }
+
+    if (entry.badge === 'SKILL') {
+      const nextNote = dstUi.specialNotes?.[dstRole.id]
+        || (typeof dstUi.specialFallback === 'function' ? dstUi.specialFallback(dstRole.specialName) : entry.text);
+      return {
+        ...entry,
+        from: dstRole.name,
+        role: dstRole.specialName,
+        time: mappedTime,
+        text: nextNote
+      };
+    }
+
+    if (entry.badge === 'AMA') {
+      let matchedCi = -1;
+      for (const srcLang of SUPPORTED_LANGS) {
+        for (let ci = 0; ci < CHAPTERS.length; ci += 1) {
+          if (getLocalizedChapterForRole(ci, roleId, srcLang).grandmaQuip === entry.text) {
+            matchedCi = ci;
+            break;
+          }
+        }
+        if (matchedCi >= 0) break;
+      }
+      const dstCh = getLocalizedChapterForRole(matchedCi >= 0 ? matchedCi : state.chapterIndex, roleId, lang);
+      return {
+        ...entry,
+        from: dstUi.grandmaName || entry.from,
+        role: dstTwins.grandma?.voice || entry.role,
+        time: dstCh.timeSlot,
+        text: dstCh.grandmaQuip
+      };
+    }
+
+    if (entry.badge === 'MODEL') {
+      let matchedTid = null;
+      let matchedCi = -1;
+      for (const srcLang of SUPPORTED_LANGS) {
+        const srcTwins = getLocalizedTwins(srcLang);
+        for (const tid of ['lisa', 'cindy']) {
+          for (let ci = 0; ci < CHAPTERS.length; ci += 1) {
+            const srcCh = getLocalizedChapterForRole(ci, roleId, srcLang);
+            if (srcCh.peopleModel?.[tid] === entry.text) {
+              matchedTid = tid;
+              matchedCi = ci;
+              break;
+            }
+          }
+          if (matchedTid) break;
+        }
+        if (matchedTid) break;
+        for (const tid of ['lisa', 'cindy']) {
+          if (srcTwins[tid]?.name === entry.from) {
+            matchedTid = tid;
+            break;
+          }
+        }
+        if (matchedTid) break;
+      }
+      const tid = matchedTid || 'lisa';
+      const dstCh = matchedCi >= 0 ? getLocalizedChapterForRole(matchedCi, roleId, lang) : null;
+      return {
+        ...entry,
+        from: dstTwins[tid]?.name || entry.from,
+        role: dstTwins[tid]?.voice || entry.role,
+        time: dstCh ? dstCh.timeSlot : mappedTime,
+        text: dstCh?.peopleModel?.[tid] || entry.text
+      };
+    }
+
+    if (entry.badge === 'CH6 CALL') {
+      let matchedCi = 5;
+      for (const srcLang of SUPPORTED_LANGS) {
+        for (let ci = 0; ci < CHAPTERS.length; ci += 1) {
+          if (getLocalizedChapterForRole(ci, roleId, srcLang).grandmaPhoneCall?.text === entry.text) {
+            matchedCi = ci;
+            break;
+          }
+        }
+      }
+      const dstCh = getLocalizedChapterForRole(matchedCi, roleId, lang);
+      return {
+        ...entry,
+        from: dstUi.grandmaCh6From || entry.from,
+        role: dstUi.grandmaCh6Role || entry.role,
+        time: dstCh.timeSlot,
+        text: dstCh.grandmaPhoneCall?.text || entry.text
+      };
+    }
+
+    if (entry.badge === 'MINIGAME') {
+      const m = String(entry.text || '').match(/(\d+)\D+\+(\d+)\D+\+(\d+)/);
+      const nextText = m && typeof dstUi.scooterLog === 'function'
+        ? dstUi.scooterLog(m[1], m[2], m[3])
+        : entry.text;
+      return {
+        ...entry,
+        from: dstUi.grandmaScooterFrom || entry.from,
+        role: dstUi.grandmaScooterRole || entry.role,
+        time: mappedTime,
+        text: nextText
+      };
+    }
+
+    for (const srcLang of SUPPORTED_LANGS) {
+      for (let ci = 0; ci < CHAPTERS.length; ci += 1) {
+        const srcCh = getLocalizedChapterForRole(ci, roleId, srcLang);
+        if (srcCh.lineMessage === entry.text || (srcCh.lineSender?.badge === entry.badge && srcCh.timeSlot === entry.time)) {
+          const dstCh = getLocalizedChapterForRole(ci, roleId, lang);
+          return {
+            ...entry,
+            from: dstCh.lineSender.name,
+            role: dstCh.lineSender.role,
+            badge: dstCh.lineSender.badge,
+            time: dstCh.timeSlot,
+            text: dstCh.lineMessage
+          };
+        }
+      }
+    }
+
+    return { ...entry, time: mappedTime };
+  }
+
   _localizeProgress(state, lang) {
     if (!state.roleId) return state;
     const ch = getCurrentChapter(state);
     const nextState = { ...state };
+    if (Array.isArray(state.phoneLog)) {
+      nextState.phoneLog = state.phoneLog.map((entry) => this._localizePhoneLogEntry(entry, state, lang));
+    }
     if (state.activeReply && Array.isArray(ch.replies)) {
       const matchedReply = ch.replies.find((r) => r.id === state.activeReply.id) || ch.replies[0];
       nextState.activeReply = matchedReply;
@@ -696,6 +882,7 @@ class GtaDentsuApp {
   }
 
   _openRestartConfirm() {
+    this._clearStopTimer();
     soundFX.playClick();
     if (!this.confirmRestartDialog) {
       this._resetGame();
@@ -797,6 +984,10 @@ class GtaDentsuApp {
         dlg.returnValue = '';
         this.welcomeDialogOpen = false;
         this._drainPendingToasts();
+        const ch = getCurrentChapter(this.state);
+        if (this.state.phase === 'game' && ch?.game?.type === 'stop' && !this.stopFinished && !this.stopTimer && !this._isAnyModalOpen()) {
+          this.render();
+        }
       });
       document.body.appendChild(dlg);
       this.welcomeDialog = dlg;
@@ -820,6 +1011,10 @@ class GtaDentsuApp {
         cDlg.returnValue = '';
         this.restartDialogOpen = false;
         this._drainPendingToasts();
+        const ch = getCurrentChapter(this.state);
+        if (this.state.phase === 'game' && ch?.game?.type === 'stop' && !this.stopFinished && !this.stopTimer && !this._isAnyModalOpen()) {
+          this.render();
+        }
       });
       document.body.appendChild(cDlg);
       this.confirmRestartDialog = cDlg;
@@ -859,6 +1054,7 @@ class GtaDentsuApp {
   }
 
   _openWelcomeTour(slide = 0, invokerEl = null) {
+    this._clearStopTimer();
     const slides = getWelcomeSlides();
     this._tourInvokerEl = invokerEl || document.activeElement;
     this.welcomeSlide = Math.max(0, Math.min(slides.length - 1, slide));
@@ -1270,10 +1466,14 @@ class GtaDentsuApp {
     }
 
     if (this.scooterModalOpen || this.ch6CallModalOpen || this.streetViewModalOpen) {
-      if (e.key === 'Escape') {
+      if (this.ch6CallModalOpen && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        this._acceptGrandmaCall();
+      } else if (e.key === 'Escape') {
         if (this.streetViewModalOpen) {
           this.streetViewModalOpen = false;
           this.render();
+          this._drainPendingToasts();
         } else if (this.scooterModalOpen) {
           this._closeScooterModal(true);
         }
@@ -1479,6 +1679,7 @@ class GtaDentsuApp {
   }
 
   _openScooterModal() {
+    this._clearStopTimer();
     this._prevStation = soundFX.stationIndex;
     soundFX.setStation(2); // Turbo Cyber-Pulse
     this.scooterModalOpen = true;
@@ -1610,7 +1811,16 @@ class GtaDentsuApp {
               text: t('titleScreen.ctaResume', this.state.chapterIndex + 1),
               onClick: () => {
                 soundFX.playClick();
-                this._setState({ ...this.state, phase: 'scene' });
+                const chId = this.state.chapterIndex + 1;
+                let resumePhase = 'scene';
+                if (this.state.history.length >= CHAPTERS.length) {
+                  resumePhase = 'review';
+                } else if (this.state.history.some((h) => h.chapterId === chId) && this.state.lastGameOutcome) {
+                  resumePhase = 'reveal';
+                } else if (this.state.activeReply) {
+                  resumePhase = 'game';
+                }
+                this._setState({ ...this.state, phase: resumePhase });
               }
             })
           : null
@@ -2119,6 +2329,7 @@ class GtaDentsuApp {
         class: 'scene-gmap-iframe',
         src: this._build360EmbedUrl({ ...gm, panoId: this.resolvedPanoInfo[ch.id]?.panoId || gm.panoId }),
         title: t('sceneCard.iframeTitle360', ch.location),
+        allow: 'accelerometer; gyroscope; fullscreen',
         allowfullscreen: 'true',
         loading: 'lazy',
         referrerpolicy: 'no-referrer-when-downgrade'
@@ -2209,6 +2420,7 @@ class GtaDentsuApp {
         onClick: () => {
           closeMore();
           soundFX.playClick();
+          this._clearStopTimer();
           this.streetViewModalOpen = true;
           this._lookupLivePano(ch);
           this.render();
@@ -3035,7 +3247,7 @@ class GtaDentsuApp {
         tickLabel.textContent = t('miniGame.stopWeek', this.stopTick, game.ticks);
         statusPill.textContent = getStopStatusText(this.stopTick);
       };
-      if (!this.stopTimer && !this.stopFinished) {
+      if (!this.stopTimer && !this.stopFinished && !this._isAnyModalOpen()) {
         this.stopTimer = setInterval(() => {
           this.stopTick += 1;
           this.updateStopDisplay();
@@ -3178,6 +3390,11 @@ class GtaDentsuApp {
       ])
     ]);
 
+    if (this.scooterInstance) {
+      this.scooterInstance.stop(true);
+      this.scooterInstance = null;
+    }
+
     requestAnimationFrame(() => {
       if (!this.scooterModalOpen || this.scooterInstance) return;
       this.scooterInstance = new GrandmaScooterGame(canvas, scooterCfg, {
@@ -3227,6 +3444,7 @@ class GtaDentsuApp {
         class: 'scene-gmap-iframe sv-modal-viewport',
         src: this._build360EmbedUrl({ ...gm, panoId: live?.panoId || gm.panoId }),
         title: t('streetViewModal.iframeTitle', ch.location),
+        allow: 'accelerometer; gyroscope; fullscreen',
         allowfullscreen: 'true',
         loading: 'lazy',
         referrerpolicy: 'no-referrer-when-downgrade'
@@ -3472,6 +3690,7 @@ class GtaDentsuApp {
           onClick: () => {
             this.streetViewModalOpen = false;
             this.render();
+            this._drainPendingToasts();
           }
         })
       );

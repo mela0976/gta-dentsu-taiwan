@@ -912,8 +912,8 @@ async function run() {
       await lp.click('.chapter-header .btn-primary');
       await lp.waitForSelector('.replies-grid');
       const landGeo = await lp.evaluate((vw) => {
-        const sceneVis = document.querySelector('.scene-card')?.offsetParent !== null;
-        const stageVis = document.querySelector('.main-stage')?.offsetParent !== null;
+        const sceneVis = Boolean(document.querySelector('.scene-card')?.offsetParent);
+        const stageVis = Boolean(document.querySelector('.main-stage')?.offsetParent);
         return { sw: document.documentElement.scrollWidth, vw, sceneVis, stageVis };
       }, lVp.width);
       assert.ok(landGeo.sw <= landGeo.vw, `${lTag}: overflow (${landGeo.sw} > ${landGeo.vw})`);
@@ -1106,8 +1106,8 @@ async function run() {
         sw: document.documentElement.scrollWidth,
         vw,
         hasTabs: document.querySelectorAll('.mobile-tab-btn').length === 4,
-        colLeftVis: document.querySelector('.col-left')?.offsetParent !== null,
-        colRightVis: document.querySelector('.col-right')?.offsetParent !== null
+        colLeftVis: Boolean(document.querySelector('.col-left')?.offsetParent),
+        colRightVis: Boolean(document.querySelector('.col-right')?.offsetParent)
       }), vp.width);
       assert.ok(snap.sw <= snap.vw, `Dynamic resize ${stepName}: overflow (${snap.sw} > ${snap.vw})`);
       assert.equal(snap.hasTabs, expTabs, `Dynamic resize ${stepName}: mobile-tab-bar expected=${expTabs}, got=${snap.hasTabs}`);
@@ -1213,6 +1213,48 @@ async function run() {
     await secondReload;
     assert.deepEqual(new Set(await backups()), new Set([newerSave, imported]));
     await saveContext.close();
+
+    // QA Regression 1: Mid-run language switch translates phoneLog cleanly with zero CJK leaks in EN
+    const qaMidLang = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    attachErrorWatchers(qaMidLang, 'qa-mid-lang');
+    await qaMidLang.goto(`${baseUrl}/index.html`, { waitUntil: 'networkidle' });
+    await qaMidLang.click('.hero-actions .btn-primary');
+    await qaMidLang.locator('.role-card').nth(1).click();
+    await qaMidLang.click('.chapter-header .btn-primary');
+    await qaMidLang.waitForSelector('#phone-card-panel');
+    await qaMidLang.click('#clue-card-panel .btn-cyan');
+    await qaMidLang.click('.phone-tab:has-text("讀心")');
+    await qaMidLang.locator('.twin-row').first().click();
+    await qaMidLang.click('.phone-tab:has-text("LINE")');
+    await qaMidLang.click('.lang-switch.is-hud .lang-btn[data-lang="en"]');
+    await qaMidLang.waitForFunction(() => document.documentElement.lang.startsWith('en'));
+    const phoneCjkLeak = await qaMidLang.evaluate(() => {
+      const panel = document.querySelector('#phone-card-panel');
+      return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(panel?.innerText || '');
+    });
+    assert.equal(phoneCjkLeak, false, 'Mid-run switch to EN leaked untranslated CJK text in #phone-card-panel');
+    await qaMidLang.close();
+
+    // QA Regression 2: Opening modal during Ch.8 stop mini-game pauses stopTimer and closing resumes it
+    const qaStop = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    attachErrorWatchers(qaStop, 'qa-stop-pause');
+    await qaStop.goto(baseUrl, { waitUntil: 'networkidle' });
+    await qaStop.evaluate(async () => {
+      const { createInitialState, selectRole } = await import('./src/game-engine.js');
+      const state = selectRole(createInitialState(), 'account');
+      localStorage.setItem('gta_dentsu_taiwan_v2', JSON.stringify({ ...state, phase: 'scene', chapterIndex: 7 }));
+    });
+    await qaStop.reload({ waitUntil: 'networkidle' });
+    await qaStop.locator('.reply-btn').first().click();
+    await qaStop.locator('.stop-val').first().waitFor();
+    await qaStop.click('.hud-btn.is-gold');
+    await qaStop.waitForSelector('.scooter-canvas');
+    const pausedVal = await qaStop.locator('.stop-val').first().textContent();
+    await qaStop.waitForTimeout(950);
+    assert.equal(await qaStop.locator('.stop-val').first().textContent(), pausedVal, 'Ch.8 stop timer continued ticking while modal was open');
+    await qaStop.keyboard.press('Escape');
+    await qaStop.waitForFunction((prev) => document.querySelector('.stop-val')?.textContent !== prev, pausedVal, { timeout: 3000 });
+    await qaStop.close();
 
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
     console.log('E2E VERIFY PASSED: zh/en/ja (354 MP3s, 9 MP4s), full responsive & foldable suite (280x653, 320x320, 344x882, 375x667, 390x844, 667x375, 844x390, 690x829, 840x840, 768x1024, 1024x540, 1024x720, fold-book 1114x720, fold-flex 412x915, 1280x800, 1920x1080, 2560x1080 + live fold/unfold/rotate), 0 Web Speech murmuring, and standalone HTML verified with 0 errors.');

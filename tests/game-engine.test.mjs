@@ -603,3 +603,50 @@ test('Responsive & foldable layout engine classifies cover, phone, landscape, un
   assert.equal(fakeProps['--fold-seg0-w'], undefined);
   assert.equal(fakeProps['--fold-hinge-gap'], undefined);
 });
+
+test('Senior QA Suite: phase guards prevent double-submit exploits, deduplicate history, and sanitize corrupt reveal saves', async () => {
+  const { sanitizeLoadedState } = await import('../src/launch-kit.js');
+
+  let state = selectRole(createInitialState(), 'planner');
+  if (state.phase === 'cutscene') state = { ...state, phase: 'scene' };
+
+  // Calling submitMiniGame or advanceChapter in wrong phase must be a no-op
+  assert.equal(submitMiniGame(state, 1), state);
+  assert.equal(advanceChapter(state), state);
+
+  // Double-submitting chooseReply in 'game' phase must not deduct stats or add points twice
+  const afterReply = chooseReply(state, 2);
+  assert.equal(afterReply.phase, 'game');
+  assert.equal(chooseReply(afterReply, 3), afterReply);
+
+  // Submitting mini-game transitions to 'reveal', and calling submitMiniGame again must be a no-op
+  const afterGame = submitMiniGame(afterReply, 1);
+  assert.equal(afterGame.phase, 'reveal');
+  assert.equal(afterGame.history.length, 1);
+  assert.equal(submitMiniGame(afterGame, 1), afterGame);
+
+  // Re-evaluating same chapter (if replayed into game) must deduplicate history by chapterId
+  const replayedGame = { ...afterGame, phase: 'game' };
+  const afterReplayGame = submitMiniGame(replayedGame, 0);
+  assert.equal(afterReplayGame.history.length, 1);
+  assert.equal(afterReplayGame.history[0].chapterId, 1);
+  assert.equal(afterReplayGame.history[0].correct, false);
+
+  // Corrupt 'reveal' save missing activeReply or lastGameOutcome falls back safely to 'scene'
+  const corruptRevealNoReply = sanitizeLoadedState(
+    { ...afterGame, phase: 'reveal', activeReply: null },
+    createInitialState,
+    10
+  );
+  assert.equal(corruptRevealNoReply.phase, 'scene');
+
+  const corruptRevealNoOutcome = sanitizeLoadedState(
+    { ...afterGame, phase: 'reveal', lastGameOutcome: null },
+    createInitialState,
+    10
+  );
+  assert.equal(corruptRevealNoOutcome.phase, 'scene');
+
+  const validReveal = sanitizeLoadedState(afterGame, createInitialState, 10);
+  assert.equal(validReveal.phase, 'reveal');
+});

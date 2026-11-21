@@ -224,6 +224,7 @@ export function useRoleSpecial(state) {
 }
 
 export function chooseReply(state, replyIndex) {
+  if (state.phase !== 'scene' && state.phase !== 'cutscene') return state;
   const ch = getCurrentChapter(state);
   const rep = ch.replies[replyIndex] || ch.replies[0];
   let wantedDelta = rep.wantedDelta || 0;
@@ -308,7 +309,7 @@ export function chooseReply(state, replyIndex) {
         pointsEarned: replyPoints,
         submission: null,
       },
-      history: [...state.history, record],
+      history: [...state.history.filter((h) => h.chapterId !== ch.id), record],
       phoneLog,
     };
   }
@@ -419,6 +420,7 @@ export function evaluateMiniGame(game, submission) {
 }
 
 export function submitMiniGame(state, submission) {
+  if (state.phase !== 'game') return state;
   const ch = getCurrentChapter(state);
   const outcome = evaluateMiniGame(ch.game, submission);
   const tier = ch.id <= 3 ? 1 : ch.id <= 6 ? 2 : 3;
@@ -471,7 +473,7 @@ export function submitMiniGame(state, submission) {
     gamesCorrectCount: state.gamesCorrectCount + (outcome.scored && outcome.correct ? 1 : 0),
     lastGameOutcome: { ...outcome, pointsEarned, submission },
     chapter6PhoneTriggered,
-    history: [...state.history, record],
+    history: [...state.history.filter((h) => h.chapterId !== ch.id), record],
     phoneLog,
   };
 }
@@ -506,6 +508,7 @@ export function completeScooterRun(state, result) {
 }
 
 export function advanceChapter(state) {
+  if (state.phase !== 'reveal') return state;
   const nextIndex = state.chapterIndex + 1;
   if (nextIndex >= CHAPTERS.length) {
     return { ...state, phase: 'review' };
