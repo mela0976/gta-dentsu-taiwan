@@ -105,15 +105,18 @@ function loadCampaign() {
   try {
     if (useLegacy && snapshot !== legacy) {
       if (snapshot !== null) {
-        const backupId = crypto.randomUUID();
-        localStorage.setItem(`${STORAGE_KEY}_backup_${backupId}`, snapshot);
+        const backupPrefix = `${STORAGE_KEY}_backup_`;
+        const hasBackup = Object.keys(localStorage).some(key =>
+          key.startsWith(backupPrefix) && localStorage.getItem(key) === snapshot
+        );
+        if (!hasBackup) localStorage.setItem(backupPrefix + crypto.randomUUID(), snapshot);
       }
       localStorage.setItem(STORAGE_KEY, legacy);
       snapshot = legacy;
     }
     localStorage.setItem(baselineKey, legacy);
   } catch {
-    // Keep the existing campaign if its backup or the replacement could not be written.
+    if (useLegacy && snapshot !== legacy) window.alert(t('launch.legacyImportFailed'));
   }
   return { raw: snapshot, snapshot };
 }
@@ -178,6 +181,7 @@ class GtaDentsuApp {
     soundFX.setVoiceEnabled(audioPrefs.voiceEnabled !== false);
     soundFX.stationIndex = Number(audioPrefs.stationIndex || 0);
     this.careerMeta = this._loadMeta();
+    this._saveMeta();
     this.state = this._loadState();
     this.phoneTab = 'line'; // 'line' | 'people' | 'grandma' | 'gta6'
     this.scooterModalOpen = false;

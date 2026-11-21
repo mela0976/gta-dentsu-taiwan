@@ -47,14 +47,17 @@ export function mergeCareerRecords(current, legacy) {
     ...(Array.isArray(current.achievements) ? current.achievements : []),
     ...(Array.isArray(legacy?.achievements) ? legacy.achievements : [])
   ];
-  return {
+  const runsByRole = Object.values(clearedRoles).reduce((total, role) => total + (Number(role?.runs) || 0), 0);
+  const merged = {
     clearedRoles,
-    achievements: ACHIEVEMENT_IDS.filter(id => achievements.includes(id)),
+    achievements,
     bestScore: Math.max(current.bestScore || 0, legacy?.bestScore || 0),
     bestScooterScore: Math.max(current.bestScooterScore || 0, legacy?.bestScooterScore || 0),
-    // Versions share a history before migration. A maximum avoids double-counting it.
-    totalRuns: Math.max(current.totalRuns || 0, legacy?.totalRuns || 0)
+    // Per-role maxima avoid counting the shared pre-migration history twice.
+    totalRuns: Math.max(current.totalRuns || 0, legacy?.totalRuns || 0, runsByRole)
   };
+  merged.achievements = evaluateAchievements(merged, null);
+  return merged;
 }
 
 export function sanitizeLoadedState(raw, fallbackFactory, chapterCount = 10) {
