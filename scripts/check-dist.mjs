@@ -137,6 +137,21 @@ for (const lang of ['zh', 'en', 'ja']) {
 const standalone = path.join(DIST, 'gta-dentsu-taiwan-standalone.html');
 if (!fs.existsSync(standalone) || fs.statSync(standalone).size < 20000) {
   errors.push('Missing or truncated standalone HTML bundle.');
+} else {
+  const html = fs.readFileSync(standalone, 'utf8');
+  const embedded = html.match(/window\.__GTA_OFFLINE_ASSETS__ = (\{[^\n]*\});<\/script>/);
+  if (!embedded) {
+    errors.push('Missing standalone offline asset map.');
+  } else {
+    const offlineAssets = JSON.parse(embedded[1]);
+    for (const file of distFiles) {
+      const relative = path.relative(DIST, file).split(path.sep).join('/');
+      if (!relative.startsWith('public/') || !/\.(mp3|mp4|webp)$/.test(relative)) continue;
+      if (offlineAssets[`./${relative}`]?.base64 !== fs.readFileSync(file).toString('base64')) {
+        errors.push(`Standalone offline asset missing or mismatched: ${relative}`);
+      }
+    }
+  }
 }
 
 if (errors.length) {

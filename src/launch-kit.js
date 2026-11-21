@@ -1,5 +1,5 @@
 // 上線強化工具組：存檔驗證、數值變動摘要、成就系統、跨局進度追蹤、戰績圖卡生成與病毒式分享文案
-export const META_STORAGE_KEY = 'gta_dentsu_meta_v1';
+export const META_STORAGE_KEY = 'gta_dentsu_meta_v2';
 export const AUDIO_PREFS_KEY = 'gta_dentsu_audio_v1';
 export const LIVE_GAME_URL = 'https://mela0976.github.io/gta-dentsu-taiwan/';
 

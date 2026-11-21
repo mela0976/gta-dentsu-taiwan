@@ -64,7 +64,17 @@ import {
   observeViewportLayout
 } from './responsive-layout.js';
 
-const STORAGE_KEY = 'gta_dentsu_taiwan_v1';
+const STORAGE_KEY = 'gta_dentsu_taiwan_v2';
+const LEGACY_STORAGE_KEY = 'gta_dentsu_taiwan_v1';
+const LEGACY_META_KEY = 'gta_dentsu_meta_v1';
+
+function migrateSavedValue(key, legacyKey) {
+  const current = localStorage.getItem(key);
+  if (current !== null) return current;
+  const legacy = localStorage.getItem(legacyKey);
+  if (legacy !== null) localStorage.setItem(key, legacy);
+  return legacy;
+}
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
 const BEGINNER_TIP_STORAGE_KEY = 'gta_dentsu_beginner_tip_v1';
 
@@ -236,37 +246,39 @@ class GtaDentsuApp {
     if (this.toastRegion) this.toastRegion.setAttribute('aria-label', t('launch.toastRegionAria'));
     if (this.srToastContext) this.srToastContext.textContent = t('launch.toastRegionAria');
     if (this.srLiveRegion) this.srLiveRegion.textContent = '';
-    if (this.state.roleId) {
-      const ch = getCurrentChapter(this.state);
-      const nextState = { ...this.state };
-      if (this.state.activeReply && Array.isArray(ch.replies)) {
-        const matchedReply = ch.replies.find((r) => r.id === this.state.activeReply.id) || ch.replies[0];
-        nextState.activeReply = matchedReply;
-        if (this.state.lastGameOutcome) {
-          if (ch.game && this.state.lastGameOutcome.submission !== undefined) {
-            const reval = evaluateMiniGame(ch.game, this.state.lastGameOutcome.submission);
-            nextState.lastGameOutcome = { ...this.state.lastGameOutcome, ...reval };
-          } else if (!ch.game || ch.finale) {
-            nextState.lastGameOutcome = { ...this.state.lastGameOutcome, detail: matchedReply.feedback };
-          }
-        }
-      }
-      if (this.state.lastRescueMessage) {
-        if (this.state.lastRescueIndex !== null && this.state.lastRescueIndex !== undefined) {
-          const quips = getLocalizedGrandmaQuips(lang);
-          const line = quips.rescueLines[this.state.lastRescueIndex % quips.rescueLines.length];
-          nextState.lastRescueMessage = `${quips.rescueTitle} ${line}`;
-        } else {
-          nextState.lastRescueMessage = t('engine.cheatUnlockOnly');
-        }
-      }
-      if (!this._saveState(nextState)) return;
-      this.state = nextState;
-    }
+    this.state = this._localizeProgress(this.state, lang);
     this.render();
     if (this.welcomeDialogOpen) {
       this._renderWelcomeDialog();
     }
+  }
+
+  _localizeProgress(state, lang) {
+    if (!state.roleId) return state;
+    const ch = getCurrentChapter(state);
+    const nextState = { ...state };
+    if (state.activeReply && Array.isArray(ch.replies)) {
+      const matchedReply = ch.replies.find((r) => r.id === state.activeReply.id) || ch.replies[0];
+      nextState.activeReply = matchedReply;
+      if (state.lastGameOutcome) {
+        if (ch.game && state.lastGameOutcome.submission !== undefined) {
+          const reval = evaluateMiniGame(ch.game, state.lastGameOutcome.submission);
+          nextState.lastGameOutcome = { ...state.lastGameOutcome, ...reval };
+        } else if (!ch.game || ch.finale) {
+          nextState.lastGameOutcome = { ...state.lastGameOutcome, detail: matchedReply.feedback };
+        }
+      }
+    }
+    if (state.lastRescueMessage) {
+      if (state.lastRescueIndex !== null && state.lastRescueIndex !== undefined) {
+        const quips = getLocalizedGrandmaQuips(lang);
+        const line = quips.rescueLines[state.lastRescueIndex % quips.rescueLines.length];
+        nextState.lastRescueMessage = `${quips.rescueTitle} ${line}`;
+      } else {
+        nextState.lastRescueMessage = t('engine.cheatUnlockOnly');
+      }
+    }
+    return nextState;
   }
 
   _renderLangSwitch(compact = false) {
@@ -391,11 +403,11 @@ class GtaDentsuApp {
 
   _loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = migrateSavedValue(STORAGE_KEY, LEGACY_STORAGE_KEY);
       this.savedStateSnapshot = raw;
       if (!raw) return createInitialState();
       const parsed = JSON.parse(raw);
-      return sanitizeLoadedState(parsed, createInitialState, CHAPTERS.length);
+      return this._localizeProgress(sanitizeLoadedState(parsed, createInitialState, CHAPTERS.length), getLang());
     } catch {
       return createInitialState();
     }
@@ -403,7 +415,7 @@ class GtaDentsuApp {
 
   _loadMeta() {
     try {
-      const raw = localStorage.getItem(META_STORAGE_KEY);
+      const raw = migrateSavedValue(META_STORAGE_KEY, LEGACY_META_KEY);
       if (!raw) return createEmptyMeta();
       const parsed = JSON.parse(raw);
       return {
@@ -1220,7 +1232,7 @@ class GtaDentsuApp {
 
     // 過場動畫 / 復盤頁支援 Enter / Space 快速前進
     if (e.key === 'Enter' || e.key === ' ') {
-      if (e.defaultPrevented || e.target?.closest?.('button, a[href], select, [role="button"], [contenteditable]')) return;
+      if (e.defaultPrevented || e.target?.closest?.('button, a[href], select, video[controls], audio[controls], [role="button"], [contenteditable]')) return;
       if (this.state.phase === 'cutscene') {
         e.preventDefault();
         this._leaveCutscene();
@@ -3046,10 +3058,10 @@ class GtaDentsuApp {
               soundFX.playTatungCooker();
               this.ch6CallModalOpen = false;
               this.ch6CallDismissed = true;
-              const next = submitMiniGame(
-                { ...this.state, grandmaUnlocked: true },
-                this.swipeChoices
-              );
+              const unlocked = { ...this.state, grandmaUnlocked: true };
+              const next = this.swipeIndex >= ch.game.cards.length
+                ? submitMiniGame(unlocked, this.swipeChoices)
+                : unlocked;
               this._setState(next);
               this._drainPendingToasts();
             }

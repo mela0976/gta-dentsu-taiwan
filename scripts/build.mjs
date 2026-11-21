@@ -83,12 +83,22 @@ const bundledModules = [
 const offlineTypes = { '.webp': 'image/webp', '.mp4': 'video/mp4', '.mp3': 'audio/mpeg' };
 const offlineAssets = {};
 const publicDir = path.join(DIST, 'public');
-for (const relativePath of fs.readdirSync(publicDir, { recursive: true })) {
-  const type = offlineTypes[path.extname(relativePath)];
-  if (!type) continue;
-  const base64 = fs.readFileSync(path.join(publicDir, relativePath)).toString('base64');
-  offlineAssets[`./public/${relativePath.split(path.sep).join('/')}`] = { type, base64 };
+function embedAssets(directory, prefix) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const file = path.join(directory, entry.name);
+    const assetPath = `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) {
+      embedAssets(file, assetPath);
+      continue;
+    }
+    const type = offlineTypes[path.extname(entry.name)];
+    if (type) offlineAssets[assetPath] = {
+      type,
+      base64: fs.readFileSync(file).toString('base64')
+    };
+  }
 }
+embedAssets(publicDir, './public');
 
 const standaloneHtml = `<!DOCTYPE html>
 <html lang="zh-Hant">

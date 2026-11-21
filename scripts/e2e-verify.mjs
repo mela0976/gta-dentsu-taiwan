@@ -435,7 +435,7 @@ async function run() {
             if (ch === 6 && card === 2) {
               await play.waitForSelector('.modal-box');
               await play.click('.modal-box .btn-gold');
-              break;
+              await play.waitForSelector('.swipe-card');
             }
           }
         } else if (type === 'multi') {
@@ -1141,8 +1141,13 @@ async function run() {
     await saveB.goto(baseUrl);
     await saveA.locator('.reply-btn').first().click();
     await saveA.locator('.paper-card').first().click();
-    const key = 'gta_dentsu_taiwan_v1';
+    const key = 'gta_dentsu_taiwan_v2';
     const newerSave = await saveA.evaluate(key => localStorage.getItem(key), key);
+    await saveB.evaluate(() => localStorage.setItem('gta_dentsu_taiwan_v1', '{"phase":"title"}'));
+    assert.equal(await saveA.evaluate(key => localStorage.getItem(key), key), newerSave);
+    await saveB.locator('.lang-switch .lang-btn').filter({ hasText: /^EN$/ }).first().click();
+    assert.equal(await saveA.evaluate(key => localStorage.getItem(key), key), newerSave);
+    await saveB.locator('.lang-switch .lang-btn').filter({ hasText: /繁中/ }).first().click();
     const conflict = saveB.waitForEvent('dialog');
     const staleClick = saveB.locator('.reply-btn').first().click();
     const notice = await conflict;

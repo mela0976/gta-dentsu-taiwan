@@ -2063,6 +2063,16 @@ dialog.confirm-modal::backdrop {
 }
 :root[data-layout-mode="fold-flex"] .role-select-wrap > * { flex-shrink: 0; }
 :root[data-layout-mode="fold-flex"] .hud-bar { min-height: 54px; padding: 5px 10px; border-radius: 0 0 12px 12px; flex-shrink: 0; position: relative; top: auto; }
+:root[data-layout-mode="fold-flex"] .hud-bar.is-mobile-expanded {
+  max-height: var(--fold-seg0-h);
+  overflow-y: auto;
+}
+:root[data-layout-mode="fold-flex"] .review-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: max(84px, calc(76px + env(safe-area-inset-bottom, 0px)));
+}
 :root[data-layout-mode="fold-flex"] .mobile-scene-peek,
 :root[data-layout-mode="fold-flex"] .mobile-tab-bar { display: none !important; }
 :root[data-layout-mode="fold-flex"] .gta-shell:has(> .play-grid) {
