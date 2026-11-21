@@ -189,19 +189,21 @@ class GtaDentsuApp {
     this.scooterModalOpen = false;
     this.scooterInstance = null;
     this.ch6CallModalOpen = false;
+    const gameDraft = this.state.phase === 'game' ? (this.state.gameDraft || {}) : {};
     const swipeDraft = this.state.phase === 'game' && this.state.swipeDraft;
-    this.ch6CallDismissed = Boolean(swipeDraft?.callAccepted);
+    this.ch6CallDismissed = Boolean(swipeDraft?.callAccepted || gameDraft.ch6CallDismissed);
     this.activeCutsceneSrc = null;
 
     // 暫存小互動即時狀態
-    this.sliderVal = null;
-    this.swipeChoices = Array.isArray(swipeDraft?.choices)
-      ? swipeDraft.choices.filter(side => side === 'left' || side === 'right').slice(0, 3)
-      : [];
+    this.sliderVal = Number.isFinite(Number(gameDraft.sliderVal)) ? Number(gameDraft.sliderVal) : null;
+    const rawSwipes = Array.isArray(swipeDraft?.choices)
+      ? swipeDraft.choices
+      : (Array.isArray(gameDraft.swipeChoices) ? gameDraft.swipeChoices : []);
+    this.swipeChoices = rawSwipes.filter(side => side === 'left' || side === 'right').slice(0, 3);
     this.swipeIndex = this.swipeChoices.length;
-    this.multiSelected = new Set();
+    this.multiSelected = new Set(Array.isArray(gameDraft.multiSelected) ? gameDraft.multiSelected.map(Number).filter(Number.isInteger) : []);
     this.stopTimer = null;
-    this.stopTick = 0;
+    this.stopTick = Number.isInteger(gameDraft.stopTick) && gameDraft.stopTick >= 0 ? gameDraft.stopTick : 0;
     this.stopFinished = false;
     this.cheatBuffer = '';
     this.highlightTarget = null; // 'clue' | 'phone' | null
@@ -248,11 +250,17 @@ class GtaDentsuApp {
     soundFX.onVoiceChange = () => this._syncVoiceIndicator();
     const startAudio = () => {
       if (this.muted) return;
-      soundFX._ensureCtx();
+      const ctx = soundFX._ensureCtx();
       soundFX.startBGM();
+      if (ctx && ctx.state === 'running' && soundFX.bgmTimer) {
+        window.removeEventListener('click', startAudio);
+        window.removeEventListener('pointerdown', startAudio);
+        window.removeEventListener('keydown', startAudio);
+      }
     };
-    window.addEventListener('pointerdown', startAudio, { once: true });
-    window.addEventListener('keydown', startAudio, { once: true });
+    window.addEventListener('click', startAudio);
+    window.addEventListener('pointerdown', startAudio);
+    window.addEventListener('keydown', startAudio);
 
     window.addEventListener('keydown', (e) => this._handleGlobalKey(e));
     if (this._getMapsApiKey()) {
@@ -1365,12 +1373,32 @@ class GtaDentsuApp {
     }
   }
 
+  _persistGameDraft() {
+    if (this.state.phase !== 'game') return;
+    const next = {
+      ...this.state,
+      gameDraft: {
+        sliderVal: this.sliderVal,
+        multiSelected: [...this.multiSelected],
+        swipeChoices: [...this.swipeChoices],
+        stopTick: this.stopTick,
+        ch6CallDismissed: this.ch6CallDismissed
+      }
+    };
+    if (this._saveState(next)) {
+      this.state = next;
+    }
+  }
+
   _setState(next) {
-    if (next.phase !== 'game' && next.swipeDraft) {
-      const { swipeDraft: _, ...withoutDraft } = next;
+    if (next.phase !== 'game' && (next.swipeDraft || next.gameDraft)) {
+      const { swipeDraft: _, gameDraft: __, ...withoutDraft } = next;
       next = withoutDraft;
     }
     if (!this._saveState(next)) return;
+    if (next.chapterIndex !== this.state.chapterIndex || next.phase === 'title' || next.phase === 'role' || next.phase === 'review') {
+      soundFX.stopSpeech();
+    }
     const changedView = next.phase !== this.state.phase || next.chapterIndex !== this.state.chapterIndex;
     const enteredReview = next.phase === 'review' && this.state.phase !== 'review';
     const enteredDeltaPhase = (next.phase === 'game' || next.phase === 'reveal') && next.phase !== this.state.phase;
@@ -1465,6 +1493,25 @@ class GtaDentsuApp {
       return;
     }
 
+    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey && !this.cheatBuffer.endsWith('AR')) {
+      e.preventDefault();
+      if (this.muted) {
+        this.muted = false;
+        soundFX.setMuted(false);
+        document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = t('hud.soundOn'); });
+      }
+      const st = soundFX.nextStation();
+      this._saveAudioPrefs();
+      const name = (t('radioStations') || {})[st.id] || st.short;
+      document.querySelectorAll('.hud-btn.is-radio').forEach((btn) => {
+        btn.classList.add('is-playing');
+        const txt = btn.querySelector('.hud-btn-text');
+        if (txt) txt.textContent = `📻 ${name}`;
+      });
+      this._showToast(`📻 ${name}`, 'info', 2000);
+      return;
+    }
+
     if (this.scooterModalOpen || this.ch6CallModalOpen || this.streetViewModalOpen) {
       if (this.ch6CallModalOpen && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
@@ -1483,9 +1530,14 @@ class GtaDentsuApp {
 
     const ch = getCurrentChapter(this.state);
 
-    // 過場動畫 / 復盤頁支援 Enter / Space 快速前進
+    // 封面 / 過場動畫 / 復盤頁支援 Enter / Space 快速前進
     if (e.key === 'Enter' || e.key === ' ') {
       if (e.defaultPrevented || e.target?.closest?.('button, a[href], select, video[controls], audio[controls], [role="button"], [contenteditable]')) return;
+      if (this.state.phase === 'title' && e.key === 'Enter') {
+        e.preventDefault();
+        this._startShift();
+        return;
+      }
       if (this.state.phase === 'cutscene') {
         e.preventDefault();
         this._leaveCutscene();
@@ -1497,6 +1549,19 @@ class GtaDentsuApp {
         this._setState(advanceChapter(this.state));
         return;
       }
+    }
+
+    // 選角畫面支援 1-5 快選職能
+    if (this.state.phase === 'role' && ['1', '2', '3', '4', '5'].includes(e.key)) {
+      const roles = getLocalizedRoles();
+      const pickedRole = roles[Number(e.key) - 1];
+      if (pickedRole && !(pickedRole.id === 'grandma' && !this.state.grandmaUnlocked)) {
+        e.preventDefault();
+        soundFX.playMissionPassed();
+        this.phoneTab = 'line';
+        this._setState(selectRole(this.state, pickedRole.id));
+      }
+      return;
     }
 
     // 1-4 快選老闆訊息回覆
@@ -1531,6 +1596,7 @@ class GtaDentsuApp {
             soundFX.playClick();
             if (this.multiSelected.has(idx)) this.multiSelected.delete(idx);
             else this.multiSelected.add(idx);
+            this._persistGameDraft();
             this.render();
           }
           return;
@@ -1543,6 +1609,19 @@ class GtaDentsuApp {
           this._setState(next);
           return;
         }
+      }
+      if (g.type === 'slider' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        e.preventDefault();
+        const cur = this.sliderVal !== null ? this.sliderVal : g.start;
+        const step = Number(g.step || 1);
+        const nextVal = Math.max(g.min, Math.min(g.max, cur + (e.key === 'ArrowRight' ? step : -step)));
+        if (nextVal !== this.sliderVal) {
+          soundFX.playClick();
+          this.sliderVal = nextVal;
+          this._persistGameDraft();
+          this.render();
+        }
+        return;
       }
       if (g.type === 'slider' && e.key === 'Enter') {
         e.preventDefault();
@@ -1674,12 +1753,14 @@ class GtaDentsuApp {
       if (next.lastGameOutcome?.correct) soundFX.playMissionPassed();
       this._setState(next);
     } else {
+      this._persistGameDraft();
       this.render();
     }
   }
 
   _openScooterModal() {
     this._clearStopTimer();
+    soundFX.stopSpeech();
     this._prevStation = soundFX.stationIndex;
     soundFX.setStation(2); // Turbo Cyber-Pulse
     this.scooterModalOpen = true;
@@ -1747,14 +1828,16 @@ class GtaDentsuApp {
 
   _renderTitle() {
     const heroMedia = el('div', { class: 'hero-media' }, [
-      el('img', {
-        src: './public/images/scene-morning-scooter.webp',
-        alt: t('titleScreen.heroAlt'),
-        fetchpriority: 'high',
-        decoding: 'async',
-        onerror: (e) => { e.target.style.display = 'none'; }
-      }),
-      htmlNode('hero-fsd', getTeslaFsdOverlaySvg()),
+      el('div', { class: 'hero-stage-frame' }, [
+        el('img', {
+          src: './public/images/scene-morning-scooter.webp',
+          alt: t('titleScreen.heroAlt'),
+          fetchpriority: 'high',
+          decoding: 'async',
+          onerror: (e) => { e.target.style.display = 'none'; }
+        }),
+        htmlNode('hero-fsd', getTeslaFsdOverlaySvg())
+      ]),
       htmlNode('hero-a25', getFubonA25BlueprintSvg())
     ]);
 
@@ -2013,6 +2096,7 @@ class GtaDentsuApp {
       v.muted = this.muted;
     });
     if (!this.muted) soundFX.startBGM();
+    document.querySelectorAll('.hud-btn.is-radio').forEach((b) => { b.classList.toggle('is-playing', !this.muted); });
     document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = this.muted ? t('hud.soundMuted') : t('hud.soundOn'); });
     if (withToast) {
       this._showToast(this.muted ? t('launch.toastMuted') : t('launch.toastUnmuted'), 'info', 2400);
@@ -2032,10 +2116,9 @@ class GtaDentsuApp {
     const curStationName = uiRadio[curStation.id] || curStation.short;
 
     const stationBtn = el('button', {
-      class: 'hud-btn is-radio',
+      class: `hud-btn is-radio${!this.muted ? ' is-playing' : ''}`,
       title: t('hud.radioTitle'),
       'aria-label': t('hud.radioAria'),
-      text: `📻 ${curStationName}`,
       onClick: (e) => {
         if (this.muted) {
           this.muted = false;
@@ -2045,10 +2128,16 @@ class GtaDentsuApp {
         const st = soundFX.nextStation();
         this._saveAudioPrefs();
         const name = (t('radioStations') || {})[st.id] || st.short;
-        e.currentTarget.textContent = `📻 ${name}`;
+        const labelNode = e.currentTarget.querySelector('.hud-btn-text');
+        if (labelNode) labelNode.textContent = `📻 ${name}`;
+        else e.currentTarget.textContent = `📻 ${name}`;
+        e.currentTarget.classList.add('is-playing');
         this._showToast(`📻 ${name}`, 'info', 2000);
       }
-    });
+    }, [
+      el('span', { class: 'wave', 'aria-hidden': 'true' }, [el('i'), el('i'), el('i')]),
+      el('span', { class: 'hud-btn-text', text: `📻 ${curStationName}` })
+    ]);
 
     const voiceBtn = el('button', {
       class: 'hud-btn',
@@ -3091,6 +3180,7 @@ class GtaDentsuApp {
         onInput: (e) => {
           this.sliderVal = Number(e.target.value);
           readout.textContent = `${this.sliderVal} ${game.unit || ''}`;
+          this._persistGameDraft();
         }
       });
 
@@ -3112,6 +3202,7 @@ class GtaDentsuApp {
               this.sliderVal = val;
               range.value = String(val);
               readout.textContent = `${val} ${game.unit || ''}`;
+              this._persistGameDraft();
             }
           })
         )),
@@ -3216,6 +3307,7 @@ class GtaDentsuApp {
               soundFX.playClick();
               if (this.multiSelected.has(idx)) this.multiSelected.delete(idx);
               else this.multiSelected.add(idx);
+              this._persistGameDraft();
               this.render();
             }
           }, [

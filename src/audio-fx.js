@@ -341,12 +341,20 @@ class SoundEngine {
   }
 
   playRadioTune(stationIdx = 0) {
-    this._tone(320 + stationIdx * 90, 0.05, 'sawtooth', 0.04, 0);
-    this._tone(520 + stationIdx * 110, 0.08, 'sine', 0.055, 0.045);
+    const chords = [
+      [440, 554.37, 659.25],
+      [392, 493.88, 587.33],
+      [587.33, 698.46, 880]
+    ];
+    const notes = chords[stationIdx % chords.length] || chords[0];
+    notes.forEach((freq, i) => {
+      this._tone(freq, 0.09, i === 2 ? 'triangle' : 'sine', 0.095, i * 0.045);
+    });
   }
 
   nextStation() {
     const nextIdx = (this.stationIndex + 1) % RADIO_STATIONS.length;
+    if (this.speaking) this.stopSpeech();
     this.playRadioTune(nextIdx);
     return this.setStation(nextIdx);
   }
@@ -504,12 +512,17 @@ class SoundEngine {
 
   startBGM() {
     if (this.muted || this.bgmTimer || typeof window === 'undefined') return;
-    this._ensureCtx();
+    const ctx = this._ensureCtx();
     const station = this.getCurrentStation();
     this._playBgmStep();
     this.bgmTimer = setInterval(() => {
       this._playBgmStep();
     }, station.tempoMs);
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        if (!this.muted && this.bgmTimer) this._playBgmStep();
+      }).catch(() => {});
+    }
   }
 
   stopBGM() {

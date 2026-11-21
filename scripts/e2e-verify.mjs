@@ -246,6 +246,8 @@ async function run() {
         const vh = window.innerHeight;
         const actionsRect = document.querySelector('.hero-actions')?.getBoundingClientRect();
         const plateRect = document.querySelector('.plate-box.is-optional')?.getBoundingClientRect();
+        const imgRect = document.querySelector('.hero-stage-frame > img')?.getBoundingClientRect();
+        const fsdRect = document.querySelector('.hero-fsd')?.getBoundingClientRect();
         return {
           sw: document.documentElement.scrollWidth,
           sh: document.documentElement.scrollHeight,
@@ -257,7 +259,8 @@ async function run() {
           actionsBottom: actionsRect ? Math.round(actionsRect.bottom) : 0,
           plateTop: plateRect ? Math.round(plateRect.top) : 0,
           plateBottom: plateRect ? Math.round(plateRect.bottom) : 0,
-          guideTop: Math.round(document.querySelector('.bottom-guide-bar')?.getBoundingClientRect()?.top || vh)
+          guideTop: Math.round(document.querySelector('.bottom-guide-bar')?.getBoundingClientRect()?.top || vh),
+          fsdDeltaBottom: imgRect && fsdRect ? Math.round(Math.abs(fsdRect.bottom - imgRect.bottom)) : 999
         };
       });
       assert.equal(titleBounds.hasStoryCard, true, `${name}: Missing rewritten hero story card`);
@@ -265,6 +268,7 @@ async function run() {
       assert.ok(titleBounds.plateTop >= titleBounds.actionsBottom - 4, `${name}: Optional AMA666 box must sit below hero-actions`);
       assert.ok(titleBounds.actionsBottom <= titleBounds.guideTop, `${name}: Title actions overlapped guide bar (${titleBounds.actionsBottom} > ${titleBounds.guideTop})`);
       assert.ok(titleBounds.plateBottom <= titleBounds.guideTop, `${name}: Optional AMA666 box overlapped guide bar (${titleBounds.plateBottom} > ${titleBounds.guideTop})`);
+      assert.ok(titleBounds.fsdDeltaBottom <= 2, `${name}: Hero FSD SVG spilled past 16:9 image bounds (delta=${titleBounds.fsdDeltaBottom})`);
 
       if (ssDir && name === 'compact-1024') {
         await page.screenshot({ path: path.join(ssDir, 'e2e-1024-title.png') });
@@ -1264,6 +1268,30 @@ async function run() {
     await qaStop.keyboard.press('Escape');
     await qaStop.waitForFunction((prev) => document.querySelector('.stop-val')?.textContent !== prev, pausedVal, { timeout: 3000 });
     await qaStop.close();
+
+    // QA Regression 3: Keyboard Role Select ('1') + mid-game gameDraft persistence across reload
+    const qaDraft = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    attachErrorWatchers(qaDraft, 'qa-draft-kbd');
+    await qaDraft.goto(baseUrl, { waitUntil: 'networkidle' });
+    await qaDraft.keyboard.press('Enter');
+    await qaDraft.waitForSelector('.role-grid');
+    await qaDraft.keyboard.press('1');
+    await qaDraft.waitForSelector('.cutscene-video');
+    await qaDraft.evaluate(async () => {
+      const { createInitialState, selectRole } = await import('./src/game-engine.js');
+      const state = selectRole(createInitialState(), 'planner');
+      localStorage.setItem('gta_dentsu_taiwan_v2', JSON.stringify({ ...state, phase: 'scene', chapterIndex: 2 }));
+    });
+    await qaDraft.reload({ waitUntil: 'networkidle' });
+    await qaDraft.locator('.reply-btn').first().click();
+    await qaDraft.waitForSelector('.slider-readout');
+    const beforeSlider = await qaDraft.locator('.slider-readout').textContent();
+    await qaDraft.keyboard.press('ArrowRight');
+    const movedSlider = await qaDraft.locator('.slider-readout').textContent();
+    assert.notEqual(movedSlider, beforeSlider, 'ArrowRight did not adjust slider value');
+    await qaDraft.reload({ waitUntil: 'networkidle' });
+    assert.equal(await qaDraft.locator('.slider-readout').textContent(), movedSlider, 'Slider draft was not preserved across reload');
+    await qaDraft.close();
 
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
     console.log('E2E VERIFY PASSED: zh/en/ja (354 MP3s, 9 MP4s), full responsive & foldable suite (280x653, 320x320, 344x882, 375x667, 390x844, 667x375, 844x390, 690x829, 840x840, 768x1024, 1024x540, 1024x720, fold-book 1114x720, fold-flex 412x915, 1280x800, 1920x1080, 2560x1080 + live fold/unfold/rotate), 0 Web Speech murmuring, and standalone HTML verified with 0 errors.');
