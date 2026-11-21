@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { CHAPTERS, ROLES, PEOPLE_MODEL_TWINS, GRANDMA_QUIPS, SCOOTER_CONFIG } from '../src/story-data.js';
 import { ROLE_CHAPTER_VARIANTS } from '../src/role-stories.js';
-import { soundFX, normalizeGrandmaVoiceKey, BGM_MIX_LEVELS, BGM_FILTER_HZ } from '../src/audio-fx.js';
+import { RADIO_STATIONS, soundFX, normalizeGrandmaVoiceKey, BGM_MIX_LEVELS, BGM_FILTER_HZ } from '../src/audio-fx.js';
 import {
   setLang,
   getLocalizedRoles,
@@ -193,6 +193,19 @@ test('Voice mix foregrounds dialogue over BGM and covers 82 character Google Gem
     const absVid = path.join(process.cwd(), 'public/video', vid);
     const buf = fs.readFileSync(absVid);
     assert.ok(buf.includes('soun') && buf.includes('mp4a'), `Cutscene missing embedded AAC audio track: ${vid}`);
+  }
+
+  // Verify 6 distinct multi-genre car radio stations (including Blues, Classical & Nakashi) across 32 steps & 3 languages
+  assert.equal(RADIO_STATIONS.length, 6);
+  assert.deepEqual(RADIO_STATIONS.map((s) => s.id), ['synthwave', 'lofi', 'cyber', 'blues', 'classical', 'nakashi']);
+  for (const st of RADIO_STATIONS) {
+    assert.equal(st.bass.length, 32, `${st.id} bass must have 32 steps`);
+    assert.equal(st.lead.length, 32, `${st.id} lead must have 32 steps`);
+    assert.equal(st.arp.length, 32, `${st.id} arp must have 32 steps`);
+    assert.equal(st.pads.length, 4, `${st.id} pads must cover 4 bars`);
+    for (const lang of ['zh', 'en', 'ja']) {
+      assert.ok(getUiStrings(lang).radioStations?.[st.id], `Missing ${lang} label for radio station ${st.id}`);
+    }
   }
 });
 

@@ -102,7 +102,10 @@ export const UI_STRINGS = {
     radioStations: {
       synthwave: 'FM 101.7 信義霓虹',
       lofi: 'FM 88.6 市民爵士',
-      cyber: 'FM 99.9 松仁極速'
+      cyber: 'FM 99.9 松仁極速',
+      blues: 'FM 92.1 淡水藍調',
+      classical: 'FM 99.7 音樂廳古典',
+      nakashi: 'FM 95.3 夜市那卡西'
     },
     welcomeUi: {
       closeEsc: '✕ 關閉 (Esc)',
@@ -578,7 +581,10 @@ export const UI_STRINGS = {
     radioStations: {
       synthwave: 'FM 101.7 Xinyi Neon',
       lofi: 'FM 88.6 Civic Lo-Fi',
-      cyber: 'FM 99.9 Songren Pulse'
+      cyber: 'FM 99.9 Songren Pulse',
+      blues: 'FM 92.1 Tamsui Blues',
+      classical: 'FM 99.7 Concert Classical',
+      nakashi: 'FM 95.3 Night Nakashi'
     },
     welcomeUi: {
       closeEsc: '✕ Close (Esc)',
@@ -1054,7 +1060,10 @@ export const UI_STRINGS = {
     radioStations: {
       synthwave: 'FM 101.7 信義ネオン',
       lofi: 'FM 88.6 市民ジャズ',
-      cyber: 'FM 99.9 松仁パルス'
+      cyber: 'FM 99.9 松仁パルス',
+      blues: 'FM 92.1 淡水ブルース',
+      classical: 'FM 99.7 音楽庁クラシック',
+      nakashi: 'FM 95.3 夜市ナカシ'
     },
     welcomeUi: {
       closeEsc: '✕ 閉じる (Esc)',
