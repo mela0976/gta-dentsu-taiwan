@@ -53,6 +53,7 @@ import {
   AUDIO_PREFS_KEY,
   ACHIEVEMENT_IDS,
   createEmptyMeta,
+  mergeCareerRecords,
   sanitizeLoadedState,
   computeStatDeltas,
   updateCareerMeta,
@@ -68,42 +69,61 @@ const STORAGE_KEY = 'gta_dentsu_taiwan_v2';
 const LEGACY_STORAGE_KEY = 'gta_dentsu_taiwan_v1';
 const LEGACY_META_KEY = 'gta_dentsu_meta_v1';
 
-function migrateSavedValue(key, legacyKey, isValid) {
-  const current = localStorage.getItem(key);
-  const legacy = localStorage.getItem(legacyKey);
-  if (legacy === null) return current;
+function readLegacySave() {
+  const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
   try {
-    if (!isValid(JSON.parse(legacy))) return current;
+    const saved = JSON.parse(raw);
+    return saved?.stats && saved?.phase ? raw : null;
   } catch {
-    return current;
+    return null;
   }
+}
 
-  const baselineKey = `${key}_legacy_import`;
-  if (current === null) {
+function loadCampaign() {
+  const current = localStorage.getItem(STORAGE_KEY);
+  const legacy = readLegacySave();
+  if (legacy === null) return { raw: current, snapshot: current };
+
+  const baselineKey = `${STORAGE_KEY}_legacy_import`;
+  if (current === null || current === legacy) {
+    let snapshot = current;
     try {
-      localStorage.setItem(key, legacy);
+      if (current === null) {
+        localStorage.setItem(STORAGE_KEY, legacy);
+        snapshot = legacy;
+      }
       localStorage.setItem(baselineKey, legacy);
     } catch {
-      // The legacy save remains readable even when there is no space for a copy.
+      // The readable legacy save remains available when there is no space to copy it.
     }
-    return legacy;
+    return { raw: legacy, snapshot };
   }
 
-  const baseline = localStorage.getItem(baselineKey);
-  if (current === legacy || legacy === baseline) return current;
+  if (legacy === localStorage.getItem(baselineKey)) return { raw: current, snapshot: current };
+  const useLegacy = window.confirm(t('launch.legacySaveChoice'));
+  let snapshot = localStorage.getItem(STORAGE_KEY);
   try {
-    if (window.confirm(t('launch.legacySaveChoice'))) {
-      const latest = localStorage.getItem(key);
-      if (latest !== null) localStorage.setItem(`${key}_backup`, latest);
-      localStorage.setItem(key, legacy);
-      localStorage.setItem(baselineKey, legacy);
-      return legacy;
+    if (useLegacy && snapshot !== legacy) {
+      if (snapshot !== null) {
+        const backupId = crypto.randomUUID();
+        localStorage.setItem(`${STORAGE_KEY}_backup_${backupId}`, snapshot);
+      }
+      localStorage.setItem(STORAGE_KEY, legacy);
+      snapshot = legacy;
     }
     localStorage.setItem(baselineKey, legacy);
   } catch {
-    return localStorage.getItem(key);
+    // Keep the existing campaign if its backup or the replacement could not be written.
   }
-  return localStorage.getItem(key);
+  return { raw: snapshot, snapshot };
+}
+
+function readCareerRecord(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch {
+    return null;
+  }
 }
 
 const TOUR_STORAGE_KEY = 'gta_dentsu_tour_done_v1';
@@ -439,8 +459,8 @@ class GtaDentsuApp {
 
   _loadState() {
     try {
-      const raw = migrateSavedValue(STORAGE_KEY, LEGACY_STORAGE_KEY, value => Boolean(value?.stats && value?.phase));
-      this.savedStateSnapshot = localStorage.getItem(STORAGE_KEY);
+      const { raw, snapshot } = loadCampaign();
+      this.savedStateSnapshot = snapshot;
       if (!raw) return createInitialState();
       const parsed = JSON.parse(raw);
       return this._localizeProgress(sanitizeLoadedState(parsed, createInitialState, CHAPTERS.length), getLang());
@@ -449,23 +469,9 @@ class GtaDentsuApp {
     }
   }
 
-  _loadMeta(migrate = true) {
-    const fallback = this.careerMeta || createEmptyMeta();
-    try {
-      const raw = migrate
-        ? migrateSavedValue(META_STORAGE_KEY, LEGACY_META_KEY, value => Boolean(value?.clearedRoles))
-        : localStorage.getItem(META_STORAGE_KEY);
-      if (!raw) return fallback;
-      const parsed = JSON.parse(raw);
-      return {
-        ...createEmptyMeta(),
-        ...(parsed && typeof parsed === 'object' ? parsed : {}),
-        clearedRoles: { ...((parsed && parsed.clearedRoles) || {}) },
-        achievements: Array.isArray(parsed?.achievements) ? parsed.achievements : []
-      };
-    } catch {
-      return fallback;
-    }
+  _loadMeta() {
+    const current = readCareerRecord(META_STORAGE_KEY) || this.careerMeta || createEmptyMeta();
+    return mergeCareerRecords(current, readCareerRecord(LEGACY_META_KEY));
   }
 
   _saveMeta() {
@@ -1181,7 +1187,7 @@ class GtaDentsuApp {
       this.mobileHudExpanded = false;
     }
     const personaId = enteredReview ? determinePersona(next).id : null;
-    const { meta: nextMeta, newlyUnlocked } = updateCareerMeta(this._loadMeta(false), next, personaId, enteredReview);
+    const { meta: nextMeta, newlyUnlocked } = updateCareerMeta(this._loadMeta(), next, personaId, enteredReview);
     this.careerMeta = nextMeta;
     this._saveMeta();
     this.state = next;

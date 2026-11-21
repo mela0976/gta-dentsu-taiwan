@@ -1178,9 +1178,22 @@ async function run() {
     assert.equal(prompt.type(), 'confirm');
     await prompt.accept();
     await reload;
-    assert.equal(await saveB.evaluate(key => localStorage.getItem(key + '_backup'), key), newerSave);
+    const backups = () => saveB.evaluate(key => Object.keys(localStorage)
+      .filter(name => name.startsWith(key + '_backup_'))
+      .map(name => localStorage.getItem(name)), key);
+    assert.deepEqual(await backups(), [newerSave]);
     assert.equal(await saveB.evaluate(key => localStorage.getItem(key), key),
       await saveB.evaluate(() => localStorage.getItem('gta_dentsu_taiwan_v1')));
+    const imported = await saveB.evaluate(key => localStorage.getItem(key), key);
+    await saveB.evaluate(key => {
+      const save = JSON.parse(localStorage.getItem(key));
+      localStorage.setItem('gta_dentsu_taiwan_v1', JSON.stringify({ ...save, points: save.points + 50 }));
+    }, key);
+    const secondChoice = saveB.waitForEvent('dialog');
+    const secondReload = saveB.reload();
+    await (await secondChoice).accept();
+    await secondReload;
+    assert.deepEqual(new Set(await backups()), new Set([newerSave, imported]));
     await saveContext.close();
 
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);

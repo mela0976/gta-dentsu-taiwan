@@ -31,6 +31,32 @@ export function createEmptyMeta() {
   };
 }
 
+export function mergeCareerRecords(current, legacy) {
+  const clearedRoles = { ...current.clearedRoles };
+  for (const [role, oldRecord] of Object.entries(legacy?.clearedRoles || {})) {
+    if (!VALID_ROLES.has(role) || !oldRecord) continue;
+    const record = clearedRoles[role];
+    clearedRoles[role] = {
+      bestScore: Math.max(record?.bestScore || 0, oldRecord.bestScore || 0),
+      runs: Math.max(record?.runs || 0, oldRecord.runs || 0),
+      lastPersonaId: record?.lastPersonaId || oldRecord.lastPersonaId || null
+    };
+  }
+
+  const achievements = [
+    ...(Array.isArray(current.achievements) ? current.achievements : []),
+    ...(Array.isArray(legacy?.achievements) ? legacy.achievements : [])
+  ];
+  return {
+    clearedRoles,
+    achievements: ACHIEVEMENT_IDS.filter(id => achievements.includes(id)),
+    bestScore: Math.max(current.bestScore || 0, legacy?.bestScore || 0),
+    bestScooterScore: Math.max(current.bestScooterScore || 0, legacy?.bestScooterScore || 0),
+    // Versions share a history before migration. A maximum avoids double-counting it.
+    totalRuns: Math.max(current.totalRuns || 0, legacy?.totalRuns || 0)
+  };
+}
+
 export function sanitizeLoadedState(raw, fallbackFactory, chapterCount = 10) {
   const base = fallbackFactory();
   if (!raw || typeof raw !== 'object' || !raw.stats || typeof raw.stats !== 'object') {
