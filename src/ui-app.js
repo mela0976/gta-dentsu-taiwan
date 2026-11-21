@@ -316,7 +316,11 @@ class GtaDentsuApp {
     if (this.srToastContext) this.srToastContext.textContent = t('launch.toastRegionAria');
     if (this.srLiveRegion) this.srLiveRegion.textContent = '';
     this.state = this._localizeProgress(this.state, lang);
-    this._saveState(this.state);
+    try {
+      if (this.savedStateSnapshot === undefined || localStorage.getItem(STORAGE_KEY) === this.savedStateSnapshot) {
+        this._saveState(this.state);
+      }
+    } catch {}
     this.render();
     if (this.welcomeDialogOpen) {
       this._renderWelcomeDialog();

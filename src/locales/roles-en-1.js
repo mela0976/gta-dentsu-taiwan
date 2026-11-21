@@ -121,14 +121,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Hold brand floor, escalate to GM', feedback: 'Procurement rolls their eyes, yet you earn direct airtime with the GM.' }
         ],
         game: {
-          prompt: '[Pitch Audit] Four AM renewal decks hit your desk. Which survives year-end procurement clawbacks?',
+          prompt: '[SLA Clause Defense] Procurement demands a 30% fee clawback if Last-Click ROAS misses 5x. Which counter-SLA do you sign?',
           options: [
-            { title: 'Plan A: Guarantee 9x Click ROAS', lines: ['Retargets existing buyers only', 'Forces deeper discounts next year'] },
-            { title: 'Plan B: Prove 40% New-Buyer Lift', lines: ['Geo-holdout control cells', 'Proves brand created net-new sales'] },
-            { title: 'Plan C: Treat Promo Peaks as Baseline', lines: ['Flash-sale spikes look pretty', 'Zero organic lift non-promo weeks'] },
-            { title: 'Plan D: Flood Loyalty Coupon Popups', lines: ['Repeats clip coupons at checkout', 'Gross margins erode two straight quarters'] }
+            { title: 'Draft A: Sign 5x penalty, flood loyalty popups', lines: ['Secures signature today', 'Destroys margin subsidizing loyal buyers'] },
+            { title: 'Draft B: Refuse metrics, demand blind prepayment', lines: ['Procurement freezes review', 'Replaced by bolder rival in two weeks'] },
+            { title: 'Draft C: Base retainer + Geo-Holdout lift bonus', lines: ['Replaces noisy clicks with fair holdout milestones', 'Guards agency margin & client growth'] },
+            { title: 'Draft D: Switch to pure CPM media-placement fees', lines: ['Signals zero accountability', 'Fee structure slashed to commodity rates'] }
           ],
-          reveal: 'Procurement shreds inflated retargeting numbers. Only Plan B’s geo-holdout protects agency pricing power.'
+          reveal: 'Senior Account power means reframing unfair penalty clauses into verified incrementality milestones (Draft C).'
         }
       },
       2: {
@@ -142,9 +142,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Hand back buying, pitch C-suite advisory', feedback: 'High margin demands high judgment—you reclaim a seat at the top table.' }
         ],
         game: {
-          prompt: '[Negotiation Math] The benchmark bank cut tech outsourcing from 85% down to 15%. How many percentage points did it reclaim?',
-          unit: '%',
-          reveal: '70 percentage points (from 85% down to 15%). Reclaiming capability spans years—making seasoned outside advisors indispensable.'
+          prompt: '[Hybrid Retainer SOW] The client just hired 4 in-house juniors to take over buying. Which 12-month contract preserves profitability?',
+          options: [
+            { title: 'Opt A: Slash fees 60% as backup ops hands', lines: ['Keeps shrinking headcount billed', 'Cut on 30-day notice once juniors ramp'] },
+            { title: 'Opt B: Donate 12 free playbooks for goodwill', lines: ['Client operates solo by month 3', 'Procurement strips Q3 consulting budget'] },
+            { title: 'Opt C: 6-mo SOP transfer + quarterly audit seat', lines: ['Monetizes transition milestones cleanly', 'Locks high-margin neutral oversight'] },
+            { title: 'Opt D: Lock historical accounts from their team', lines: ['Triggers immediate legal escalation', 'Blacklisted across entire parent group'] }
+          ],
+          reveal: 'Reclaiming capabilities takes years of discipline. Structuring a phased transition plus quarterly audit retainer (Opt C) wins lasting authority.'
         }
       },
       3: {
@@ -158,14 +163,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Counter-pitch cheap brand media grab', feedback: 'Lock in half-price brand inventory while rivals go dark—tough Q3, big payoff.' }
         ],
         game: {
-          prompt: '[Crisis Memo] Which pitch best persuades a panicking client not to zero out brand budget?',
+          prompt: '[Mid-Year Amendment] HQ cut 2H budgets 50%. Which contract addendum shields both agency fees and client recovery?',
           options: [
-            { title: 'Memo A: Rivals paused too—let’s save', lines: ['Short-term cost cuts look tidy', 'Competitors steal mindshare on rebound'] },
-            { title: 'Memo B: Cite 65% Brand Lift Baseline', lines: ['Warn of 6-month search decay lag', 'Buy discounted brand share while quiet'] },
-            { title: 'Memo C: Shift 100% into KOL codes', lines: ['Affiliate tracking appears safe', 'Brand equity drops into discount tier'] },
-            { title: 'Memo D: Defer invoices into next year', lines: ['Financial juggling on paper', 'Starts next year deeper in debt'] }
+            { title: 'Addendum A: Absorb full cancellation fees', lines: ['Agency bleeds millions in penalties', 'Next buyer still squeezes rates'] },
+            { title: 'Addendum B: Roll Q3 media credits + shift SOV KPI', lines: ['Avoids punitive write-offs', 'Preserves cheap recovery flights for Q4'] },
+            { title: 'Addendum C: Pour 100% into 1-day flash rebate', lines: ['Creates hollow GMV peak then crashes', 'Zero baseline demand remains'] },
+            { title: 'Addendum D: Freeze pay while keeping 2x scope', lines: ['Senior staff quits inside 90 days', 'Quality collapses before holidays'] }
           ],
-          reveal: 'MMM studies prove ~65% of sales stem from cumulative brand equity. Memo B uses math to defend long-term equity.'
+          reveal: 'Skilled Account leads turn sudden budget cuts into flexible credit rollovers and rational SOV safeguards (Addendum B).'
         }
       },
       4: {
@@ -179,16 +184,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Route through legal, skip commission', feedback: 'Dodges a PR bomb—earning lifetime respect straight from their Chairman.' }
         ],
         game: {
-          prompt: '[Contract Gatekeeper] Put yourself in your client’s shoes. Would you sign off on these ID clauses?',
-          left: 'Reject Clause',
-          right: 'Rubber Stamp',
-          cards: [
-            'Vendor may resell anonymized category tags derived from your site visitors',
-            'Historical matched audience segments lock permanently upon non-renewal',
-            'Uses silent browser fingerprinting without explicit user consent prompts',
-            'Infers home evening locations for nearby offline push notifications'
+          prompt: '[NT$1.5M Rider Audit] Before signing the ID-tracking contract for your client, flag the 3 liability traps to strike out (multi):',
+          options: [
+            { title: 'Zero vendor PDPA fine indemnification—agency & client liable', lines: [] },
+            { title: 'Vendor may resell derived audience tags to competitor models', lines: [] },
+            { title: 'All matched segments freeze and ban export upon termination', lines: [] },
+            { title: 'Consented 1P hash-matching only, open to scheduled audit', lines: [] }
           ],
-          revealByCount: 'You rejected {n} predatory clauses. Signing traps clients fear burns trust forever.'
+          reveal: 'The first three bury regulatory indemnity, data leakage, and vendor lock-in traps—never let a client sign them.'
         }
       },
       5: {
@@ -202,9 +205,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Keep price flat, improve pack waste', feedback: 'Smaller upfront fee—earning praise on Dcard as an honest brand.' }
         ],
         game: {
-          prompt: '[Pricing Pushback] What share of Taiwan shoppers assume "eco products usually cost too much" and hesitate?',
-          unit: '%',
-          reveal: '85%! Assuming green means pricey, shoppers balk unless real savings or utility justify the switch.'
+          prompt: '[PR Crisis Pushback] Rivals just got roasted on Dcard for greenwashing, yet your client insists on a +20% green markup. Your play?',
+          options: [
+            { title: 'Play A: Sign 2x sales guarantee, draft apology', lines: ['Closes contract fast', 'Triggers unsold inventory & PR backlash'] },
+            { title: 'Play B: Air vague eco vibes, hide pack numbers', lines: ['Zero proof against public fact-checks', 'Instant greenwashing label'] },
+            { title: 'Play C: Halt markup, verify reduction + NT$50 refill', lines: ['Pairs honest proof with shopper savings', 'Protects margin & brand goodwill'] },
+            { title: 'Play D: Let Account quietly buy excess stock', lines: ['Piles up agency write-offs', 'Fails to fix core shopper resistance'] }
+          ],
+          reveal: 'Since 81% guard wallets first and 85% expect green goods to cost extra, stopping blind price hikes with verified refills (Play C) saves the client.'
         }
       },
       6: {
@@ -218,16 +226,16 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Invite client on set for real food', feedback: 'Tough stance—yet seeing live actor emotion restores their budget immediately.' }
         ],
         game: {
-          prompt: '[Pitch Line Check] Client sent four "heartwarming lines" from AI pitches. Can you spot the bots?',
-          left: 'Human',
-          right: 'AI Slop',
+          prompt: '[Cut-Rate RFP Audit] A cut-price rival pitched four "strategic manifesto bullets." Flag every hollow AI filler line:',
+          left: 'True Insight',
+          right: 'AI Filler',
           cards: [
-            'Don’t wait for a special occasion—today is already your finest start.',
-            'Save time for those who matter; leave the tiny details to us.',
-            'Every earnest moment of your daily life deserves gentle care.',
+            'Unlocking holistic ecosystem synergy to orchestrate seamless brand resonance.',
+            'Becoming a gentle anchor in bustling daily life across every mindful moment.',
+            'Deploying data-driven dialogues to tenderly preserve your everyday effort.',
             'Some flavors take you straight back to Grandma’s kitchen in one sip.'
           ],
-          reveal: 'All four came straight from AI. When canned warmth is free, clients pay only for unmistakable human truth.'
+          reveal: 'Four for four AI buzzwords! Showing clients why cut-rate canned pitches ring hollow defends consulting fees.'
         }
       },
       7: {
@@ -241,14 +249,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Insist on 3rd-party lift verification', feedback: 'The buyer bristles—then your client’s CEO calls praising how well you guard their turf.' }
         ],
         game: {
-          prompt: '[Contract Leverage Check] Inside that retail media bundle, which powers does the retailer control?',
+          prompt: '[NT$5M RMN JBP Shield] Before signing the annual retail media joint-business plan, demand which 3 clauses (multi):',
           options: [
-            { title: 'Physical & on-site shelf visibility', lines: [] },
-            { title: 'First-hand receipt & loyalty data', lines: [] },
-            { title: 'On-site search & bidding slots', lines: [] },
-            { title: 'Impartial 3rd-party lift audit', lines: [] }
+            { title: 'Separate shelf-slotting terms from mandatory ad-bidding budgets', lines: [] },
+            { title: 'Establish unexposed SKU baseline to verify net incremental lift', lines: [] },
+            { title: 'Retain full brand ownership of external campaign traffic & CRM leads', lines: [] },
+            { title: 'Grant 3-year sales exclusivity banning all rival retail chains', lines: [] }
           ],
-          reveal: 'The retailer owns 1–3. Account leads must negotiate independent holdout rights outside their walls.'
+          reveal: 'Separating shelf fees, enforcing baseline lift verification, and keeping 1P traffic ownership keep your client from working for the retailer.'
         }
       },
       8: {
@@ -262,12 +270,12 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Renegotiate KPI to New-Customer CPA', feedback: 'Passes easy retargeting fees today to lock multi-year growth trust.' }
         ],
         game: {
-          prompt: '[Renewal Bomb Timer] Vanity ROAS keeps spiking while new customers vanish—hit Pause in time!',
-          report: { label: 'Client ROAS Index' },
-          fresh: { label: 'Net-New Buyer Lift', unit: '%' },
-          revealStopped: 'Stopped with {fresh}% new buyer share (ROAS Index {report})—saved client renewal!',
-          revealNever: 'Detonated at finish! ROAS hit {report} while net-new sales plunged to {fresh}%.',
-          reveal: 'Contracts are easiest to lose precisely when automated charts glow bright green.'
+          prompt: '[Renewal Commission Trap] Your client rep begs you to double budgets after glowing autopilot ROAS—hit Stop before new-buyer retention snaps!',
+          report: { label: 'Short-Term Commission Index' },
+          fresh: { label: 'Next-Year Renewal Health', unit: '%' },
+          revealStopped: 'Halted the upsell at {fresh}% renewal health (Commission Index {report})—saving next year’s relationship!',
+          revealNever: 'Upsell booked! Short commission surged to {report}, leaving only {fresh}% renewal strength before loyalty fatigue hits.',
+          reveal: 'Chasing easy quarterly upsells on automated retargeting is the fastest way to blow up a multi-year agency retainer.'
         }
       },
       9: {
@@ -281,14 +289,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Make "named request" the true moat', feedback: 'When people request you by name, comparison tables lose power.' }
         ],
         game: {
-          prompt: '[VIP Client Gift Sim] You need one tea gift box for a key chairman. Which one do you pick?',
+          prompt: '[AI RFP Pitch Architecture] Corporate procurement now runs tenders through AI bots first. How should Account structure your deck?',
           options: [
-            { title: 'Pinglin Master Oolong', lines: ['NT$880', 'Artisan tea the chairman praised last year'] },
-            { title: 'Certified Bulk Alpine Pack', lines: ['NT$499', '4.9★ rating · Lowest cost per gram'] },
-            { title: 'Limited Neon Designer Tin', lines: ['NT$680', 'Sleek collector packaging'] }
+            { title: 'Deck A: Cut retainer 50% + "AI-run" to rank #1', lines: ['Wins automated spreadsheet score', 'Loses money inside six months'] },
+            { title: 'Deck B: Skip spec sheets, mail poetic brand essays', lines: ['Filtered out before human eyes', 'Never clears Round 1 threshold'] },
+            { title: 'Deck C: Clean SLA spec table + C-suite custom war-game', lines: ['Clears bot compliance filter effortlessly', 'Wins final sign-off on irreplaceable trust'] },
+            { title: 'Deck D: Auto-generate 20 generic templates overnight', lines: ['Passes table check only', 'Eliminated in five minutes of live Q&A'] }
           ],
-          revealSame: 'Procurement bots picked the exact same pack: lowest unit price and top score—matching a hundred bland gifts.',
-          revealDiff: 'Bots pick the cheapest 4.9★ pack. Closing senior trust requires human preference no spreadsheet scores.'
+          reveal: 'Bots handle round-one spec hygiene, while C-suite buyers still pick named advisory trust (Deck C) no price table can score.'
         }
       },
       10: {
@@ -316,14 +324,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Slam storyboard down, save 30s film', feedback: 'Fierce defense—even your director vows this piece takes awards this fall.' }
         ],
         game: {
-          prompt: '[Screening Room] Four rough cuts hit the wall. Which film actually builds 3 years of buyer favoritism?',
+          prompt: '[Opening 5s Director Cut] Skippable ads live or die in seconds. Which 5-second film opening earns Creative Director sign-off?',
           options: [
-            { title: 'Cut A: 5s Triple "Buy 1 Get 1" Yell', lines: ['Only pulls deal hunters today', 'Lose every buyer when rivals drop $1'] },
-            { title: 'Cut B: Silent Alley Warm Soup Film', lines: ['Organic search climbs + new buyers ask', 'Viewers quote dialogue four years later'] },
-            { title: 'Cut C: Flashing Countdown QR Frame', lines: ['9x retargeting click spikes', 'Near-zero unaided brand memory'] },
-            { title: 'Cut D: 360° White-Box Spec Spinner', lines: ['Zero emotional hook past pricing', 'Forgotten the instant viewers swipe'] }
+            { title: 'Open A: Steamy rainy alley soup tension + 3s cue', lines: ['Human drama hooks past second five', 'Early sonic & visual cue plants memory'] },
+            { title: 'Open B: Flashing red banner yelling BOGO 3 times', lines: ['Draws price hoppers for 24 hours', 'Lost the second rivals shave $1'] },
+            { title: 'Open C: Sterile 3D logo spinning 10 full seconds', lines: ['Zero human tension upfront', '92% hit Skip by second four'] },
+            { title: 'Open D: Fine-print patent list in white-on-black text', lines: ['Only thrills Legal compliance', 'Zero viewers read past line three'] }
           ],
-          reveal: 'Only Cut B’s human emotion wins unforced preference before discounts even start.'
+          reveal: 'Modern hero craft refuses delayed reveals: pair gripping human tension with distinctive 3-second cues (Open A) before viewers can swipe.'
         }
       },
       2: {
@@ -337,9 +345,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Host open creative camp, own top voice', feedback: 'Bold generosity wins next year’s entire flagship consolidation.' }
         ],
         game: {
-          prompt: '[Benchmark Study] Before spending 5 years rebuilding digital in-house, what % did the benchmark bank outsource?',
-          unit: '%',
-          reveal: '85%! Organizations drowning in outsourcing spend years rebuilding—staying close turns helpers into permanent stewards.'
+          prompt: '[In-House Content Playbook] You are drafting the brand playbook for a client’s new 10-person edit team. Include which 3 modules (multi):',
+          options: [
+            { title: 'Modular social framing & generous whitespace safe-zone rules', lines: [] },
+            { title: 'Confidential 10-year pitch fee history & agency payroll sheets', lines: [] },
+            { title: 'Brand tone-of-voice On-Brand vs Instant-Delete line checklist', lines: [] },
+            { title: 'Tier boundary: daily tactical posts in-house vs flagship films', lines: [] }
+          ],
+          reveal: 'Giving clear layout guardrails, tone boundaries, and flagship role clarity frees their daily team while making you essential for tentpole craft.'
         }
       },
       3: {
@@ -353,14 +366,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Focus remaining cash on one hero film', feedback: 'CFO watches every penny—until organic branded search rebounds sharply.' }
         ],
         game: {
-          prompt: '[Low-Budget Edit] During a stormy cut, which creative bet preserves lasting brand recall?',
+          prompt: '[NT$4M ➔ NT$1.2M Shoot Rescue] Production cash was slashed 70% 48 hours before shoot day. How do you protect cinematic craft?',
           options: [
-            { title: 'Zoom stale packshots 3 weeks', lines: ['Near-zero shoot cost', 'Swiped away in two seconds'] },
-            { title: 'Write a repetitive $99 price jingle', lines: ['Folks recall $99, not your brand', 'Power vanishes the day prices normalize'] },
-            { title: 'Single-cam real night-market doc', lines: ['Lean crew brimming with true wok hei', 'Multiplies recall during cheap media'] },
-            { title: 'Buy full-screen 3s popup blockers', lines: ['Impressions look huge onscreen', 'Engenders instant brand irritation'] }
+            { title: 'Rewrite A: Shoot all 8 CGI scenes with cheap stock FX', lines: ['Big ambition paired with fake pixels', 'Screams cheap execution in three seconds'] },
+            { title: 'Rewrite B: Re-voice 2-year-old packshots on loop', lines: ['Zero production headache', 'Total brand invisibility all year'] },
+            { title: 'Rewrite C: Drop extras/sets—single-cam rainy arcade intimacy', lines: ['Concentrates 100% craft in one human moment', 'Goes viral outspending noisy rivals'] },
+            { title: 'Rewrite D: Dump remaining cash into flashing web tiles', lines: ['Erases emotional tone completely', 'Triggers viewer ad-block reflex'] }
           ],
-          reveal: 'Downturns aren’t lights-out. Authentic lean storytelling shines brightest when loud rivals go quiet.'
+          reveal: 'Great directors thrive inside tight constraints by pouring every dollar into one unforgettable real human truth (Rewrite C).'
         }
       },
       4: {
@@ -374,16 +387,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Launch proud Zero-Track viewing mode', feedback: 'Clean experience tops design awards all season for pure viewer respect.' }
         ],
         game: {
-          prompt: '[UX Gut Check] As a tired viewer after work, which annoying pattern makes you close the tab?',
-          left: 'Close Tab',
-          right: 'Put Up With It',
-          cards: [
-            'Must enable cross-app ID tracking before watching a 30s brand film',
-            'Giant gold ACCEPT TRACKING button with tiny gray reject link on page 8',
-            'Re-asks precise GPS access on every single scroll down the page',
-            'Closing the player demands QR code login and SMS ad consent'
+          prompt: '[Zero-Dark-Pattern UX] Without any forced tracking walls blocking playback, which interactive flow wins 30% voluntary opt-ins?',
+          options: [
+            { title: 'Flow A: Lock video behind 8-screen consent wall', lines: ['85% slam the tab shut in 1 second', 'Collects garbage burner addresses'] },
+            { title: 'Flow B: Camouflage close button in light-gray pixels', lines: ['Harvests accidental clicks today', 'Gets roasted tomorrow as manipulative UX'] },
+            { title: 'Flow C: Play full film free ➔ unlock Taipei Night Card + gift opt-in', lines: ['Honors viewer agency cleanly', 'High-intent fans eagerly leave email'] },
+            { title: 'Flow D: Strip every post-film CTA on blank embed', lines: ['Frictionless playback with zero bridge', 'Loses 100% ongoing fan connection'] }
           ],
-          revealByCount: 'You slammed {n} dark patterns shut. Great design invites lingering—never traps.'
+          reveal: 'Earned first-party relationships beat coerced checkboxes every time: delight viewers first, then invite an honest value swap (Flow C).'
         }
       },
       5: {
@@ -397,14 +408,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Ask client fix one wrapper before film', feedback: 'Silence in the room—then the Chairman funds real packaging change first.' }
         ],
         game: {
-          prompt: '[Eco Script Check] With 81% prioritizing value, which green script avoids becoming an online joke?',
+          prompt: '[Anti-Greenwash Detergent Spec] Directing a concentrated refill launch for value-obsessed buyers, approve which 3 executions (multi):',
           options: [
-            { title: 'Script 1: Melting glaciers + luxury tag', lines: ['Guilt-trips viewers at checkout', 'Comments ask why not cut prices instead'] },
-            { title: 'Script 2: Refill pouch saves $600 & trips', lines: ['Grounds green in daily convenience', 'Converts value shoppers authentically'] },
-            { title: 'Script 3: Green leaf + vague carbon badge', lines: ['Lacks real 3rd-party audit citation', 'Sparks instant online greenwash backlash'] },
-            { title: 'Script 4: Rebrand line as "Earth Guard"', lines: ['Zero tie to actual shopper benefit', 'Invisible past opening press release'] }
+            { title: 'Front label: "-72% plastic & saves NT$4 every single wash cycle"', lines: [] },
+            { title: 'Drone shot of pop star shouting slogan with zero audit data', lines: [] },
+            { title: '15s visual demo flattening 6 plastic jugs into one pocket pouch', lines: [] },
+            { title: 'End-card QR publishing verified reduction & next-year targets', lines: [] }
           ],
-          reveal: 'People love real wins—they hate empty price markups. Make sustainability practical, honest, and rewarding.'
+          reveal: 'Translating carbon stats into household cash savings, crisp visual comparison, and radical transparency earns love instead of greenwash memes.'
         }
       },
       6: {
@@ -418,16 +429,16 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Film hand-painted steamy market signs', feedback: 'Millions share the raw human texture—when content is free, humanity commands gold.' }
         ],
         game: {
-          prompt: '[Copy Lie Detector] Four polished slogans claim soulful craft. Which came straight from an AI box?',
-          left: 'Human',
-          right: 'AI Box',
+          prompt: '[Director VO Blind Test] Outsourced bots wrote four poetic voiceover lines lacking real Taipei texture. Flag every AI draft:',
+          left: 'Lived Craft',
+          right: 'AI Tin Can',
           cards: [
-            'One quiet cup of tea gently returns your mind to its own rhythm.',
-            'Stop chasing the world—your true strength was already inside you.',
-            'From dawn’s first gentle ray, we stay right here waiting for you.',
+            'Beneath shimmering urban lights, this sip awakens pure serene elegance.',
+            'No need to chase fleeting crowds—linger softly at your own unhurried pace.',
+            'Let busy hours touch down gently, hearing honest warmth inside daily life.',
             'Some flavors take you straight back to Grandma’s kitchen in one sip.'
           ],
-          reveal: 'Four for four AI! Passable neat sentences cost zero now—real directors invent scars and joy bots never lived.'
+          reveal: 'Four for four generated clichés! Creative direction preserves lived sensory scars and texture bots have never felt.'
         }
       },
       7: {
@@ -441,14 +452,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Design clean spec & negotiate exception', feedback: 'Tough pushback wins a serene visual oasis—Lifting CTR above yellow clutter.' }
         ],
         game: {
-          prompt: '[Brand Identity Check] When platforms act as landlord AND judge, which threats erode brand value?',
+          prompt: '[120px RMN Thumbnail Breakout] Surrounded by 40 flashing yellow-red discount boxes, how does Art Direction hold instant recognition?',
           options: [
-            { title: 'Forced bargain frames erasing tone', lines: [] },
-            { title: 'Converting brand fans into store points', lines: [] },
-            { title: 'Throttling organic reach unless bidding', lines: [] },
-            { title: 'Free independent cross-platform audit', lines: [] }
+            { title: 'Approach A: Shrink product tiny under giant "SAVE $1" stars', lines: ['Blends into flea-market clutter', 'Regulars lose luxury perception'] },
+            { title: 'Approach B: Upload text-free pitch-black cinema stills', lines: ['Violates retail clarity specs', 'Delisted by automated moderation'] },
+            { title: 'Approach C: Distinct geometric color block + bottle silhouette DBA inside spec, hero storytelling off-site', lines: ['Unmistakable even at 120px thumb scale', 'Protects brand world outside walled garden'] },
+            { title: 'Approach D: Paste 5 fake "Official Badge" seals in corners', lines: ['Breaches platform compliance rules', 'Triggers penalties & consumer distrust'] }
           ],
-          reveal: 'The first three sit in the platform’s grip—no retailer protects your brand aura except you.'
+          reveal: 'Tight retail slots demand unmistakable Distinctive Brand Assets onscreen while reserving rich emotional storytelling for owned channels (Approach C).'
         }
       },
       8: {
@@ -462,12 +473,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Ban auto-cropping, score by recall', feedback: 'Protects narrative arc—lifting awareness sharply among first-time viewers.' }
         ],
         game: {
-          prompt: '[Story Soul Alert] Algorithms keep slicing away meaning for short clicks—hit Pause before recall vanishes!',
-          report: { label: 'Flash Sticker CTR' },
-          fresh: { label: 'New Viewer Recall', unit: '%' },
-          revealStopped: 'Saved the arc at {fresh}% new recall (Sticker CTR {report})—story intact!',
-          revealNever: 'Never braked! Sticker CTR surged to {report} while new recall sank to {fresh}%.',
-          reveal: 'Chasing short-click averages cleanly amputates everything memorable about a film.'
+          prompt: '[Post-Edit Recall Autopsy] Auto-cropping sliced your 30s spot into a 3s flash clip and 18–29 new recall plunged 60%. Why?',
+          options: [
+            { title: 'Cause A: Coupon badge font wasn’t bolded centered', lines: ['Misdiagnoses the structural fracture', 'Giant text erases mood further'] },
+            { title: 'Cause B: Background lacked neon orange saturation', lines: ['Chasing bright glare breeds noise', 'Unrelated to aided memory'] },
+            { title: 'Cause C: Cropping amputated setup drama & sonic cue, airing half a loyalist cart prompt', lines: ['Strangers see zero brand cue or plot', 'Mandates distinct newcomer vs loyalist cuts'] },
+            { title: 'Cause D: Should swap human VO for 300-wpm robot voice', lines: ['Accelerates instant viewer mute/exit', 'Destroys filmic pacing'] }
+          ],
+          reveal: 'Protecting edit integrity means catching where optimization chops off your story arc and sonic signature (Cause C)—never feed orphan stubs to cold audiences.'
         }
       },
       9: {
@@ -481,14 +494,14 @@ export const ROLES_EN_1 = {
           { id: 3, text: 'Craft culture buyers ask for by name', feedback: 'When people say "grab THAT bottle," price tables never even open.' }
         ],
         game: {
-          prompt: '[Midnight Cooler Test] Which bottle earns a spot in your next campaign script?',
+          prompt: '[Prompt-Age Creative Assets] When shoppers tell bots "Buy that plump blue bottle that tastes like dawn tea," which 3 creative cues earn direct names (multi):',
           options: [
-            { title: 'Alley Grandpa Roasted Tea', lines: ['NT$58', 'Warm illustrated childhood neighborhood memory'] },
-            { title: 'Formula B-999 C-Water', lines: ['NT$35', 'Sparse sterile label · Max dosage per cent'] },
-            { title: 'Midnight Neon Fizz', lines: ['NT$49', 'Matte coral limited edition bottle'] }
+            { title: 'Colloquial ritual & catchphrase friends repeat verbatim at meals', lines: [] },
+            { title: 'Dense industrial SKU barcode codes designed solely for crawlers', lines: [] },
+            { title: 'Emotionally charged late-night Taipei storytelling moments', lines: [] },
+            { title: 'Unmistakable color block & silhouette shouted across social feeds', lines: [] }
           ],
-          revealSame: 'You grabbed the sterile value spec just like an algorithm! Creatives who buy purely by table won’t save brand soul.',
-          revealDiff: 'Bots pick Formula B-999 every run. Only stories carried on warm design persuade real hands to reach.'
+          reveal: 'Cultural slang, lived stories, and distinct bottle silhouettes turn vague cravings into named AI commands—making comparison charts obsolete.'
         }
       },
       10: {

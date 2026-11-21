@@ -12,14 +12,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Rebuild incremental mix, kill last-click', feedback: 'Heavy build makes ops groan, establishing you as keeper of real truth.' }
         ],
         game: {
-          prompt: '[Raw Log Audit] Four ad channels report glowing numbers. Which truly generated incremental orders?',
+          prompt: '[Search Log Anomaly] Branded Search claims 82% of orders with an 11-second click-to-checkout lag. Fix the attribution rule:',
           options: [
-            { title: 'Ch A: 30s Pre-Checkout Popup', lines: ['Reports 12.4x ROAS', '94% logged in directly ten minutes prior'] },
-            { title: 'Ch B: Matched Geo Test (+40% New)', lines: ['Reports modest 3.1x ROAS', 'Clean +38% incremental lift vs holdout'] },
-            { title: 'Ch C: Member App Promo Push', lines: ['Reports 7.5x ROAS', '100% repeat buyers from past 90 days'] },
-            { title: 'Ch D: Single-Day 90% Flash Drop', lines: ['Reports 6.2x ROAS', 'Flat sales trough 15 days before & after'] }
+            { title: 'Rule A: Keep mixed, scale branded spend', lines: ['Glows at 12x surface ROAS', 'Overpays to harvest typing regulars'] },
+            { title: 'Rule B: Credit 7-day display views all', lines: ['Assigns organic checkouts to banners', 'Masks true net growth completely'] },
+            { title: 'Rule C: Optimize strictly to lowest CPC', lines: ['Floods low-intent clickbait traffic', 'Drops new buyer rate steadily'] },
+            { title: 'Rule D: Split Brand vs Non-Brand + 15% Holdout', lines: ['Separates harvested intent from expansion', 'Measures true incremental lift per dollar'] }
           ],
-          reveal: 'Never trust unadjusted attribution columns—only Channel B’s holdout cell verifies true net growth.'
+          reveal: 'An 11-second click-to-order proves they came specifically for you (Rule D). Splitting Brand Search with a holdout reveals real customer growth.'
         }
       },
       2: {
@@ -33,9 +33,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Lead in-house shift as neutral auditor', feedback: 'You stop chasing volume rebates and become their CFO’s first call weekly.' }
         ],
         game: {
-          prompt: '[Org Shift Benchmark] After 5 years rebuilding, the model bank reduced tech outsourcing from 85% down to what %?',
-          unit: '%',
-          reveal: '15%! Once clients handle day-to-day buttons, only cross-platform measurement architects retain real leverage.'
+          prompt: '[In-House Governance Audit] When clients pull trading in-house without an architect, which 3 layers break first (multi):',
+          options: [
+            { title: 'Cross-platform frequency capping (one person hit 18x daily)', lines: [] },
+            { title: 'Unified UTMs & deduplicated cross-channel attribution math', lines: [] },
+            { title: 'Updating exec slide template color schemes every Monday', lines: [] },
+            { title: 'Independent quarterly holdouts checking net-new algo lift', lines: [] }
+          ],
+          reveal: 'Capping fatigue, unifying attribution math, and running independent holdouts keep media leads anchored at the client’s architecture desk.'
         }
       },
       3: {
@@ -49,14 +54,9 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Counter-flip 60% brand / 40% harvest', feedback: 'So-so Q2 clicks precede a breakout organic search surge by autumn.' }
         ],
         game: {
-          prompt: '[Media Plan Lab] Keywords are overheating while rivals retreat. Which allocation captures highest return?',
-          options: [
-            { title: 'Plan A: 100% Hot Search Keywords', lines: ['Six rivals bid identical terms', 'Triple CPCs chasing existing demand'] },
-            { title: 'Plan B: Cheap 60% Reach + 40% Harvest', lines: ['Low CPMs reach net-new households', 'Leads organic demand on rebound'] },
-            { title: 'Plan C: Pause all upper-funnel dark', lines: ['Zero share-of-voice across town', 'Invisible once shoppers return'] },
-            { title: 'Plan D: High-CTR accidental click-bait', lines: ['Inflated click metrics look flashy', '98% bounce & severe brand risk'] }
-          ],
-          reveal: 'Going dark leaks share slowly; seizing discounted reach via a 60/40 split wins massive surplus equity.'
+          prompt: '[RTB Slump Split] Search CPCs tripled while prime brand video CPMs crashed 55%. What % goes to upper-funnel reach video?',
+          unit: '%',
+          reveal: '60%! Buying cheap upper-funnel reach via a 60% brand / 40% harvest split dominates rebound search demand later.'
         }
       },
       4: {
@@ -70,16 +70,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Launch zero-ID contextual content buy', feedback: 'Zero creepy tracking lifts engagement among genuinely curious readers.' }
         ],
         game: {
-          prompt: '[AdTech Hygiene Check] Put yourself in a user’s shoes scrolling on your phone. Which tracking trick do you block?',
-          left: 'Block It',
-          right: 'Allow It',
-          cards: [
-            'Combines battery level & font tweaks into stealth cross-browser fingerprints',
-            'Data brokers merge credit card deliveries with web clicks silently',
-            'Infers home & office street addresses via nearby Wi-Fi SSID lists',
-            'Tags health forum visits to trigger high-margin insurance retargeting'
+          prompt: '[Post-Cookie Signal Recovery] Cookie deprecation dropped DSP match rates below 35%. How do you rebuild compliant scale?',
+          options: [
+            { title: 'Opt A: Rent shadowy cross-device fingerprint IDs', lines: ['Temporary match rate bounce', 'Severe PDPA fine & OS revocation risk'] },
+            { title: 'Opt B: Link consented 1P LINE/CRM + CAPI + Context', lines: ['Privacy-safe signal precision', 'Accumulates permanent owned equity'] },
+            { title: 'Opt C: Bid blind cheapest untargeted pop-ups', lines: ['Inflates raw impressions fast', 'Crashes qualified traffic & conversions'] },
+            { title: 'Opt D: Narrow down solely to 3x repeat buyers', lines: ['Shrinks total audience pool monthly', 'Zero new-customer pipeline in 6 months'] }
           ],
-          revealByCount: 'You blocked {n} stealth trackers. Buyers detest surveillance—build data assets with open consent.'
+          reveal: 'First-party consented seeds plus server-side CAPI and contextual media (Opt B) build privacy-proof durability without shady brokers.'
         }
       },
       5: {
@@ -93,14 +91,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Pause eco ads till value pack ships', feedback: 'Prevents empty CPM burn, saving ammo for when product matches truth.' }
         ],
         game: {
-          prompt: '[Audience Strategy] Since 81% prioritize savings over eco buzzwords, which media segment hits real buyers?',
+          prompt: '[Keyword Waste Triage] "ESG" & "Green" bids jumped 320% with 94% student research bounces. Fix the search account:',
           options: [
-            { title: 'Seg 1: High-CPM ESG conference news', lines: ['Great boardroom screenshots', 'Near-zero everyday household checkout'] },
-            { title: 'Seg 2: Energy-saving & high-value picks', lines: ['40% lower CPC than crowded buzzwords', 'Delivers green benefit as cash savings'] },
-            { title: 'Seg 3: Untargeted Earth Day banners', lines: ['Frequency caps spike rapidly', 'Zero brand attribution past day one'] },
-            { title: 'Seg 4: Overpriced app launch takeovers', lines: ['Record-high seasonal CPM', 'Forgotten tomorrow outside agency decks'] }
+            { title: 'Fix A: Match 3x bid cap on broad "ESG"', lines: ['Burns 2 weeks budget in one afternoon', 'Zero checkout activity results'] },
+            { title: 'Fix B: Negative "essay/definition" ➔ Shift utility', lines: ['Drops CPC by 60% immediately', 'Captures high-intent budget refill shoppers'] },
+            { title: 'Fix C: Force 15s unskippable gaming pre-rolls', lines: ['Looks good on completion metrics', 'Sparks irritated player backlash'] },
+            { title: 'Fix D: Turn off Search to run social sweepstakes', lines: ['Draws freebie-hunting accounts only', 'Zero real product demand captured'] }
           ],
-          reveal: 'Skip pricey vanity buzzwords. Segment 2 pairs real utility savings with household budget truth.'
+          reveal: 'Smart media buyers don’t burn budget on textbook definitions—negative academic bloat and bid on real pocketbook utility (Fix B).'
         }
       },
       6: {
@@ -114,7 +112,7 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Share log proof: platforms want volume', feedback: 'Uses media math to defend creative craft—platforms profit on noise, brands profit on memory.' }
         ],
         game: {
-          prompt: '[CTR Flatline Audit] Four homogeneous slogans tied identically in DCO tests. Which came from AI?',
+          prompt: '[DCO Flatline Audit] All four automated ad-set headlines stalled identically at 1.2% CTR. Flag the synthetic filler bots wrote:',
           left: 'Human Craft',
           right: 'AI Filler',
           cards: [
@@ -123,7 +121,7 @@ export const ROLES_EN_2 = {
             'Your dependable daily companion for every brighter step ahead.',
             'Some flavors take you straight back to Grandma’s kitchen in one sip.'
           ],
-          reveal: 'All four! Flooding auctions with beige AI copies only enriches platforms billing per impression.'
+          reveal: 'All four bots! Flooding CPM auctions with uniform AI combinations pays media platforms—never builds distinct memory.'
         }
       },
       7: {
@@ -137,14 +135,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Restrict RMN to promos, protect outside', feedback: 'Treats retail platforms as cash registers, never your sole brand boss.' }
         ],
         game: {
-          prompt: '[Self-Grading Audit] Why can’t marketers take closed RMN reporting at face value? Check what they hold.',
+          prompt: '[Clean Room Window Audit] RMN boasts 10x ROAS, yet raw Clean Room audit spots a "30-day view-through window." What is flawed?',
           options: [
-            { title: 'Listing & out-of-stock shelf control', lines: [] },
-            { title: 'Walled-garden shopper purchase logs', lines: [] },
-            { title: 'Bidding slots AND attribution scoring', lines: [] },
-            { title: 'Open unbiased log export to rivals', lines: [] }
+            { title: 'Flaw A: 30 days is too brief—stretch it to 90 days', lines: ['Doubles phantom credit inflation', 'Hides zero true marginal return'] },
+            { title: 'Flaw B: 1s passive app thumb-scroll claims 30d restocks', lines: ['Captures routine grocery habits as paid lift', 'Requires 1-day click + holdout baseline'] },
+            { title: 'Flaw C: Dashboard lacked colorful stacked bar graphics', lines: ['Ignores broken attribution logic', 'Distracts leadership with pretty UI'] },
+            { title: 'Flaw D: Push 100% DTC members to buy retail vouchers', lines: ['Surrenders first-party relationships', 'Turns brand into pure wholesaler'] }
           ],
-          reveal: 'The first three sit behind walled gates; unbiased holdouts must be engineered outside.'
+          reveal: 'A 30-day view-through window lets retailers take credit every time regular shoppers open their app (Flaw B). Audit with 1-day clicks + holdouts!'
         }
       },
       8: {
@@ -158,12 +156,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Cut retargeting loops, hunt net-new', feedback: 'Exposes easy-ROAS shortcuts directly to serve genuine business expansion.' }
         ],
         game: {
-          prompt: '[Pacing Alarm] Auto-bidding is farming loyalists while abandoning new buyers—pull the emergency brake!',
-          report: { label: 'Surface Auto ROAS' },
-          fresh: { label: 'Net-New Penetration', unit: '%' },
-          revealStopped: 'Stopped in time at {fresh}% new reach (Surface Index {report})—restored real lift!',
-          revealNever: 'Runaway farm! Surface ROAS hit {report} while net-new buyers collapsed to {fresh}%.',
-          reveal: 'Given an aggregate conversion goal, bidding models relentlessly gravitate toward already-sold buyers.'
+          prompt: '[PMax & Algo Guardrails] Automated bidding is farming loyal buyers while starving acquisition. Configure which 3 controls (multi):',
+          options: [
+            { title: 'Upload 90-day past buyers as hard exclusion lists on prospecting', lines: [] },
+            { title: 'Switch bidding value rules to favor net New-Customer Acquisition', lines: [] },
+            { title: 'Lift all caps & exclusions to chase the lowest aggregate CPA', lines: [] },
+            { title: 'Isolate navigational Brand Search and lock weekly frequency caps', lines: [] }
+          ],
+          reveal: 'Algorithms default to the easiest repeat orders unless you block past buyers, weight new prospects, and isolate brand search.'
         }
       },
       9: {
@@ -177,14 +177,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Drive "direct brand command" behavior', feedback: 'When buyers tell AI "buy THAT brand," price sorting skips itself.' }
         ],
         game: {
-          prompt: '[Feed Test] Thirsty after supper—checking your delivery app, which bottle actually goes in your cart?',
+          prompt: '[2026 GEO + Brand Split] As AI shopping assistants scrape spec feeds before recommending drinks, how do you split media?',
           options: [
-            { title: 'Master High-Mountain Tea', lines: ['NT$55', 'Friend recommended & stuck in memory'] },
-            { title: 'Pro Fiber C-Fizz', lines: ['NT$32', 'AI Top Match Score 99.8% · Best Price'] },
-            { title: 'Collab Peach Sparkling', lines: ['NT$48', 'Limited cute collectible bottle'] }
+            { title: 'Split A: 100% price-feed & rebate aggregators', lines: ['Turns SKU into commodity row', 'Replaced the instant rivals cut $1'] },
+            { title: 'Split B: 30% clean Schema + trusted reviews / 70% brand video', lines: ['Passes AI candidate retrieval filters', 'Drives buyers to name-drop brand to AI'] },
+            { title: 'Split C: Block crawlers, demand manual homepage search', lines: ['Drops invisible across half of buyer journeys', 'Handing discovery to agile rivals'] },
+            { title: 'Split D: Lock entire annual buy inside one mall banner', lines: ['Zero independent brand demand built', 'Held hostage by single platform fees'] }
           ],
-          revealSame: 'You obeyed the top AI utility score too! Without human bias, brands trapped in spec cards bleed margin.',
-          revealDiff: 'Bots pick Pro Fiber C-Fizz 100/100 times. Human desire lets brands bypass brutal price sorting.'
+          reveal: 'Feed structured truth so AI agents can shortlist you—then win hearts with reach media so shoppers request your name outright (Split B).'
         }
       },
       10: {
@@ -212,14 +212,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Nonsense! Keep that neon bright out front', feedback: 'Scolds the room awake: real stalls grow on warm word-of-mouth and bright signs.' }
         ],
         game: {
-          prompt: '[Market Ledger Check] Four fishmongers turned in quarterly books. Which stall actually grew stronger?',
+          prompt: '[Flyer Boy Bonus Dispute] The promo teen hands flyers to 20-year regulars paying at your stall register and demands $5 per receipt. Grandma’s rule:',
           options: [
-            { title: 'Stall 1: 8x return, 90% 20-year grannies', lines: ['Elders always buy at 7 AM daily', 'Zero new faces stepped past the tarp'] },
-            { title: 'Stall 2: 3x return, 40% first-time youth', lines: ['Invested fresh sample tastings upfront', 'New shoppers bring friends back next week'] },
-            { title: 'Stall 3: Hand flyer right at register', lines: ['Flyer guy’s conversion stats gleam', 'Zero extra fish moved off the ice'] },
-            { title: 'Stall 4: Jam-packed only on 50% blowouts', lines: ['Empty sidewalk once normal price returns', 'Loss doesn’t even pay the ice bill'] }
+            { title: 'Rule 1: Gorgeous tally! Pay full bonus at register', lines: ['Pays $5 commission per bowl', 'Zero actual new eaters arrived'] },
+            { title: 'Rule 2: Scrap promos entirely, wait for old faces', lines: ['New condo families never spot your stall', 'Revenue fades as elders age'] },
+            { title: 'Rule 3: Send him 2 blocks to MRT with toothpick tastings', lines: ['Tasting token proves real first-time reach', 'Queues fresh young buyers past the alley'] },
+            { title: 'Rule 4: Holler 50% off into your own full line', lines: ['Converts full-price regulars to bargain hunters', 'Crushes stall daily profit'] }
           ],
-          reveal: 'Grandma adjusts her glasses: "Counting folks already walking in beats zero! Only Stall 2 growing fresh buyers earns its salt!"'
+          reveal: 'Grandma snaps cleanly: "Standing by the cash bowl isn’t bringing new customers—walk two blocks to the station and earn commission on fresh faces (Rule 3)!"'
         }
       },
       2: {
@@ -233,14 +233,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Teach a hundred pupils—own grand banquets', feedback: 'Room cheers loud! Next morning the client signs you as chief master chef.' }
         ],
         game: {
-          prompt: '[Master-Pupil Lesson] When neighbor Ah-Ming learns to set up his own veggie stand, which path prospers forever?',
+          prompt: '[Apprentice Branch Rules] Apprentice Ah-Ming wants his own noodle shop 2 blocks away. How does Grandma govern both stalls?',
           options: [
-            { title: 'Secretly slip extra salt to sabotage', lines: ['Apprentice quits angrily', 'Lose a loyal market ally for life'] },
-            { title: 'Hoard knife work, grind solo till sore', lines: ['Burn out with zero time to innovate', 'Tiny stall never grows beyond one lane'] },
-            { title: 'Teach basics openly, run grand banquets', lines: ['Earn glowing citywide master reputation', 'Every big celebration seeks you at center'] },
-            { title: 'Sell cart cheap and retire completely', lines: ['Lose pulse of street chatter overnight', 'Shoppers forget your name in two years'] }
+            { title: 'Rule 1: Barring pork wholesalers from supplying him', lines: ['Triggers bitter alleyway price wars', 'Embarrasses the whole lineage'] },
+            { title: 'Rule 2: Secretly omit key spices from his recipe note', lines: ['His broth tastes flat and ruins family pride', 'Customers mock the master’s stinginess'] },
+            { title: 'Rule 3: Let him run daily lunch while supplying house spice packs & Grandma keeps 50-table temple banquets', lines: ['He expands daily foot traffic seamlessly', 'Grandma earns steady supply & flagship feasts'] },
+            { title: 'Rule 4: Pull down iron shutters and quit market watch', lines: ['Ah-Ming rebrands two years later', 'Grandma’s heritage fades from the street'] }
           ],
-          reveal: 'Real masters never fear pupils opening stands—character and craft keep you seated at the head table.'
+          reveal: 'Real masters grow the pie by stepping up (Rule 3): apprentices serve daily bowls while Grandma supplies secret spice packs and owns grand banquets.'
         }
       },
       3: {
@@ -254,14 +254,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Polish sign twice bright while others dim', feedback: 'Standing out as the warmest glow on the block wins the whole street forever.' }
         ],
         game: {
-          prompt: '[Typhoon Street Math] Half the buyers hide indoors. Which stall booms fastest once sunlight returns?',
+          prompt: '[Typhoon Week Triage] Three straight rainy days cut foot traffic 50% as neighbors darken stalls. Grandma’s storm counter?',
           options: [
-            { title: 'Stall 1: Ditch sign, drop $1 coupons online', lines: ['Pulls bargain hoppers one day only', 'Ghost town again at full prices'] },
-            { title: 'Stall 2: Rent cheap corner ad wall, stay lit', lines: ['Locks whole block awareness dirt-cheap', 'Crowds surge right back post-storm'] },
-            { title: 'Stall 3: Pull metal shutters shut 3 months', lines: ['Saves utility bills neatly', 'Regulars form habits elsewhere permanently'] },
-            { title: 'Stall 4: Whisper prices on tiny tape', lines: ['Nobody down the street hears a peep', 'Neighbors quietly absorb your crowd'] }
+            { title: 'Move 1: Scrap the neon box, hand $2 clearance slips', lines: ['Attracts one-day bargain hunters', 'Regulars think shop closed once sunny'] },
+            { title: 'Move 2: Shine 2x neon + simmer fragrant radish broth + pack dry family bento sets', lines: ['Warm soup scent pulls the whole rainy arcade', 'Floods full street once skies clear'] },
+            { title: 'Move 3: Lock shutters for 3 slow rainy weeks', lines: ['Saves electricity neatly today', 'Regulars bond with corner competitors'] },
+            { title: 'Move 4: Shine one tiny blue bulb with whisper tape', lines: ['Passing scooters never spot open doors', 'Sales slide silently toward zero'] }
           ],
-          reveal: 'Never tear down your shop sign in slow weather—rain always stops eventually, and folks remember lights.'
+          reveal: 'While timid stalls pull shutters dark, warm radish broth and a bright neon corner lock the entire neighborhood’s heart (Move 2)!'
         }
       },
       4: {
@@ -275,16 +275,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Sweep him out with a broom! Pure trust', feedback: 'Market erupts in cheers: willing hello beats sleazy stalking every day.' }
         ],
         game: {
-          prompt: '[Spying Stall Blacklist] Carrying your market basket, which stall habit makes you switch shops immediately?',
-          left: 'Walk Away',
-          right: 'Love It',
-          cards: [
-            'Owner snaps photos of your basket to sell to fruit & insurance hawkers',
-            'Peeked at an apple once—three blocks holler APPLE PROMOS at you for days',
-            'Slips hidden paper trackers into your tote timing every minute per aisle',
-            'Demands ID card and office floor before handing over your cabbage'
+          prompt: '[Zero-Spy Regulars Club] Zero street cameras or creeping allowed—how does Grandma gather 500 happy daily pre-orders?',
+          options: [
+            { title: 'Trick 1: Buy neighbor scooter plate lists secretly', lines: ['Creeps shoppers out before checkout', 'Whole apartment block boycotts the stall'] },
+            { title: 'Trick 2: Demand national ID cards before handing change', lines: ['Queues jam and shoppers yell angrily', 'Empty counter the very next dawn'] },
+            { title: 'Trick 3: Have grandson log auntie shoes & bus routes', lines: ['Weird habit creeping customers out', 'Produces zero tomorrow soup orders'] },
+            { title: 'Trick 4: Serve free winter-melon tea + QR for "Reserve tomorrow’s fresh catch first!"', lines: ['Warm tea earns joyful willing opt-in', '500 neighbors tap +1 daily by choice'] }
           ],
-          revealByCount: 'You walked out on {n} creepy tricks! Real regulars come freely—stalked folks never return.'
+          reveal: 'Warm hospitality beats creepy ledgers every day: one cup of tea and fresh-fish pre-order perk (Trick 4) builds pure willing loyalty!'
         }
       },
       5: {
@@ -298,14 +296,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Slim fancy box cost so price feels fair', feedback: 'Drop pricey packaging fluff—honest pricing + fresh flavor draws daily queues.' }
         ],
         game: {
-          prompt: '[Grocery Basket Truth] 81% guard their wallets closely at checkout. Which pitch moves real produce?',
+          prompt: '[4 PM Cabbage Clear-Out] Young farmer Ah-Hao’s NT$120 organic heads sit untouched all afternoon. How does Grandma clear his baskets?',
           options: [
-            { title: 'Poster crying polar bears shaming moms', lines: ['Leaves shoppers grumpy & dodging aisles', 'Hands still grab the $50 plain greens'] },
-            { title: 'Free sweet taste + triple-washed shortcut', lines: ['Saves real kitchen time & tastes great', 'Turns eco pride into daily household joy'] },
-            { title: 'Double gift box pricing twice as steep', lines: ['More cardboard trash to haul back home', 'Roasted online for fake-green greed'] },
-            { title: 'Rename "Carbon-Credit Spinach"', lines: ['Zero everyday shopper understands', 'Zero moved till half-off clearance'] }
+            { title: 'Fix 1: Slice sweet raw hearts for free bites + pre-washed 3-dish dinner packs saving 20 min!', lines: ['Tastes crisp sweetness AND cuts mom kitchen prep', 'Entire basket clears out by 4:30 PM'] },
+            { title: 'Fix 2: Grab bullhorn scolding passersby about melting polar ice', lines: ['Moms shrug silently inside tight budgets', 'Shoppers steer clear of the booth'] },
+            { title: 'Fix 3: Double gold cardboard wrapping & hike to NT$150', lines: ['More household box trash at higher cost', 'Roasted online for greedy packaging'] },
+            { title: 'Fix 4: Shave NT$10 at closing with identical lecture card', lines: ['Still double neighboring bins without clarity', 'Wilts unsold in crates overnight'] }
           ],
-          reveal: 'Grandma sums cleanly: "Folks praise saving earth out loud, then pinch wallets at checkout—deliver real joy worth paying!"'
+          reveal: 'Grandma shows Ah-Hao the secret (Fix 1): busy moms don’t buy slogans—they gladly pay when it tastes sweet and saves 20 minutes at the sink!'
         }
       },
       6: {
@@ -319,16 +317,16 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Taste THIS real braised pork right now!', feedback: 'Rich aroma quiets the whole Neihu stage in 3 seconds—canceling cuts tonight.' }
         ],
         game: {
-          prompt: '[Grandma Copy Bust] Young staff showed 4 "deeply moving lines" claiming craft. Which did cold robots generate?',
-          left: 'Human Wok Hei',
-          right: 'AI Tin Can',
+          prompt: '[Delivery App Description Check] Young staff let AI generate four poetic stall bios for Grandma’s braised pork. Flag zero-wok-hei fluff:',
+          left: 'True Wok Hei',
+          right: 'Plastic AI',
           cards: [
-            'The gentle warmth at a dawn street corner is life’s softest present.',
-            'Walk at your own unhurried pace—around every bend awaits a brighter you.',
-            'Weave ordinary mornings into heartfelt poetry belonging only to home.',
+            'The gentle warmth at a dawn street corner celebrates tired souls on the move.',
+            'Savor unhurried layers of tender harmony honoring evening family rituals.',
+            'Weaving curated spice symphonies tenderly guarding your cherished supper.',
             'Some flavors take you straight back to Grandma’s kitchen in one sip.'
           ],
-          reveal: 'Grandma laughs: "All robot soup! Smooth words—zero aroma of garlic hitting sizzling oil. Only genuine care lasts."'
+          reveal: 'Grandma laughs hard: "All flowery hot air! Not a mention of crisp fried shallots or five-hour bone broth—folks eat aroma, not adjectives!"'
         }
       },
       7: {
@@ -342,14 +340,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Hire neutral street clerk to verify both', feedback: 'Execs applaud loud: borrow mall foot traffic without handing over your loyal books.' }
         ],
         game: {
-          prompt: '[Landlord Self-Defense] When your mall landlord runs the in-house ad desk too, what power do they grip?',
+          prompt: '[Black-Ledger Mall Audit] Your mall landlord charges a 25% "Elevator Poster Levy" claiming 100% footfall credit. How does Grandma audit it?',
           options: [
-            { title: 'Assigning front-gate vs alley-trash stall', lines: [] },
-            { title: 'Holding shoppers’ phone & receipt list', lines: [] },
-            { title: 'Charging ad rent AND grading sales win', lines: [] },
-            { title: 'Free independent audit for competitors', lines: [] }
+            { title: 'Move 1: Praise clean receipts & buy 3 extra lobby frames', lines: ['Landlord jacks rent every renewal', 'All regulars turn into mall points members'] },
+            { title: 'Move 2: Rip lease up & retreat into dark dead-end alley', lines: ['Cuts off prime noon worker footfall', 'Handicaps natural neighborhood discovery'] },
+            { title: 'Move 3: Match black-ledger receipts during 2 broken-poster weeks + street soup stamp cards', lines: ['Proves queues stood long even with dead posters', 'Tears holes straight through inflated landlord bills'] },
+            { title: 'Move 4: Whisper 70% discount flyers beside the mall lifts', lines: ['Draws mall security violation warnings', 'Devalues craft & margins at once'] }
           ],
-          reveal: 'First three stay locked in the landlord’s vault—always keep your own black ledger!'
+          reveal: 'Nothing beats an honest black ledger (Move 3): comparing broken-poster weeks against outside soup cards busts self-grading landlords immediately!'
         }
       },
       8: {
@@ -363,12 +361,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Point warm hellos at new commuters!', feedback: 'Old friends stay sweet over chats while young office commuters discover fresh pork rice.' }
         ],
         game: {
-          prompt: '[Bullhorn Alert] That loud machine only chases regulars while strangers drift off—hit Switch Off!',
-          report: { label: 'Regulars Chased Count' },
-          fresh: { label: 'New Commuter Share', unit: '%' },
-          revealStopped: 'Snapped power off at {fresh}% new shoppers (Alerts {report})—saved future growth!',
-          revealNever: 'Deafening horn hit {report} while new faces vanished down to {fresh}%!',
-          reveal: 'Sixty years taught Grandma: selling in tight circles shines today—until three regulars move house.'
+          prompt: '[110dB Bullhorn Rewire] That smart horn blasts 110dB right when loyal Auntie Zhang steps close while scaring away office commuters. Rewire?',
+          options: [
+            { title: 'Tune A: Crank horn 3x louder 24/7 past Auntie’s path', lines: ['Fed-up regulars move two alleys away', 'Next month stall receipts hit zero'] },
+            { title: 'Tune B: Ignore who walks in—just tally total coins monthly', lines: ['Coin jars stay filled by five aging faces', 'Three hundred new office workers walk past unknowing'] },
+            { title: 'Tune C: Tear off menus & signs—keep yelling at register', lines: ['Strangers have zero clue what is cooking', 'Nobody new crosses the threshold'] },
+            { title: 'Tune D: Unplug screeching horn! Roll steaming pot & signage out to the corner for commuters; pour quiet tea for regulars', lines: ['Old pals relax over unhurried tea', 'Curious commuters follow savory steam straight to the pot'] }
+          ],
+          reveal: 'Grandma unplugs that screeching horn cleanly (Tune D): regular aunties already show up daily—bring warm aroma and signs out to meet newcomers!'
         }
       },
       9: {
@@ -382,14 +382,14 @@ export const ROLES_EN_2 = {
           { id: 3, text: 'Make kids tell AI: "Get GRANDMA’S pot!"', feedback: 'Grandson’s eyes light up: once humans request you by name, comparison stops!' }
         ],
         game: {
-          prompt: '[Grandma Fridge Pick] Fetching a cool drink for your tired grandson—which can goes home in your bag?',
+          prompt: '[Defeat 38% AI Priority Fee] Delivery reps demand 38% commission to place Grandma on top of ranked lists. How do offices still order from you?',
           options: [
-            { title: 'Auntie Tsai’s Traditional Wintermelon', lines: ['NT$50', 'Word-of-mouth smooth brewed neighborhood gem'] },
-            { title: 'Zero-Sugar Factory C-Concentrate', lines: ['NT$34', 'AI Nutrition Score #1 · Cheapest per ml'] },
-            { title: 'Pastel Pop Collab Can', lines: ['NT$45', 'Flashy glitter packaging'] }
+            { title: 'Move 1: Refuse the 38% extortion! Keep transparent menus online, pack thick-cut belly & house pickled greens that spark office group-orders by name', lines: ['Protects honest margins from toll hikes', 'Whole office floors shout "Order Grandma on Hulin St!" daily'] },
+            { title: 'Move 2: Halve pork cuts & hike NT$30 to buy #1 bot slot', lines: ['Rises to top row for three days', 'Angry regulars drop 1-star skimpy-meat reviews forever'] },
+            { title: 'Move 3: Scrub menus offline—serve only personal pals', lines: ['New office neighbors search blindly with zero results', 'Misses lucrative group lunch orders'] },
+            { title: 'Move 4: Stuff 20 bot tags per item using microwave packs', lines: ['First bite exposes heat-lamp plastic taste', 'Zero repeat group buyers next week'] }
           ],
-          revealSame: 'Even Grandma grabbed factory C-juice! Yet zero neighbors mention it during evening tea.',
-          revealDiff: 'Bots compute Factory C-Concentrate 100%. What passes word-of-mouth through life is Auntie Tsai’s kettle.'
+          reveal: 'Grandma taps her ladle confidently (Move 1): win real taste buds with thick-cut pork and pickled greens so whole floors chant your name past any algorithm!'
         }
       },
       10: {

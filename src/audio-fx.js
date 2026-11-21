@@ -4,195 +4,195 @@ import { gameAssetUrl } from './game-assets.js';
 export const RADIO_STATIONS = [
   {
     id: 'synthwave',
-    style: 'synthwave',
-    name: 'FM 101.7 信義霓虹 Synthwave',
-    short: 'FM 101.7 信義霓虹',
-    tempoMs: 185,
+    style: 'classical_canon',
+    name: 'FM 101.7 巴洛克卡農 (Canon in D)',
+    short: 'FM 101.7 巴洛克卡農',
+    tempoMs: 245,
     bass: [
-      110, 110, 220, 110, 110, 110, 220, 110,
-      87.31, 87.31, 174.61, 87.31, 87.31, 87.31, 174.61, 87.31,
-      130.81, 130.81, 261.63, 130.81, 130.81, 130.81, 261.63, 130.81,
-      98.0, 98.0, 196.0, 98.0, 123.47, 98.0, 146.83, 196.0
+      146.83, 0, 110.0, 0, 123.47, 0, 92.5, 0,
+      98.0, 0, 73.42, 0, 98.0, 0, 110.0, 0,
+      146.83, 0, 110.0, 0, 123.47, 0, 92.5, 0,
+      98.0, 0, 73.42, 0, 98.0, 0, 110.0, 0
     ],
     lead: [
-      440, 0, 523.25, 659.25, 587.33, 523.25, 440, 0,
-      349.23, 440, 523.25, 0, 659.25, 587.33, 523.25, 440,
-      523.25, 0, 659.25, 783.99, 659.25, 523.25, 587.33, 0,
-      493.88, 587.33, 783.99, 659.25, 587.33, 493.88, 392.0, 440
+      739.99, 0, 659.25, 0, 587.33, 0, 554.37, 0,
+      493.88, 0, 440.0, 0, 493.88, 0, 554.37, 0,
+      587.33, 739.99, 659.25, 440.0, 587.33, 554.37, 587.33, 440.0,
+      493.88, 392.0, 440.0, 587.33, 493.88, 587.33, 659.25, 554.37
     ],
     arp: [
-      220, 261.63, 329.63, 440, 329.63, 261.63, 220, 329.63,
-      174.61, 220, 261.63, 349.23, 261.63, 220, 174.61, 261.63,
-      261.63, 329.63, 392.0, 523.25, 392.0, 329.63, 261.63, 392.0,
-      196.0, 246.94, 293.66, 392.0, 293.66, 246.94, 196.0, 293.66
+      293.66, 369.99, 440.0, 329.63, 246.94, 369.99, 277.18, 369.99,
+      196.0, 293.66, 293.66, 369.99, 246.94, 392.0, 220.0, 329.63,
+      293.66, 440.0, 220.0, 329.63, 246.94, 369.99, 277.18, 440.0,
+      196.0, 392.0, 293.66, 369.99, 246.94, 392.0, 220.0, 440.0
     ],
     pads: [
-      [220, 261.63, 329.63],
-      [174.61, 220, 261.63],
-      [261.63, 329.63, 392.0],
-      [196.0, 246.94, 293.66]
+      [293.66, 369.99, 440.0],
+      [196.0, 293.66, 392.0],
+      [293.66, 369.99, 440.0],
+      [220.0, 277.18, 329.63]
     ],
-    pad: [220, 261.63, 329.63]
+    pad: [293.66, 369.99, 440.0]
   },
   {
     id: 'lofi',
-    style: 'lofi',
-    name: 'FM 88.6 市民大道 Lo-Fi 爵士',
-    short: 'FM 88.6 市民爵士',
-    tempoMs: 245,
+    style: 'classical_nocturne',
+    name: 'FM 88.6 蕭邦夜曲 (Nocturne Op.9 No.2)',
+    short: 'FM 88.6 蕭邦夜曲',
+    tempoMs: 310,
     bass: [
-      146.83, 0, 0, 220, 146.83, 0, 174.61, 0,
-      98.0, 0, 0, 146.83, 98.0, 0, 123.47, 0,
-      130.81, 0, 0, 196.0, 130.81, 0, 164.81, 0,
-      110.0, 0, 164.81, 0, 138.59, 0, 98.0, 0
+      155.56, 0, 0, 0, 116.54, 0, 0, 0,
+      130.81, 0, 0, 0, 174.61, 0, 0, 0,
+      116.54, 0, 0, 0, 116.54, 0, 146.83, 0,
+      155.56, 0, 103.83, 0, 116.54, 0, 155.56, 0
     ],
     lead: [
-      523.25, 440, 349.23, 0, 392.0, 440, 0, 329.63,
-      493.88, 392.0, 0, 349.23, 329.63, 0, 293.66, 0,
-      440, 493.88, 523.25, 0, 587.33, 523.25, 440, 0,
-      392.0, 349.23, 329.63, 0, 277.18, 329.63, 0, 0
+      466.16, 783.99, 0, 698.46, 783.99, 698.46, 622.25, 0,
+      523.25, 0, 466.16, 523.25, 698.46, 0, 622.25, 587.33,
+      587.33, 622.25, 698.46, 0, 622.25, 587.33, 523.25, 587.33,
+      622.25, 0, 783.99, 698.46, 622.25, 0, 466.16, 0
     ],
     arp: [
-      293.66, 0, 349.23, 440, 0, 523.25, 0, 392.0,
-      246.94, 0, 293.66, 392.0, 0, 440, 0, 349.23,
-      261.63, 0, 329.63, 392.0, 0, 493.88, 0, 440,
-      220, 0, 277.18, 392.0, 0, 440, 329.63, 0
+      233.08, 311.13, 392.0, 466.16, 392.0, 311.13, 233.08, 392.0,
+      261.63, 311.13, 392.0, 466.16, 349.23, 415.3, 523.25, 415.3,
+      233.08, 293.66, 349.23, 415.3, 349.23, 293.66, 233.08, 349.23,
+      233.08, 311.13, 392.0, 311.13, 233.08, 349.23, 311.13, 0
     ],
     pads: [
-      [293.66, 349.23, 440, 523.25],
-      [246.94, 293.66, 392.0, 440],
-      [261.63, 329.63, 392.0, 493.88],
-      [220, 277.18, 392.0, 466.16]
+      [311.13, 392.0, 466.16],
+      [261.63, 311.13, 392.0, 466.16],
+      [233.08, 293.66, 349.23, 415.3],
+      [311.13, 392.0, 466.16]
     ],
-    pad: [261.63, 329.63, 392.0, 493.88]
+    pad: [311.13, 392.0, 466.16]
   },
   {
     id: 'cyber',
-    style: 'cyber',
-    name: 'FM 99.9 松仁極速 Cyber-Pulse',
-    short: 'FM 99.9 松仁極速',
-    tempoMs: 148,
+    style: 'classical_vivaldi',
+    name: 'FM 99.9 韋瓦第四季 (Spring Allegro)',
+    short: 'FM 99.9 韋瓦第四季',
+    tempoMs: 162,
     bass: [
-      98.0, 98.0, 196.0, 98.0, 98.0, 196.0, 116.54, 98.0,
-      77.78, 77.78, 155.56, 77.78, 77.78, 155.56, 98.0, 77.78,
-      87.31, 87.31, 174.61, 87.31, 87.31, 174.61, 130.81, 87.31,
-      73.42, 73.42, 146.83, 73.42, 87.31, 110.0, 130.81, 146.83
+      164.81, 0, 164.81, 0, 164.81, 0, 164.81, 0,
+      123.47, 0, 164.81, 0, 123.47, 0, 164.81, 0,
+      164.81, 0, 164.81, 0, 123.47, 0, 164.81, 0,
+      110.0, 0, 123.47, 0, 164.81, 0, 123.47, 0
     ],
     lead: [
-      587.33, 0, 783.99, 698.46, 587.33, 523.25, 587.33, 0,
-      622.25, 0, 783.99, 932.33, 783.99, 622.25, 587.33, 0,
-      698.46, 0, 880.0, 783.99, 698.46, 587.33, 523.25, 0,
-      587.33, 659.25, 783.99, 880.0, 783.99, 698.46, 659.25, 587.33
+      329.63, 415.3, 415.3, 415.3, 369.99, 329.63, 493.88, 0,
+      493.88, 440.0, 415.3, 415.3, 415.3, 369.99, 329.63, 493.88,
+      493.88, 440.0, 415.3, 369.99, 329.63, 440.0, 415.3, 369.99,
+      440.0, 493.88, 554.37, 493.88, 440.0, 415.3, 369.99, 329.63
     ],
     arp: [
-      196.0, 293.66, 392.0, 587.33, 392.0, 293.66, 196.0, 392.0,
-      155.56, 233.08, 311.13, 466.16, 311.13, 233.08, 155.56, 311.13,
-      174.61, 261.63, 349.23, 523.25, 349.23, 261.63, 174.61, 349.23,
-      146.83, 220.0, 293.66, 440.0, 293.66, 220.0, 146.83, 293.66
+      164.81, 246.94, 329.63, 246.94, 164.81, 246.94, 329.63, 246.94,
+      123.47, 246.94, 329.63, 246.94, 123.47, 246.94, 329.63, 246.94,
+      164.81, 246.94, 415.3, 246.94, 123.47, 246.94, 369.99, 246.94,
+      220.0, 277.18, 246.94, 369.99, 164.81, 246.94, 246.94, 164.81
     ],
     pads: [
-      [196.0, 233.08, 293.66],
-      [155.56, 196.0, 233.08],
-      [174.61, 220.0, 261.63],
-      [146.83, 174.61, 220.0]
+      [164.81, 207.65, 246.94],
+      [123.47, 185.0, 246.94],
+      [164.81, 207.65, 246.94],
+      [220.0, 246.94, 329.63]
     ],
-    pad: [196.0, 293.66, 392.0]
+    pad: [164.81, 207.65, 246.94]
   },
   {
     id: 'blues',
-    style: 'blues',
-    name: 'FM 92.1 淡水藍調 Blues',
-    short: 'FM 92.1 淡水藍調',
-    tempoMs: 228,
+    style: 'classical_moonlight',
+    name: 'FM 92.1 貝多芬月光 (Moonlight Adagio)',
+    short: 'FM 92.1 貝多芬月光',
+    tempoMs: 280,
     bass: [
-      110.0, 138.59, 164.81, 185.0, 196.0, 185.0, 164.81, 138.59,
-      146.83, 185.0, 220.0, 246.94, 261.63, 246.94, 220.0, 185.0,
-      110.0, 138.59, 164.81, 185.0, 196.0, 164.81, 146.83, 130.81,
-      164.81, 207.65, 246.94, 293.66, 146.83, 196.0, 164.81, 138.59
+      110.0, 0, 0, 0, 110.0, 0, 0, 0,
+      98.0, 0, 0, 0, 98.0, 0, 0, 0,
+      87.31, 0, 0, 0, 73.42, 0, 0, 0,
+      82.41, 0, 0, 0, 82.41, 0, 123.47, 0
     ],
     lead: [
-      440, 0, 523.25, 554.37, 0, 622.25, 587.33, 523.25,
-      440, 0, 523.25, 587.33, 622.25, 587.33, 523.25, 440,
-      0, 392.0, 440, 523.25, 554.37, 0, 440, 329.63,
-      659.25, 0, 622.25, 587.33, 523.25, 440, 392.0, 440
+      0, 0, 0, 0, 659.25, 0, 0, 659.25,
+      659.25, 0, 0, 0, 659.25, 0, 0, 698.46,
+      659.25, 0, 0, 659.25, 587.33, 0, 0, 587.33,
+      523.25, 0, 0, 493.88, 440.0, 0, 493.88, 0
     ],
     arp: [
-      220, 0, 0, 277.18, 329.63, 0, 0, 392.0,
-      293.66, 0, 0, 369.99, 440, 0, 0, 523.25,
-      220, 0, 0, 277.18, 329.63, 0, 0, 392.0,
-      329.63, 0, 0, 415.30, 293.66, 0, 0, 277.18
+      220.0, 261.63, 329.63, 220.0, 261.63, 329.63, 220.0, 261.63,
+      196.0, 261.63, 329.63, 196.0, 261.63, 329.63, 196.0, 261.63,
+      174.61, 261.63, 349.23, 174.61, 293.66, 349.23, 220.0, 293.66,
+      220.0, 261.63, 329.63, 207.65, 246.94, 329.63, 207.65, 246.94
     ],
     pads: [
-      [220, 277.18, 329.63, 392.0],
-      [293.66, 369.99, 440, 523.25],
-      [220, 277.18, 329.63, 392.0],
-      [329.63, 415.30, 493.88, 587.33]
+      [220.0, 261.63, 329.63],
+      [196.0, 261.63, 329.63],
+      [174.61, 220.0, 349.23],
+      [207.65, 246.94, 329.63]
     ],
-    pad: [220, 277.18, 329.63, 392.0]
+    pad: [220.0, 261.63, 329.63]
   },
   {
     id: 'classical',
-    style: 'classical',
-    name: 'FM 99.7 音樂廳古典',
-    short: 'FM 99.7 音樂廳古典',
-    tempoMs: 255,
+    style: 'classical_mozart',
+    name: 'FM 99.7 莫札特小夜曲 (Eine kleine Nachtmusik)',
+    short: 'FM 99.7 莫札特小夜曲',
+    tempoMs: 190,
     bass: [
-      130.81, 0, 130.81, 0, 98.0, 0, 98.0, 0,
-      110.0, 0, 110.0, 0, 82.41, 0, 82.41, 0,
-      87.31, 0, 87.31, 0, 130.81, 0, 130.81, 0,
-      87.31, 0, 110.0, 0, 98.0, 0, 123.47, 0
+      196.0, 0, 146.83, 0, 196.0, 0, 146.83, 0,
+      196.0, 0, 196.0, 0, 146.83, 0, 0, 0,
+      146.83, 0, 130.81, 0, 110.0, 0, 146.83, 0,
+      196.0, 0, 146.83, 0, 196.0, 0, 0, 0
     ],
     lead: [
-      659.25, 0, 587.33, 0, 523.25, 0, 493.88, 0,
-      440.0, 0, 392.0, 0, 440.0, 0, 493.88, 0,
-      523.25, 587.33, 659.25, 587.33, 523.25, 0, 493.88, 440.0,
-      440.0, 493.88, 523.25, 440.0, 587.33, 659.25, 783.99, 587.33
+      392.0, 0, 293.66, 0, 392.0, 0, 293.66, 0,
+      392.0, 293.66, 392.0, 493.88, 587.33, 0, 0, 0,
+      523.25, 0, 440.0, 0, 523.25, 0, 440.0, 0,
+      523.25, 440.0, 369.99, 440.0, 293.66, 0, 392.0, 0
     ],
     arp: [
-      261.63, 329.63, 392.0, 523.25, 196.0, 246.94, 293.66, 392.0,
-      220.0, 261.63, 329.63, 440.0, 164.81, 196.0, 246.94, 329.63,
-      174.61, 220.0, 261.63, 349.23, 261.63, 329.63, 392.0, 523.25,
-      174.61, 220.0, 349.23, 261.63, 196.0, 293.66, 392.0, 493.88
+      196.0, 246.94, 293.66, 392.0, 196.0, 246.94, 293.66, 392.0,
+      246.94, 293.66, 392.0, 493.88, 293.66, 392.0, 493.88, 587.33,
+      261.63, 329.63, 369.99, 440.0, 261.63, 329.63, 369.99, 440.0,
+      261.63, 293.66, 369.99, 440.0, 196.0, 246.94, 293.66, 392.0
     ],
     pads: [
-      [261.63, 329.63, 392.0],
-      [220.0, 261.63, 329.63],
-      [174.61, 220.0, 261.63],
-      [196.0, 246.94, 349.23]
+      [196.0, 246.94, 293.66],
+      [246.94, 293.66, 392.0],
+      [220.0, 261.63, 369.99],
+      [196.0, 246.94, 392.0]
     ],
-    pad: [261.63, 329.63, 392.0]
+    pad: [196.0, 246.94, 293.66]
   },
   {
     id: 'nakashi',
-    style: 'nakashi',
-    name: 'FM 95.3 夜市那卡西',
-    short: 'FM 95.3 夜市那卡西',
-    tempoMs: 205,
+    style: 'classical_waltz',
+    name: 'FM 95.3 花之圓舞曲 (Waltz of the Flowers)',
+    short: 'FM 95.3 花之圓舞曲',
+    tempoMs: 215,
     bass: [
-      164.81, 0, 123.47, 0, 164.81, 0, 196.0, 146.83,
-      110.0, 0, 164.81, 0, 110.0, 0, 146.83, 164.81,
-      196.0, 0, 146.83, 0, 196.0, 0, 164.81, 146.83,
-      123.47, 0, 185.0, 0, 123.47, 146.83, 164.81, 123.47
+      174.61, 0, 0, 0, 130.81, 0, 0, 0,
+      130.81, 0, 0, 0, 196.0, 0, 0, 0,
+      116.54, 0, 0, 0, 196.0, 0, 0, 0,
+      130.81, 0, 0, 0, 174.61, 0, 0, 0
     ],
     lead: [
-      329.63, 392.0, 440.0, 0, 493.88, 587.33, 493.88, 440.0,
-      329.63, 0, 392.0, 440.0, 493.88, 440.0, 392.0, 329.63,
-      587.33, 659.25, 587.33, 493.88, 440.0, 392.0, 440.0, 493.88,
-      392.0, 329.63, 293.66, 0, 246.94, 293.66, 329.63, 0
+      440.0, 0, 466.16, 0, 523.25, 0, 698.46, 0,
+      659.25, 0, 587.33, 0, 523.25, 0, 440.0, 0,
+      587.33, 0, 523.25, 0, 466.16, 0, 440.0, 0,
+      392.0, 0, 440.0, 0, 349.23, 0, 0, 0
     ],
     arp: [
-      0, 329.63, 0, 392.0, 0, 493.88, 0, 392.0,
-      0, 440.0, 0, 523.25, 0, 440.0, 0, 329.63,
-      0, 392.0, 0, 493.88, 0, 587.33, 0, 493.88,
-      0, 369.99, 0, 493.88, 0, 392.0, 0, 329.63
+      261.63, 349.23, 440.0, 349.23, 261.63, 349.23, 440.0, 349.23,
+      261.63, 329.63, 392.0, 329.63, 261.63, 329.63, 392.0, 329.63,
+      233.08, 293.66, 349.23, 293.66, 196.0, 293.66, 349.23, 293.66,
+      261.63, 329.63, 392.0, 329.63, 261.63, 349.23, 440.0, 0
     ],
     pads: [
-      [164.81, 246.94, 329.63],
-      [220.0, 261.63, 329.63],
-      [196.0, 293.66, 392.0],
-      [246.94, 369.99, 493.88]
+      [261.63, 349.23, 440.0],
+      [261.63, 329.63, 466.16],
+      [233.08, 293.66, 349.23],
+      [261.63, 349.23, 440.0]
     ],
-    pad: [164.81, 246.94, 329.63]
+    pad: [261.63, 349.23, 440.0]
   }
 ];
 
@@ -360,6 +360,12 @@ export const CHARACTER_VOICE_CLIPS = {
 class SoundEngine {
   constructor() {
     this.ctx = null;
+    this.bgmBus = null;
+    this.bgmCompressor = null;
+    this.bgmReverb = null;
+    this.bgmReverbGain = null;
+    this.bgmDelay = null;
+    this.bgmDelayGain = null;
     this.bgmFilter = null;
     this.bgmMaster = null;
     this.muted = false;
@@ -387,18 +393,99 @@ class SoundEngine {
     }
   }
 
+  _buildReverbImpulse(ctx, seconds = 1.6) {
+    const rate = ctx.sampleRate || 44100;
+    const length = Math.max(1, Math.floor(rate * seconds));
+    const impulse = ctx.createBuffer(2, length, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      let lp = 0;
+      for (let i = 0; i < length; i++) {
+        const t = i / length;
+        const decay = Math.pow(1 - t, 2.4);
+        const white = Math.random() * 2 - 1;
+        lp = lp * 0.72 + white * 0.28;
+        data[i] = lp * decay;
+      }
+    }
+    return impulse;
+  }
+
+  _routeVoice(node, dest, wetAmount = 0.35, delayAmount = 0.15) {
+    if (!this.ctx || !node || !dest) return;
+    node.connect(dest);
+    const isBgm = dest === this.bgmBus || dest === this.bgmFilter;
+    if (!isBgm) return;
+    if (this.bgmReverbGain && wetAmount > 0) {
+      const revSend = this.ctx.createGain();
+      revSend.gain.setValueAtTime(wetAmount, this.ctx.currentTime);
+      node.connect(revSend);
+      revSend.connect(this.bgmReverbGain);
+    }
+    if (this.bgmDelay && delayAmount > 0) {
+      const dlySend = this.ctx.createGain();
+      dlySend.gain.setValueAtTime(delayAmount, this.ctx.currentTime);
+      node.connect(dlySend);
+      dlySend.connect(this.bgmDelay);
+    }
+  }
+
   _ensureCtx() {
     if (this.muted || typeof window === 'undefined') return null;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return null;
       this.ctx = new AudioCtx();
+      const now = this.ctx.currentTime;
+
+      this.bgmBus = this.ctx.createGain();
+      this.bgmBus.gain.setValueAtTime(1, now);
+
+      this.bgmCompressor = this.ctx.createDynamicsCompressor();
+      this.bgmCompressor.threshold.setValueAtTime(-18, now);
+      this.bgmCompressor.knee.setValueAtTime(18, now);
+      this.bgmCompressor.ratio.setValueAtTime(3.2, now);
+      this.bgmCompressor.attack.setValueAtTime(0.008, now);
+      this.bgmCompressor.release.setValueAtTime(0.18, now);
+
       this.bgmFilter = this.ctx.createBiquadFilter();
       this.bgmFilter.type = 'lowpass';
-      this.bgmFilter.frequency.setValueAtTime(BGM_FILTER_HZ.normal, this.ctx.currentTime);
-      this.bgmFilter.Q.setValueAtTime(0.7, this.ctx.currentTime);
+      this.bgmFilter.frequency.setValueAtTime(BGM_FILTER_HZ.normal, now);
+      this.bgmFilter.Q.setValueAtTime(0.7, now);
+
       this.bgmMaster = this.ctx.createGain();
-      this.bgmMaster.gain.setValueAtTime(BGM_MIX_LEVELS.normal, this.ctx.currentTime);
+      this.bgmMaster.gain.setValueAtTime(BGM_MIX_LEVELS.normal, now);
+
+      // Warm studio hall reverb
+      this.bgmReverb = this.ctx.createConvolver();
+      this.bgmReverb.buffer = this._buildReverbImpulse(this.ctx, 1.6);
+      this.bgmReverbGain = this.ctx.createGain();
+      this.bgmReverbGain.gain.setValueAtTime(0.34, now);
+      const revLp = this.ctx.createBiquadFilter();
+      revLp.type = 'lowpass';
+      revLp.frequency.setValueAtTime(2400, now);
+      this.bgmReverbGain.connect(this.bgmReverb);
+      this.bgmReverb.connect(revLp);
+      revLp.connect(this.bgmCompressor);
+
+      // Warm damped stereo-feel tape echo
+      this.bgmDelay = this.ctx.createDelay(1.0);
+      this.bgmDelay.delayTime.setValueAtTime(0.26, now);
+      const dlyLp = this.ctx.createBiquadFilter();
+      dlyLp.type = 'lowpass';
+      dlyLp.frequency.setValueAtTime(1400, now);
+      const dlyFb = this.ctx.createGain();
+      dlyFb.gain.setValueAtTime(0.25, now);
+      this.bgmDelayGain = this.ctx.createGain();
+      this.bgmDelayGain.gain.setValueAtTime(0.22, now);
+      this.bgmDelay.connect(dlyLp);
+      dlyLp.connect(dlyFb);
+      dlyFb.connect(this.bgmDelay);
+      dlyLp.connect(this.bgmDelayGain);
+      this.bgmDelayGain.connect(this.bgmCompressor);
+
+      this.bgmBus.connect(this.bgmCompressor);
+      this.bgmCompressor.connect(this.bgmFilter);
       this.bgmFilter.connect(this.bgmMaster);
       this.bgmMaster.connect(this.ctx.destination);
     }
@@ -506,23 +593,23 @@ class SoundEngine {
   }
 
   playRadioTune(stationIdx = 0) {
+    const ctx = this._ensureCtx();
+    if (!ctx) return;
     const idx = ((stationIdx % RADIO_STATIONS.length) + RADIO_STATIONS.length) % RADIO_STATIONS.length;
     const st = RADIO_STATIONS[idx];
-    const chords = [
-      [440, 554.37, 659.25],     // synthwave A
-      [392, 493.88, 587.33],     // lofi Gmaj7
-      [587.33, 698.46, 880],     // cyber Dm
-      [440, 523.25, 622.25],     // blues A blue-note
-      [523.25, 659.25, 783.99],  // classical C triad
-      [329.63, 440, 493.88]      // nakashi Em pentatonic
-    ];
-    const notes = chords[idx] || chords[0];
+    const dest = this.bgmBus || this.bgmFilter || ctx.destination;
+    const notes = st?.pads?.[0] || st?.pad || [293.66, 369.99, 440.0];
+    this._warmStringChord(notes.slice(0, 3), 0.78, 0.042, 0, dest);
     notes.forEach((freq, i) => {
-      if (st?.style === 'classical') this._violinNote(freq, 0.24, 0.08, i * 0.055);
-      else if (st?.style === 'blues') this._bluesGuitarNote(freq, 0.16, 0.085, i * 0.045);
-      else if (st?.style === 'nakashi') this._accordionNote(freq, 0.14, 0.085, i * 0.045);
-      else if (st?.style === 'lofi') this._rhodesNote(freq, 0.18, 0.09, i * 0.05);
-      else this._tone(freq, 0.1, i === 2 ? 'triangle' : 'sawtooth', 0.085, i * 0.042);
+      if (st?.style === 'classical_mozart' || st?.style === 'classical_waltz') {
+        this._grandPianoNote(freq, 0.36, 0.068, i * 0.045, dest);
+        if (i === notes.length - 1) this._fluteNote(freq * 2, 0.42, 0.065, i * 0.045, dest);
+      } else if (st?.style === 'classical_moonlight' || st?.style === 'classical_nocturne') {
+        this._grandPianoNote(freq, 0.5, 0.075, i * 0.055, dest);
+      } else {
+        this._grandPianoNote(freq, 0.38, 0.068, i * 0.045, dest);
+        if (i === notes.length - 1) this._violinNote(freq * 2, 0.44, 0.062, i * 0.045, dest);
+      }
     });
   }
 
@@ -535,65 +622,100 @@ class SoundEngine {
 
   _tone(freq, duration = 0.12, type = 'triangle', gainPeak = 0.12, delay = 0, targetNode = null) {
     const ctx = this._ensureCtx();
-    if (!ctx || !freq) return;
+    if (!ctx || !freq || gainPeak <= 0) return;
     const now = ctx.currentTime + delay;
+    const dest = targetNode || ctx.destination;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = type;
     osc.frequency.setValueAtTime(freq, now);
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(gainPeak, now + 0.014);
+    gain.gain.exponentialRampToValueAtTime(gainPeak, now + 0.016);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    osc.connect(gain);
-    gain.connect(targetNode || ctx.destination);
+    if (dest === this.bgmBus || dest === this.bgmFilter) {
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      const cutoff = type === 'sawtooth' || type === 'square' ? Math.min(3200, freq * 4.8) : 4000;
+      lp.frequency.setValueAtTime(Math.max(400, cutoff), now);
+      osc.connect(lp);
+      lp.connect(gain);
+      this._routeVoice(gain, dest, 0.24, 0.08);
+    } else {
+      osc.connect(gain);
+      gain.connect(dest);
+    }
     osc.start(now);
-    osc.stop(now + duration + 0.025);
+    osc.stop(now + duration + 0.03);
+  }
+
+  _pickHarmonyNote(leadFreq, chord = []) {
+    if (!leadFreq || !Array.isArray(chord) || chord.length === 0) return 0;
+    const target = leadFreq * 0.75;
+    let best = 0;
+    let bestDist = Infinity;
+    for (const raw of chord) {
+      if (!raw) continue;
+      for (const mult of [0.5, 1, 2, 4]) {
+        const cand = raw * mult;
+        if (cand >= leadFreq * 0.62 && cand <= leadFreq * 0.86) {
+          const dist = Math.abs(cand - target);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = cand;
+          }
+        }
+      }
+    }
+    if (!best && leadFreq >= 280) best = leadFreq * 0.5;
+    return best;
   }
 
   _kick(delay = 0, targetNode = null) {
     const ctx = this._ensureCtx();
     if (!ctx) return;
     const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(125, now);
-    osc.frequency.exponentialRampToValueAtTime(38, now + 0.11);
-    gain.gain.setValueAtTime(0.26, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+    osc.frequency.setValueAtTime(108, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+    gain.gain.setValueAtTime(0.24, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.145);
     osc.connect(gain);
-    gain.connect(targetNode || this.bgmFilter || this.bgmMaster || ctx.destination);
+    this._routeVoice(gain, dest, 0, 0);
     osc.start(now);
-    osc.stop(now + 0.14);
+    osc.stop(now + 0.16);
   }
 
-  _hihat(delay = 0, targetNode = null, gainPeak = 0.075) {
+  _hihat(delay = 0, targetNode = null, gainPeak = 0.055) {
     const ctx = this._ensureCtx();
-    if (!ctx) return;
+    if (!ctx || gainPeak <= 0) return;
     if (!this._noiseBuffer) {
-      const len = Math.floor(ctx.sampleRate * 0.045);
+      const len = Math.floor(ctx.sampleRate * 0.055);
       this._noiseBuffer = ctx.createBuffer(1, len, ctx.sampleRate);
       const data = this._noiseBuffer.getChannelData(0);
       for (let i = 0; i < len; i += 1) data[i] = Math.random() * 2 - 1;
     }
     const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
     const src = ctx.createBufferSource();
     src.buffer = this._noiseBuffer;
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
-    filter.frequency.setValueAtTime(6200, now);
+    filter.frequency.setValueAtTime(7200, now);
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(gainPeak, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.042);
     src.connect(filter);
     filter.connect(gain);
-    gain.connect(targetNode || this.bgmFilter || this.bgmMaster || ctx.destination);
+    this._routeVoice(gain, dest, 0.14, 0.04);
     src.start(now);
   }
 
-  _snare(delay = 0, gainPeak = 0.09, targetNode = null) {
+  _snare(delay = 0, gainPeak = 0.072, targetNode = null) {
     const ctx = this._ensureCtx();
-    if (!ctx) return;
+    if (!ctx || gainPeak <= 0) return;
     if (!this._noiseBuffer) {
       const len = Math.floor(ctx.sampleRate * 0.08);
       this._noiseBuffer = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -601,184 +723,595 @@ class SoundEngine {
       for (let i = 0; i < len; i += 1) data[i] = Math.random() * 2 - 1;
     }
     const now = ctx.currentTime + delay;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster || ctx.destination;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
     const src = ctx.createBufferSource();
     src.buffer = this._noiseBuffer;
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(1400, now);
-    bp.Q.setValueAtTime(0.8, now);
+    bp.frequency.setValueAtTime(1250, now);
+    bp.Q.setValueAtTime(0.9, now);
     const ng = ctx.createGain();
     ng.gain.setValueAtTime(gainPeak, now);
-    ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+    ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.088);
     src.connect(bp);
     bp.connect(ng);
-    ng.connect(dest);
+    this._routeVoice(ng, dest, 0.24, 0.04);
     src.start(now);
 
     const osc = ctx.createOscillator();
     const og = ctx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(185, now);
-    osc.frequency.exponentialRampToValueAtTime(105, now + 0.06);
-    og.gain.setValueAtTime(gainPeak * 0.7, now);
+    osc.frequency.setValueAtTime(175, now);
+    osc.frequency.exponentialRampToValueAtTime(108, now + 0.06);
+    og.gain.setValueAtTime(gainPeak * 0.65, now);
     og.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
     osc.connect(og);
-    og.connect(dest);
+    this._routeVoice(og, dest, 0.18, 0);
     osc.start(now);
-    osc.stop(now + 0.085);
+    osc.stop(now + 0.09);
   }
 
   _woodblock(freq = 860, delay = 0, targetNode = null) {
-    this._tone(freq, 0.05, 'triangle', 0.085, delay, targetNode);
-    this._tone(freq * 1.48, 0.032, 'sine', 0.04, delay, targetNode);
+    const dest = targetNode || this.bgmBus || this.bgmFilter;
+    this._tone(freq, 0.055, 'triangle', 0.072, delay, dest);
+    this._tone(freq * 1.48, 0.036, 'sine', 0.034, delay, dest);
   }
 
-  _bluesGuitarNote(freq, duration = 0.24, gainPeak = 0.14, delay = 0, targetNode = null) {
+  _warmBass(freq, duration = 0.26, gainPeak = 0.2, delay = 0, targetNode = null) {
     const ctx = this._ensureCtx();
-    if (!ctx || !freq) return;
+    if (!ctx || !freq || gainPeak <= 0) return;
     const now = ctx.currentTime + delay;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster || ctx.destination;
-    const osc = ctx.createOscillator();
-    const vib = ctx.createOscillator();
-    const vibGain = ctx.createGain();
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const sub = ctx.createOscillator();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(freq, now);
+
+    const warm = ctx.createOscillator();
+    warm.type = 'triangle';
+    warm.frequency.setValueAtTime(freq * 1.0015, now);
+
     const lp = ctx.createBiquadFilter();
-    const amp = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(freq * 0.94, now);
-    osc.frequency.exponentialRampToValueAtTime(freq, now + 0.045);
-    vib.type = 'sine';
-    vib.frequency.setValueAtTime(5.5, now);
-    vibGain.gain.setValueAtTime(4.5, now);
-    vib.connect(vibGain);
-    vibGain.connect(osc.frequency);
     lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(1600, now);
+    lp.frequency.setValueAtTime(Math.max(240, freq * 3.4), now);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(140, freq * 1.6), now + duration);
+
+    const warmGain = ctx.createGain();
+    warmGain.gain.setValueAtTime(0.55, now);
+
+    const amp = ctx.createGain();
     amp.gain.setValueAtTime(0.0001, now);
-    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.016);
+    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.014);
     amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    osc.connect(lp);
+
+    sub.connect(lp);
+    warm.connect(warmGain);
+    warmGain.connect(lp);
     lp.connect(amp);
-    amp.connect(dest);
-    osc.start(now);
-    vib.start(now);
-    osc.stop(now + duration + 0.03);
-    vib.stop(now + duration + 0.03);
+    this._routeVoice(amp, dest, 0.06, 0);
+
+    sub.start(now);
+    warm.start(now);
+    sub.stop(now + duration + 0.03);
+    warm.stop(now + duration + 0.03);
   }
 
-  _violinNote(freq, duration = 0.36, gainPeak = 0.11, delay = 0, targetNode = null) {
+  _grandPianoNote(freq, duration = 0.45, gainPeak = 0.12, delay = 0, targetNode = null) {
     const ctx = this._ensureCtx();
-    if (!ctx || !freq) return;
+    if (!ctx || !freq || gainPeak <= 0) return;
     const now = ctx.currentTime + delay;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster || ctx.destination;
-    const osc = ctx.createOscillator();
-    const vib = ctx.createOscillator();
-    const vibGain = ctx.createGain();
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
     const lp = ctx.createBiquadFilter();
-    const amp = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(freq, now);
-    vib.type = 'sine';
-    vib.frequency.setValueAtTime(5.8, now);
-    vibGain.gain.setValueAtTime(3.2, now);
-    vib.connect(vibGain);
-    vibGain.connect(osc.frequency);
     lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(1950, now);
-    amp.gain.setValueAtTime(0.0001, now);
-    amp.gain.linearRampToValueAtTime(gainPeak, now + Math.min(0.06, duration * 0.25));
-    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    osc.connect(lp);
-    lp.connect(amp);
-    amp.connect(dest);
-    osc.start(now);
-    vib.start(now);
-    osc.stop(now + duration + 0.03);
-    vib.stop(now + duration + 0.03);
-  }
+    lp.frequency.setValueAtTime(Math.min(4400, freq * 6.2), now);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(480, freq * 2.0), now + duration * 0.78);
 
-  _celloNote(freq, duration = 0.42, gainPeak = 0.19, delay = 0, targetNode = null) {
-    const ctx = this._ensureCtx();
-    if (!ctx || !freq) return;
-    const now = ctx.currentTime + delay;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster || ctx.destination;
-    const osc = ctx.createOscillator();
-    const lp = ctx.createBiquadFilter();
     const amp = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(freq, now);
-    lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(720, now);
     amp.gain.setValueAtTime(0.0001, now);
-    amp.gain.linearRampToValueAtTime(gainPeak, now + 0.045);
+    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.01);
     amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    osc.connect(lp);
+
     lp.connect(amp);
-    amp.connect(dest);
-    osc.start(now);
-    osc.stop(now + duration + 0.03);
-  }
+    this._routeVoice(amp, dest, 0.4, 0.14);
 
-  _harpsichordNote(freq, duration = 0.18, gainPeak = 0.085, delay = 0, targetNode = null) {
-    if (!freq) return;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster;
-    this._tone(freq, duration, 'triangle', gainPeak, delay, dest);
-    this._tone(freq * 2, duration * 0.65, 'sine', gainPeak * 0.35, delay, dest);
-  }
-
-  _rhodesNote(freq, duration = 0.28, gainPeak = 0.13, delay = 0, targetNode = null) {
-    if (!freq) return;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster;
-    this._tone(freq, duration, 'sine', gainPeak, delay, dest);
-    this._tone(freq * 3, 0.055, 'sine', gainPeak * 0.3, delay, dest);
-  }
-
-  _accordionNote(freq, duration = 0.22, gainPeak = 0.095, delay = 0, targetNode = null) {
-    const ctx = this._ensureCtx();
-    if (!ctx || !freq) return;
-    const now = ctx.currentTime + delay;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster || ctx.destination;
-    const lp = ctx.createBiquadFilter();
-    const amp = ctx.createGain();
-    lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(1850, now);
-    amp.gain.setValueAtTime(0.0001, now);
-    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.018);
-    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    lp.connect(amp);
-    amp.connect(dest);
-    for (const detune of [0.998, 1.002]) {
+    const partials = [
+      { mult: 1.0, type: 'triangle', vol: 0.72, stopOffset: duration },
+      { mult: 1.0018, type: 'sine', vol: 0.48, stopOffset: duration },
+      { mult: 2.0, type: 'sine', vol: 0.24, stopOffset: duration * 0.65 },
+      { mult: 3.0, type: 'sine', vol: 0.12, stopOffset: 0.055 }
+    ];
+    for (const p of partials) {
       const osc = ctx.createOscillator();
+      const pg = ctx.createGain();
+      osc.type = p.type;
+      osc.frequency.setValueAtTime(freq * p.mult, now);
+      pg.gain.setValueAtTime(p.vol, now);
+      if (p.stopOffset < duration) {
+        pg.gain.exponentialRampToValueAtTime(0.0001, now + p.stopOffset);
+      }
+      osc.connect(pg);
+      pg.connect(lp);
+      osc.start(now);
+      osc.stop(now + p.stopOffset + 0.03);
+    }
+  }
+
+  _warmStringChord(freqs = [], duration = 1.4, gainPeak = 0.052, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !Array.isArray(freqs) || freqs.length === 0 || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.setValueAtTime(0.8, now);
+    lp.frequency.setValueAtTime(420, now);
+    lp.frequency.linearRampToValueAtTime(1450, now + Math.min(0.45, duration * 0.35));
+    lp.frequency.exponentialRampToValueAtTime(720, now + duration);
+
+    const amp = ctx.createGain();
+    const atk = Math.min(0.26, duration * 0.28);
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.linearRampToValueAtTime(gainPeak, now + atk);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    const vib = ctx.createOscillator();
+    const vibGain = ctx.createGain();
+    vib.type = 'sine';
+    vib.frequency.setValueAtTime(5.1, now);
+    vibGain.gain.setValueAtTime(2.4, now);
+    vib.connect(vibGain);
+
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.54, 0.12);
+
+    const voiceScale = 1 / Math.max(1, Math.sqrt(freqs.length));
+    for (const f of freqs) {
+      if (!f) continue;
+      for (const detune of [0.9965, 1.0035]) {
+        const osc = ctx.createOscillator();
+        const vg = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f * detune, now);
+        vibGain.connect(osc.frequency);
+        vg.gain.setValueAtTime(0.5 * voiceScale, now);
+        osc.connect(vg);
+        vg.connect(lp);
+        osc.start(now);
+        osc.stop(now + duration + 0.04);
+      }
+    }
+    vib.start(now);
+    vib.stop(now + duration + 0.04);
+  }
+
+  _organChord(freqs = [], duration = 0.65, gainPeak = 0.04, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !Array.isArray(freqs) || freqs.length === 0 || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(1480, now);
+
+    const amp = ctx.createGain();
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.linearRampToValueAtTime(gainPeak, now + 0.018);
+    amp.gain.setValueAtTime(gainPeak * 0.9, now + Math.max(0.03, duration * 0.72));
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.36, 0.12);
+
+    const voiceScale = 1 / Math.max(1, Math.sqrt(freqs.length));
+    for (const f of freqs) {
+      if (!f) continue;
+      const drawbars = [
+        { mult: 0.5, vol: 0.32 * voiceScale, type: 'sine' },
+        { mult: 1.0, vol: 0.62 * voiceScale, type: 'sine' },
+        { mult: 1.002, vol: 0.38 * voiceScale, type: 'triangle' },
+        { mult: 2.0, vol: 0.24 * voiceScale, type: 'sine' }
+      ];
+      for (const db of drawbars) {
+        const osc = ctx.createOscillator();
+        const dg = ctx.createGain();
+        osc.type = db.type;
+        osc.frequency.setValueAtTime(f * db.mult, now);
+        dg.gain.setValueAtTime(db.vol, now);
+        osc.connect(dg);
+        dg.connect(lp);
+        osc.start(now);
+        osc.stop(now + duration + 0.03);
+      }
+    }
+  }
+
+  _rhodesChord(freqs = [], duration = 1.15, gainPeak = 0.052, delay = 0, targetNode = null) {
+    if (!Array.isArray(freqs) || freqs.length === 0) return;
+    const scale = 1 / Math.max(1, Math.sqrt(freqs.length) * 0.85);
+    freqs.forEach((f, idx) => {
+      if (!f) return;
+      this._rhodesNote(f, duration, gainPeak * scale, delay + idx * 0.022, targetNode);
+    });
+  }
+
+  _lushPolysynth(freqsOrFreq, duration = 0.36, gainPeak = 0.08, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    const freqs = Array.isArray(freqsOrFreq) ? freqsOrFreq : [freqsOrFreq];
+    if (!ctx || freqs.length === 0 || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.setValueAtTime(1.1, now);
+    lp.frequency.setValueAtTime(2600, now);
+    lp.frequency.exponentialRampToValueAtTime(760, now + duration);
+
+    const amp = ctx.createGain();
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.linearRampToValueAtTime(gainPeak, now + Math.min(0.045, duration * 0.18));
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.42, 0.26);
+
+    const scale = 1 / Math.max(1, Math.sqrt(freqs.length));
+    for (const f of freqs) {
+      if (!f) continue;
+      const voices = [
+        { detune: 0.9945, type: 'sawtooth', vol: 0.34 * scale },
+        { detune: 1.0, type: 'triangle', vol: 0.48 * scale },
+        { detune: 1.0055, type: 'sawtooth', vol: 0.34 * scale }
+      ];
+      for (const v of voices) {
+        const osc = ctx.createOscillator();
+        const vg = ctx.createGain();
+        osc.type = v.type;
+        osc.frequency.setValueAtTime(f * v.detune, now);
+        vg.gain.setValueAtTime(v.vol, now);
+        osc.connect(vg);
+        vg.connect(lp);
+        osc.start(now);
+        osc.stop(now + duration + 0.03);
+      }
+    }
+  }
+
+  _bluesGuitarNote(freq, duration = 0.34, gainPeak = 0.12, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+    const vib = ctx.createOscillator();
+    const vibGain = ctx.createGain();
+    const lp = ctx.createBiquadFilter();
+    const amp = ctx.createGain();
+
+    vib.type = 'sine';
+    vib.frequency.setValueAtTime(5.3, now);
+    vibGain.gain.setValueAtTime(3.6, now);
+    vib.connect(vibGain);
+
+    lp.type = 'lowpass';
+    lp.Q.setValueAtTime(1.3, now);
+    lp.frequency.setValueAtTime(1350, now);
+    lp.frequency.exponentialRampToValueAtTime(720, now + duration);
+
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.015);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    const body = ctx.createOscillator();
+    body.type = 'triangle';
+    body.frequency.setValueAtTime(freq * 0.94, now);
+    body.frequency.exponentialRampToValueAtTime(freq, now + 0.048);
+
+    const bite = ctx.createOscillator();
+    const biteGain = ctx.createGain();
+    bite.type = 'sawtooth';
+    bite.frequency.setValueAtTime(freq * 0.94, now);
+    bite.frequency.exponentialRampToValueAtTime(freq, now + 0.048);
+    biteGain.gain.setValueAtTime(0.45, now);
+
+    vibGain.connect(body.frequency);
+    vibGain.connect(bite.frequency);
+    body.connect(lp);
+    bite.connect(biteGain);
+    biteGain.connect(lp);
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.34, 0.18);
+
+    body.start(now);
+    bite.start(now);
+    vib.start(now);
+    body.stop(now + duration + 0.03);
+    bite.stop(now + duration + 0.03);
+    vib.stop(now + duration + 0.03);
+  }
+
+  _violinNote(freq, duration = 0.44, gainPeak = 0.1, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+    const vib = ctx.createOscillator();
+    const vibGain = ctx.createGain();
+    const lp = ctx.createBiquadFilter();
+    const amp = ctx.createGain();
+
+    vib.type = 'sine';
+    vib.frequency.setValueAtTime(5.4, now);
+    vibGain.gain.setValueAtTime(0.01, now);
+    vibGain.gain.linearRampToValueAtTime(3.0, now + Math.min(0.14, duration * 0.4));
+    vib.connect(vibGain);
+
+    lp.type = 'lowpass';
+    lp.Q.setValueAtTime(0.8, now);
+    lp.frequency.setValueAtTime(880, now);
+    lp.frequency.linearRampToValueAtTime(2050, now + Math.min(0.12, duration * 0.35));
+
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.linearRampToValueAtTime(gainPeak, now + Math.min(0.075, duration * 0.28));
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.48, 0.15);
+
+    for (const detune of [0.997, 1.003]) {
+      const osc = ctx.createOscillator();
+      const vg = ctx.createGain();
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(freq * detune, now);
-      osc.connect(lp);
+      vg.gain.setValueAtTime(0.5, now);
+      vibGain.connect(osc.frequency);
+      osc.connect(vg);
+      vg.connect(lp);
+      osc.start(now);
+      osc.stop(now + duration + 0.03);
+    }
+    vib.start(now);
+    vib.stop(now + duration + 0.03);
+  }
+
+  _celloNote(freq, duration = 0.5, gainPeak = 0.17, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+    const lp = ctx.createBiquadFilter();
+    const amp = ctx.createGain();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(680, now);
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.linearRampToValueAtTime(gainPeak, now + 0.055);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.32, 0);
+
+    for (const v of [
+      { detune: 0.9975, type: 'sawtooth', vol: 0.52 },
+      { detune: 1.0025, type: 'sawtooth', vol: 0.42 },
+      { detune: 1.0, type: 'sine', vol: 0.38 }
+    ]) {
+      const osc = ctx.createOscillator();
+      const vg = ctx.createGain();
+      osc.type = v.type;
+      osc.frequency.setValueAtTime(freq * v.detune, now);
+      vg.gain.setValueAtTime(v.vol, now);
+      osc.connect(vg);
+      vg.connect(lp);
       osc.start(now);
       osc.stop(now + duration + 0.03);
     }
   }
 
-  _acidBass(freq, duration = 0.14, gainPeak = 0.2, delay = 0, targetNode = null) {
+  _harpsichordNote(freq, duration = 0.32, gainPeak = 0.075, delay = 0, targetNode = null) {
+    if (!freq) return;
+    const dest = targetNode || this.bgmBus || this.bgmFilter;
+    this._grandPianoNote(freq, duration, gainPeak, delay, dest);
+  }
+
+  _fluteNote(freq, duration = 0.44, gainPeak = 0.085, delay = 0, targetNode = null) {
     const ctx = this._ensureCtx();
-    if (!ctx || !freq) return;
+    if (!ctx || !freq || gainPeak <= 0) return;
     const now = ctx.currentTime + delay;
-    const dest = targetNode || this.bgmFilter || this.bgmMaster || ctx.destination;
-    const osc = ctx.createOscillator();
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(2200, now);
+
+    const amp = ctx.createGain();
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.linearRampToValueAtTime(gainPeak, now + Math.min(0.065, duration * 0.25));
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    const vib = ctx.createOscillator();
+    const vibGain = ctx.createGain();
+    vib.type = 'sine';
+    vib.frequency.setValueAtTime(5.0, now);
+    vibGain.gain.setValueAtTime(0.01, now);
+    vibGain.gain.linearRampToValueAtTime(2.2, now + Math.min(0.14, duration * 0.45));
+    vib.connect(vibGain);
+
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.52, 0.16);
+
+    for (const v of [
+      { mult: 1.0, type: 'sine', vol: 0.72 },
+      { mult: 1.0, type: 'triangle', vol: 0.24 },
+      { mult: 2.0, type: 'sine', vol: 0.14 }
+    ]) {
+      const osc = ctx.createOscillator();
+      const vg = ctx.createGain();
+      osc.type = v.type;
+      osc.frequency.setValueAtTime(freq * v.mult, now);
+      vibGain.connect(osc.frequency);
+      vg.gain.setValueAtTime(v.vol, now);
+      osc.connect(vg);
+      vg.connect(lp);
+      osc.start(now);
+      osc.stop(now + duration + 0.03);
+    }
+    vib.start(now);
+    vib.stop(now + duration + 0.03);
+  }
+
+  _pizzicatoNote(freq, duration = 0.24, gainPeak = 0.12, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(1400, now);
+    lp.frequency.exponentialRampToValueAtTime(340, now + Math.min(0.14, duration * 0.7));
+
+    const amp = ctx.createGain();
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.008);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.28, 0.06);
+
+    for (const v of [
+      { type: 'triangle', vol: 0.7 },
+      { type: 'sawtooth', vol: 0.32 }
+    ]) {
+      const osc = ctx.createOscillator();
+      const vg = ctx.createGain();
+      osc.type = v.type;
+      osc.frequency.setValueAtTime(freq, now);
+      vg.gain.setValueAtTime(v.vol, now);
+      osc.connect(vg);
+      vg.connect(lp);
+      osc.start(now);
+      osc.stop(now + duration + 0.03);
+    }
+  }
+
+  _rhodesNote(freq, duration = 0.38, gainPeak = 0.12, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(2200, now);
+
+    const amp = ctx.createGain();
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.012);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    const body = ctx.createOscillator();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(freq, now);
+
+    const chorus = ctx.createOscillator();
+    const chorusGain = ctx.createGain();
+    chorus.type = 'triangle';
+    chorus.frequency.setValueAtTime(freq * 0.9985, now);
+    chorusGain.gain.setValueAtTime(0.32, now);
+
+    const tine = ctx.createOscillator();
+    const tineGain = ctx.createGain();
+    tine.type = 'sine';
+    tine.frequency.setValueAtTime(freq * 3, now);
+    tineGain.gain.setValueAtTime(0.26, now);
+    tineGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.065);
+
+    body.connect(lp);
+    chorus.connect(chorusGain);
+    chorusGain.connect(lp);
+    tine.connect(tineGain);
+    tineGain.connect(lp);
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.38, 0.22);
+
+    body.start(now);
+    chorus.start(now);
+    tine.start(now);
+    body.stop(now + duration + 0.03);
+    chorus.stop(now + duration + 0.03);
+    tine.stop(now + 0.08);
+  }
+
+  _accordionNote(freq, duration = 0.28, gainPeak = 0.085, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
     const lp = ctx.createBiquadFilter();
     const amp = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(freq, now);
     lp.type = 'lowpass';
-    lp.Q.setValueAtTime(4.5, now);
-    lp.frequency.setValueAtTime(1600, now);
-    lp.frequency.exponentialRampToValueAtTime(190, now + duration);
+    lp.frequency.setValueAtTime(1550, now);
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.022);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    lp.connect(amp);
+    this._routeVoice(amp, dest, 0.36, 0.18);
+    for (const v of [
+      { detune: 0.995, type: 'sawtooth', vol: 0.34 },
+      { detune: 1.0, type: 'triangle', vol: 0.48 },
+      { detune: 1.005, type: 'sawtooth', vol: 0.34 }
+    ]) {
+      const osc = ctx.createOscillator();
+      const vg = ctx.createGain();
+      osc.type = v.type;
+      osc.frequency.setValueAtTime(freq * v.detune, now);
+      vg.gain.setValueAtTime(v.vol, now);
+      osc.connect(vg);
+      vg.connect(lp);
+      osc.start(now);
+      osc.stop(now + duration + 0.03);
+    }
+  }
+
+  _acidBass(freq, duration = 0.16, gainPeak = 0.18, delay = 0, targetNode = null) {
+    const ctx = this._ensureCtx();
+    if (!ctx || !freq || gainPeak <= 0) return;
+    const now = ctx.currentTime + delay;
+    const dest = targetNode || this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
+    const lp = ctx.createBiquadFilter();
+    const amp = ctx.createGain();
+    lp.type = 'lowpass';
+    lp.Q.setValueAtTime(3.2, now);
+    lp.frequency.setValueAtTime(1350, now);
+    lp.frequency.exponentialRampToValueAtTime(210, now + duration);
     amp.gain.setValueAtTime(0.0001, now);
     amp.gain.exponentialRampToValueAtTime(gainPeak, now + 0.01);
     amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    osc.connect(lp);
+
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(freq, now);
+    subGain.gain.setValueAtTime(0.55, now);
+    sub.connect(subGain);
+    subGain.connect(amp);
+
+    for (const detune of [0.997, 1.003]) {
+      const osc = ctx.createOscillator();
+      const vg = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq * detune, now);
+      vg.gain.setValueAtTime(0.45, now);
+      osc.connect(vg);
+      vg.connect(lp);
+      osc.start(now);
+      osc.stop(now + duration + 0.025);
+    }
     lp.connect(amp);
-    amp.connect(dest);
-    osc.start(now);
-    osc.stop(now + duration + 0.025);
+    this._routeVoice(amp, dest, 0.12, 0.06);
+    sub.start(now);
+    sub.stop(now + duration + 0.025);
   }
 
   playClick() {
@@ -859,59 +1392,81 @@ class SoundEngine {
     const step = this.bgmStep % len;
     const barStep = step % 8;
     const bar = Math.floor(step / 8);
-    const dest = this.bgmFilter || this.bgmMaster || ctx.destination;
+    const dest = this.bgmBus || this.bgmFilter || this.bgmMaster || ctx.destination;
     const chord = st.pads?.[bar % st.pads.length] || st.pad || [];
 
     const bassFreq = st.bass[step];
     const leadFreq = st.lead[step];
     const arpFreq = st.arp?.[step] || 0;
+    const harmony = leadFreq ? this._pickHarmonyNote(leadFreq, chord) : 0;
 
-    if (st.style === 'classical') {
-      if (bassFreq) this._celloNote(bassFreq, 0.44, 0.2, 0, dest);
-      if (leadFreq) this._violinNote(leadFreq, 0.38, 0.125, 0.015, dest);
-      if (arpFreq) this._harpsichordNote(arpFreq, 0.2, 0.075, 0, dest);
-      if (barStep === 0) chord.forEach((pf) => this._violinNote(pf, 1.45, 0.042, 0, dest));
-    } else if (st.style === 'blues') {
-      if (bassFreq) this._tone(bassFreq, 0.2, 'triangle', 0.22, 0, dest);
-      if (leadFreq) this._bluesGuitarNote(leadFreq, 0.25, 0.14, 0.01, dest);
-      if (arpFreq) this._tone(arpFreq, 0.16, 'sine', 0.09, 0.02, dest);
-      if (barStep === 0 || barStep === 3) chord.forEach((pf) => this._tone(pf, 0.22, 'sine', 0.045, 0, dest));
-      if (barStep === 0 || barStep === 4) this._kick(0, dest);
-      if (barStep === 2 || barStep === 6) this._snare(0, 0.075, dest);
-      if (barStep % 2 === 1) this._hihat(0.025, dest, 0.05);
-    } else if (st.style === 'lofi') {
-      if (bassFreq) this._tone(bassFreq, 0.28, 'sine', 0.23, 0, dest);
-      if (leadFreq) this._rhodesNote(leadFreq, 0.3, 0.13, 0.015, dest);
-      if (arpFreq) this._rhodesNote(arpFreq, 0.18, 0.07, 0.03, dest);
-      if (barStep === 0) chord.forEach((pf) => this._rhodesNote(pf, 0.88, 0.055, 0, dest));
-      if (barStep === 0 || barStep === 5) this._kick(0, dest);
-      if (barStep === 2 || barStep === 6) this._snare(0, 0.065, dest);
-      if (barStep % 2 === 1) this._hihat(0.02, dest, 0.045);
-    } else if (st.style === 'nakashi') {
-      if (bassFreq) this._tone(bassFreq, 0.18, 'triangle', 0.22, 0, dest);
-      if (leadFreq) this._accordionNote(leadFreq, 0.22, 0.1, 0.01, dest);
-      if (arpFreq) this._tone(arpFreq, 0.11, 'triangle', 0.085, 0, dest);
-      if (barStep === 1 || barStep === 5) chord.forEach((pf) => this._accordionNote(pf, 0.12, 0.035, 0, dest));
-      if (barStep % 2 === 0) this._kick(0, dest);
-      if (barStep === 2 || barStep === 6) this._woodblock(880, 0, dest);
-      else if (barStep === 7) this._woodblock(1120, 0, dest);
-    } else if (st.style === 'cyber') {
-      if (bassFreq) this._acidBass(bassFreq, 0.14, 0.21, 0, dest);
-      if (leadFreq) this._tone(leadFreq, 0.14, 'sawtooth', 0.125, 0.01, dest);
-      if (arpFreq) this._tone(arpFreq, 0.09, 'square', 0.05, 0, dest);
-      if (barStep === 0) chord.forEach((pf) => this._tone(pf, 0.72, 'sawtooth', 0.035, 0, dest));
-      if (barStep % 2 === 0) this._kick(0, dest);
-      if (barStep === 2 || barStep === 6) this._snare(0, 0.095, dest);
-      this._hihat(0, dest, barStep % 2 === 1 ? 0.075 : 0.035);
+    if (st.style === 'classical_nocturne') {
+      // FM 88.6 蕭邦夜曲 Lento: 溫暖大鋼琴左手琶音＋如歌右手二重奏＋柔和弦樂鋪底
+      if (barStep === 0) this._warmStringChord(chord, 2.2, 0.042, 0, dest);
+      if (bassFreq) this._celloNote(bassFreq, 0.92, 0.145, 0, dest);
+      if (arpFreq) this._grandPianoNote(arpFreq, 0.62, 0.072, 0, dest);
+      if (leadFreq) {
+        this._grandPianoNote(leadFreq, 0.68, 0.115, 0.012, dest);
+        if (harmony) this._grandPianoNote(harmony, 0.56, 0.055, 0.018, dest);
+        if (barStep % 2 === 0) this._fluteNote(leadFreq, 0.54, 0.036, 0.02, dest);
+      }
+    } else if (st.style === 'classical_vivaldi') {
+      // FM 99.9 韋瓦第四季 Allegro: 輕快巴洛克弦樂合奏＋撥弦大提琴＋華麗雙小提琴齊奏
+      if (barStep === 0) this._warmStringChord(chord, 1.15, 0.046, 0, dest);
+      if (bassFreq) {
+        this._celloNote(bassFreq, 0.34, 0.15, 0, dest);
+        this._pizzicatoNote(bassFreq * 2, 0.2, 0.065, 0, dest);
+      }
+      if (arpFreq) this._grandPianoNote(arpFreq, 0.24, 0.068, 0, dest);
+      if (leadFreq) {
+        this._violinNote(leadFreq, 0.28, 0.095, 0.008, dest);
+        if (harmony) this._violinNote(harmony, 0.26, 0.05, 0.012, dest);
+      }
+    } else if (st.style === 'classical_moonlight') {
+      // FM 92.1 貝多芬月光 Adagio: 沉靜流動的鋼琴分解和弦＋深沉大提琴＋長笛/小提琴吟唱
+      if (barStep === 0) this._warmStringChord(chord, 2.0, 0.038, 0, dest);
+      if (bassFreq) this._celloNote(bassFreq, 1.0, 0.165, 0, dest);
+      if (arpFreq) this._grandPianoNote(arpFreq, 0.58, 0.088, 0, dest);
+      if (leadFreq) {
+        this._fluteNote(leadFreq, 0.72, 0.078, 0.018, dest);
+        this._grandPianoNote(leadFreq, 0.65, 0.075, 0.012, dest);
+        if (harmony) this._violinNote(harmony, 0.6, 0.036, 0.02, dest);
+      }
+    } else if (st.style === 'classical_mozart') {
+      // FM 99.7 莫札特小夜曲 Allegro: 維也納室內樂團、清亮長笛與小提琴＋撥弦低音
+      if (barStep === 0) this._warmStringChord(chord, 1.3, 0.044, 0, dest);
+      if (bassFreq) {
+        this._pizzicatoNote(bassFreq * 2, 0.26, 0.1, 0, dest);
+        this._celloNote(bassFreq, 0.38, 0.145, 0, dest);
+      }
+      if (arpFreq) this._grandPianoNote(arpFreq, 0.28, 0.066, 0, dest);
+      if (leadFreq) {
+        this._violinNote(leadFreq, 0.34, 0.092, 0.01, dest);
+        this._fluteNote(leadFreq, 0.32, 0.045, 0.014, dest);
+        if (harmony) this._violinNote(harmony, 0.3, 0.045, 0.015, dest);
+      }
+    } else if (st.style === 'classical_waltz') {
+      // FM 95.3 花之圓舞曲: 浪漫三拍律動圓舞曲、撥弦重拍＋大鋼琴滾奏和弦＋雙管弦主奏
+      if (barStep === 0 || barStep === 4) this._warmStringChord(chord, 1.4, 0.046, 0, dest);
+      if (bassFreq) {
+        this._celloNote(bassFreq, 0.62, 0.16, 0, dest);
+        this._pizzicatoNote(bassFreq * 2, 0.26, 0.08, 0, dest);
+      }
+      if (arpFreq) this._grandPianoNote(arpFreq, 0.38, 0.068, 0, dest);
+      if (leadFreq) {
+        this._fluteNote(leadFreq, 0.48, 0.074, 0.012, dest);
+        this._violinNote(leadFreq, 0.48, 0.062, 0.018, dest);
+        if (harmony) this._violinNote(harmony, 0.42, 0.044, 0.022, dest);
+      }
     } else {
-      // synthwave default
-      if (bassFreq) this._tone(bassFreq, 0.2, 'sawtooth', 0.14, 0, dest);
-      if (leadFreq) this._tone(leadFreq, 0.2, 'sawtooth', 0.12, 0.015, dest);
-      if (arpFreq) this._tone(arpFreq, 0.12, 'triangle', 0.07, 0, dest);
-      if (barStep === 0) chord.forEach((pf) => this._tone(pf, 0.85, 'sine', 0.075, 0, dest));
-      if (barStep === 0 || barStep === 4) this._kick(0, dest);
-      if (barStep === 2 || barStep === 6) this._snare(0, 0.09, dest);
-      if (barStep % 2 === 1) this._hihat(0, dest, 0.065);
+      // FM 101.7 巴洛克卡農 (classical_canon default)
+      if (barStep === 0) this._warmStringChord(chord, 1.9, 0.055, 0, dest);
+      if (bassFreq) this._celloNote(bassFreq, 0.72, 0.165, 0, dest);
+      if (arpFreq) this._grandPianoNote(arpFreq, 0.48, 0.08, 0, dest);
+      if (leadFreq) {
+        this._violinNote(leadFreq, 0.5, 0.095, 0.012, dest);
+        if (harmony) this._violinNote(harmony, 0.44, 0.048, 0.018, dest);
+      }
     }
 
     this.bgmStep += 1;

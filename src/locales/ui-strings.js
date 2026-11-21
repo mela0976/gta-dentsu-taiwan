@@ -34,7 +34,7 @@ export const UI_STRINGS = {
         title: '上場前檢查：戰情數值與一鍵操作捷徑',
         lead: '點擊下方啟動導覽後，系統會直接帶你逛一遍真正的遊戲介面與按鈕位置！',
         cards: [
-          { title: '🔥 五大能力＆通緝星', body: '每次回覆都會改寫肝指數、嘴砲力、真增量、品牌信任與衡斷力；滿 5 星會召來阿嬤救援！' },
+          { title: '🔥 五大能力＆通緝星', body: '每次回覆都會改寫肝指數、溝通力、帶客力、品牌信任與衡斷力；滿 5 星會召來阿嬤救援！' },
           { title: '🎙️ 乾淨人聲配音體驗', body: '背景不自動呢喃打擾閱讀；只在你主動點擊 🔊 按鈕時播放錄音室配音與壓低配樂。' },
           { title: '⌨️ 超順手鍵盤操作', body: '選回覆按 1–4、左右滑卡按 ⬅ / ➡、騎電車按 A / D、過場或復盤按 Space / Enter。' },
           { title: '🛵 2026 電車 × FSD 加分', body: '隨時點頂部橘金色按鈕試駕買菜車衝松仁路，補滿體力並消一顆通緝星。' }
@@ -94,18 +94,18 @@ export const UI_STRINGS = {
     ],
     hudStats: [
       { key: 'stamina', icon: 'liver', label: '肝指數', fullLabel: '🔥 肝指數 (Stamina)', color: '#4ade80', tip: '肝指數：你的體力，歸零會呼叫阿嬤送便當補滿！', helpText: '🔥 肝指數：你的體力，歸零也沒關係，阿嬤會衝來補滿！' },
-      { key: 'streetCred', icon: 'bs', label: '嘴砲力', fullLabel: '🎤 嘴砲力 (Street Cred)', color: '#ff9e2c', tip: '嘴砲力：短期應付高層或客戶的話術能力。', helpText: '🎤 嘴砲力：短期應付老闆的話術，但太高會傷信任。' },
-      { key: 'realLift', icon: 'incrementality', label: '真增量', fullLabel: '📈 真實增量 (Real Lift)', color: '#00e5ff', tip: '真增量：帶進真正新客人的實戰實力。', helpText: '📈 真增量：真正帶進新客人的能力（不把熟客算進來）。' },
+      { key: 'streetCred', icon: 'bs', label: '溝通力', fullLabel: '🎤 溝通力 (Communication)', color: '#ff9e2c', tip: '溝通力：向上管理與對客戶簡報的說服能力。', helpText: '🎤 溝通力：對老闆與客戶的說服力，但光說不練會傷信任。' },
+      { key: 'realLift', icon: 'incrementality', label: '帶客力', fullLabel: '📈 帶客力 (Real Lift)', color: '#00e5ff', tip: '帶客力：帶進真正新客人的實戰實力。', helpText: '📈 帶客力：真正帶進新客人的能力（不把熟客算進來）。' },
       { key: 'brandTrust', icon: 'trust', label: '品牌信任', fullLabel: '🛡️ 品牌信任 (Brand Trust)', color: '#ff52b8', tip: '品牌信任：消費者喜歡並相信品牌的程度。', helpText: '🛡️ 品牌信任：顧客喜歡你的程度，決定長期口碑。' },
       { key: 'judgment', icon: 'judgment', label: '衡斷力', fullLabel: '⚖️ 人類衡斷力 (Judgment)', color: '#ffd166', tip: '衡斷力：分辨真假與做決斷的關鍵能力。', helpText: '⚖️ 衡斷力：分辨對錯的決勝關鍵，決定你的終局稱號！' }
     ],
     radioStations: {
-      synthwave: 'FM 101.7 信義霓虹',
-      lofi: 'FM 88.6 市民爵士',
-      cyber: 'FM 99.9 松仁極速',
-      blues: 'FM 92.1 淡水藍調',
-      classical: 'FM 99.7 音樂廳古典',
-      nakashi: 'FM 95.3 夜市那卡西'
+      synthwave: 'FM 101.7 巴洛克卡農',
+      lofi: 'FM 88.6 蕭邦夜曲',
+      cyber: 'FM 99.9 韋瓦第四季',
+      blues: 'FM 92.1 貝多芬月光',
+      classical: 'FM 99.7 莫札特小夜曲',
+      nakashi: 'FM 95.3 花之圓舞曲'
     },
     welcomeUi: {
       closeEsc: '✕ 關閉 (Esc)',
@@ -422,10 +422,10 @@ export const UI_STRINGS = {
       grandmaScooterRole: '菜市場狂飆',
       scooterLog: (score, j, t) => `剛跑完信義區拿到 ${score} 分！衡斷力 +${j}、品牌信任 +${t}！`,
       specialNotes: {
-        account: '拆彈外交發動：先穩住 CFO 與客戶情緒，通緝星 -1、嘴砲力 +5！',
+        account: '拆彈外交發動：先穩住 CFO 與客戶情緒，通緝星 -1、溝通力 +5！',
         planner: '讀心術發動：同步揭露 Lisa & Cindy 雙重視角，衡斷力 +6！',
         creative: '品味否決權發動：擋下平庸 AI 罐頭，品牌信任 +7！',
-        media: '抓鬼雷達發動：透視虛榮報表口徑，真實增量 +7！',
+        media: '抓鬼雷達發動：透視虛榮報表口徑，帶客力 +7！',
         grandma: '大同電鍋全開！一鍋滷肉飯讓體力回滿 100、通緝星歸零！'
       },
       specialFallback: (name) => `${name} 已發動！`,
@@ -579,12 +579,12 @@ export const UI_STRINGS = {
       { key: 'judgment', icon: 'judgment', label: 'Judge', fullLabel: '⚖️ Judgment', color: '#ffd166', tip: 'Judgment: Seeing past vanity data—the key to your ending title!', helpText: '⚖️ Judgment: The scarce human wisdom that determines your finale persona!' }
     ],
     radioStations: {
-      synthwave: 'FM 101.7 Xinyi Neon',
-      lofi: 'FM 88.6 Civic Lo-Fi',
-      cyber: 'FM 99.9 Songren Pulse',
-      blues: 'FM 92.1 Tamsui Blues',
-      classical: 'FM 99.7 Concert Classical',
-      nakashi: 'FM 95.3 Night Nakashi'
+      synthwave: 'FM 101.7 Canon in D',
+      lofi: 'FM 88.6 Chopin Nocturne',
+      cyber: 'FM 99.9 Vivaldi Spring',
+      blues: 'FM 92.1 Moonlight Adagio',
+      classical: 'FM 99.7 Mozart Serenade',
+      nakashi: 'FM 95.3 Flowers Waltz'
     },
     welcomeUi: {
       closeEsc: '✕ Close (Esc)',
@@ -1058,12 +1058,12 @@ export const UI_STRINGS = {
       { key: 'judgment', icon: 'judgment', label: '判断力', fullLabel: '⚖️ 人間の判断力 (Judgment)', color: '#ffd166', tip: '判断力：データを見極め決断する力。最終称号に直結！', helpText: '⚖️ 判断力：正邪を見抜き外注できない人間力。エンディング評価の鍵！' }
     ],
     radioStations: {
-      synthwave: 'FM 101.7 信義ネオン',
-      lofi: 'FM 88.6 市民ジャズ',
-      cyber: 'FM 99.9 松仁パルス',
-      blues: 'FM 92.1 淡水ブルース',
-      classical: 'FM 99.7 音楽庁クラシック',
-      nakashi: 'FM 95.3 夜市ナカシ'
+      synthwave: 'FM 101.7 カノン (Canon)',
+      lofi: 'FM 88.6 ショパン夜曲',
+      cyber: 'FM 99.9 ヴィヴァルディ春',
+      blues: 'FM 92.1 月光ソナタ',
+      classical: 'FM 99.7 アイネクライネ',
+      nakashi: 'FM 95.3 花のワルツ'
     },
     welcomeUi: {
       closeEsc: '✕ 閉じる (Esc)',
