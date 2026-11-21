@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, 'dist');
@@ -23,30 +24,22 @@ if (MAPS_API_KEY) {
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 
-function copyDir(src, dest) {
+function copyDir(src, dest, transformJs = null) {
   fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
     const s = path.join(src, entry.name);
     const d = path.join(dest, entry.name);
     if (entry.isDirectory()) {
-      copyDir(s, d);
+      copyDir(s, d, transformJs);
     } else if (!entry.name.endsWith('.log') && !entry.name.endsWith('.png')) {
-      fs.copyFileSync(s, d);
+      if (transformJs && entry.name.endsWith('.js')) {
+        fs.writeFileSync(d, transformJs(fs.readFileSync(s, 'utf8')), 'utf8');
+      } else {
+        fs.copyFileSync(s, d);
+      }
     }
   }
 }
-
-const rawIndexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-const injectedIndexHtml = rawIndexHtml.replace(
-  '<script type="module" src="./src/ui-app.js"></script>',
-  `<script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>\n  <script type="module" src="./src/ui-app.js"></script>`
-);
-fs.writeFileSync(path.join(DIST, 'index.html'), injectedIndexHtml, 'utf8');
-if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) {
-  fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(DIST, 'manifest.webmanifest'));
-}
-copyDir(path.join(ROOT, 'src'), path.join(DIST, 'src'));
-copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 
 // Build a single-file offline edition with local images, cutscenes and voices.
 function stripModuleSyntax(code) {
@@ -87,6 +80,28 @@ const bundledModules = [
   'src/responsive-layout.js',
   'src/ui-app.js'
 ].map((rel) => stripModuleSyntax(fs.readFileSync(path.join(ROOT, rel), 'utf8'))).join('\n\n');
+
+const BUILD_VER = crypto.createHash('sha256').update(css).update(bundledModules).digest('hex').slice(0, 10);
+
+function bustRelativeImports(code) {
+  return code
+    .replace(/from\s+(['"])(\.\.?\/[^'"?]+?\.js)\1/g, (_, q, rel) => `from ${q}${rel}?v=${BUILD_VER}${q}`)
+    .replace(/import\(\s*(['"])(\.\.?\/[^'"?]+?\.js)\1\s*\)/g, (_, q, rel) => `import(${q}${rel}?v=${BUILD_VER}${q})`);
+}
+
+const rawIndexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+const injectedIndexHtml = rawIndexHtml
+  .replace('./src/styles.css', `./src/styles.css?v=${BUILD_VER}`)
+  .replace(
+    '<script type="module" src="./src/ui-app.js"></script>',
+    `<script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>\n  <script type="module" src="./src/ui-app.js?v=${BUILD_VER}"></script>`
+  );
+fs.writeFileSync(path.join(DIST, 'index.html'), injectedIndexHtml, 'utf8');
+if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) {
+  fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(DIST, 'manifest.webmanifest'));
+}
+copyDir(path.join(ROOT, 'src'), path.join(DIST, 'src'), bustRelativeImports);
+copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 
 const offlineTypes = { '.webp': 'image/webp', '.mp4': 'video/mp4', '.mp3': 'audio/mpeg' };
 const offlineAssets = {};

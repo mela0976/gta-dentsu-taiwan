@@ -1657,5 +1657,6 @@ class SoundEngine {
   }
 }
 
-export const soundFX = new SoundEngine();
+export const soundFX = (typeof window !== 'undefined' && window.__gtaSoundFX) || new SoundEngine();
+if (typeof window !== 'undefined') window.__gtaSoundFX = soundFX;
 export default soundFX;
