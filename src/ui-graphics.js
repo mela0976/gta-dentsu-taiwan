@@ -261,10 +261,11 @@ export function getFubonA25BlueprintSvg(lang = getLang()) {
   <path d="m55 12 5 7-5 7 5 7-5 7 5 7-5 7 4 5m28-47-5 7 5 7-5 7 5 7-5 7 5 7-4 5M60 12v47m22-47v47" fill="none" stroke="#edfbff" stroke-width=".73"/>
   <path d="M20 59V51l5-3h27v11Z" fill="#224755" stroke="#dbf3f6" stroke-width=".65"/>
   <path d="M24 59v-8m3 8V49m3 10V49m3 10V49m3 10V49m3 10V49m3 10V49m3 10V49m3 10V49" stroke="#f2ffff" stroke-width=".65"/>
-  <path d="M111 59q9-5 3-10t-3-9q12-1 25 0 8 5 1 10t2 9Z" fill="#173a49" stroke="#96cadd" stroke-width=".65"/>
-  <path d="M112 40c32 6 32 12 0 19m24-19c-33 6-32 12 3 19" fill="none" stroke="#cfedf4" stroke-width=".7"/>
-  <path d="M113 42q12 3 24 0m-22 2.5q11 3 24 0m-23 2.5q11 2.5 23 0m-23 3q10 2 21 0m-22 2.5q10 3 21 0m-23 3q12 3 24 0" fill="none" stroke="#81c5a8" stroke-width=".65"/>
-  <path d="M115 43h5m11 3h6m-21 4h4m10 3h6m-21 4h6" stroke="#c8e5a0" stroke-width="1" stroke-linecap="round"/>
+  <path d="M109 59c0-6 2-12 4-19h20c2 7 4 13 4 19Z" fill="#173a49" fill-opacity=".85" stroke="#96cadd" stroke-width=".6"/>
+  <rect x="120" y="40" width="6" height="19" rx="1" fill="#1d658c" stroke="#9be4f8" stroke-width=".5"/>
+  <path d="M116 40q7-2.2 14 0v1.5h-14Z" fill="#234f64" stroke="#cfedf4" stroke-width=".55"/>
+  <path d="M112 43.5h22m-23 3.2h24m-24.5 3.2h25m-25.5 3.2h26m-26.5 3.2h27" stroke="#e4f6fc" stroke-width=".65"/>
+  <path d="M113 42.3h6m8 0h6m-21 3.2h5m10 0h5m-21 3.2h5m11 0h5m-21 3.2h5m11 0h5" stroke="#8fd99c" stroke-width=".85" stroke-linecap="round"/>
   <path d="M17 60h146" stroke="#8cd9e8" stroke-width=".6"/>
   <text x="90" y="69" text-anchor="middle" fill="#c7ecf5" font-family="system-ui, sans-serif" font-size="7.5" font-weight="700" letter-spacing=".55">${lbl}</text>
 </svg>`;

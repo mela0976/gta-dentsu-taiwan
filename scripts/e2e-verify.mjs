@@ -356,6 +356,15 @@ async function run() {
 
       await page.click('.hud-btn.is-radio');
       assert.ok((await page.locator('.hud-btn.is-radio').textContent()).includes('88.6'), `${name}: Radio did not cycle to FM 88.6`);
+      const radioState = await page.evaluate(async () => {
+        const { soundFX } = await import('./src/audio-fx.js');
+        return {
+          bgmActive: Boolean(soundFX.bgmTimer),
+          toastText: document.querySelector('#toast-region')?.textContent || ''
+        };
+      });
+      assert.equal(radioState.bgmActive, true, `${name}: Clicking radio did not activate BGM timer`);
+      assert.ok(radioState.toastText.includes('88.6'), `${name}: Clicking radio did not show FM 88.6 toast`);
 
       await page.click('.reply-btn');
       assert.equal(await page.evaluate(() => localStorage.getItem('gta_dentsu_beginner_tip_v1')), '1', `${name}: First reply did not dismiss beginner tip`);
@@ -411,7 +420,7 @@ async function run() {
         await play.locator('.twin-row').first().click();
         await play.waitForSelector('.replay-btn');
         await play.click('.phone-tab:has-text("阿嬤")');
-        await play.waitForSelector('text=Google Gemini TTS「台灣阿嬤」');
+        await play.waitForSelector('text=台灣阿嬤・菜市場經濟學金句');
         await play.click('button:has-text("重聽金句")');
         await play.click('button:has-text("重聽來電")');
         await play.click('.phone-tab:has-text("GTA6")');

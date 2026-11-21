@@ -332,16 +332,23 @@ class SoundEngine {
 
   setStation(idx) {
     this.stationIndex = ((idx % RADIO_STATIONS.length) + RADIO_STATIONS.length) % RADIO_STATIONS.length;
-    if (this.bgmTimer) {
-      this.stopBGM();
+    this.bgmStep = 0;
+    this.stopBGM();
+    if (!this.muted) {
       this.startBGM();
     }
     return this.getCurrentStation();
   }
 
+  playRadioTune(stationIdx = 0) {
+    this._tone(320 + stationIdx * 90, 0.05, 'sawtooth', 0.04, 0);
+    this._tone(520 + stationIdx * 110, 0.08, 'sine', 0.055, 0.045);
+  }
+
   nextStation() {
-    this.playClick();
-    return this.setStation(this.stationIndex + 1);
+    const nextIdx = (this.stationIndex + 1) % RADIO_STATIONS.length;
+    this.playRadioTune(nextIdx);
+    return this.setStation(nextIdx);
   }
 
   _tone(freq, duration = 0.12, type = 'triangle', gainPeak = 0.12, delay = 0, targetNode = null) {
@@ -370,7 +377,7 @@ class SoundEngine {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(125, now);
     osc.frequency.exponentialRampToValueAtTime(38, now + 0.11);
-    gain.gain.setValueAtTime(0.072, now);
+    gain.gain.setValueAtTime(0.26, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
     osc.connect(gain);
     gain.connect(targetNode || this.bgmFilter || this.bgmMaster || ctx.destination);
@@ -394,7 +401,7 @@ class SoundEngine {
     filter.type = 'highpass';
     filter.frequency.setValueAtTime(6200, now);
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.016, now);
+    gain.gain.setValueAtTime(0.075, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
     src.connect(filter);
     filter.connect(gain);
@@ -471,29 +478,37 @@ class SoundEngine {
     }
   }
 
+  _playBgmStep() {
+    if (this.muted) return;
+    const ctx = this._ensureCtx();
+    if (!ctx) return;
+    const st = this.getCurrentStation();
+    const step = this.bgmStep % st.bass.length;
+    const dest = this.bgmFilter || this.bgmMaster || ctx.destination;
+
+    const bassFreq = st.bass[step];
+    if (bassFreq) this._tone(bassFreq, 0.22, 'triangle', 0.24, 0, dest);
+
+    const leadFreq = st.lead[step];
+    if (leadFreq) this._tone(leadFreq, 0.16, st.id === 'lofi' ? 'sine' : 'sawtooth', 0.13, 0.02, dest);
+
+    if (step === 0) {
+      st.pad.forEach((pf) => this._tone(pf, 0.65, 'sine', 0.09, 0, dest));
+    }
+
+    if (step % 2 === 0) this._kick(0, dest);
+    if (step % 2 === 1) this._hihat(0, dest);
+
+    this.bgmStep += 1;
+  }
+
   startBGM() {
     if (this.muted || this.bgmTimer || typeof window === 'undefined') return;
+    this._ensureCtx();
     const station = this.getCurrentStation();
+    this._playBgmStep();
     this.bgmTimer = setInterval(() => {
-      if (this.muted) return;
-      const st = this.getCurrentStation();
-      const step = this.bgmStep % st.bass.length;
-      const dest = this.bgmFilter || this.bgmMaster || this.ctx?.destination;
-
-      const bassFreq = st.bass[step];
-      if (bassFreq) this._tone(bassFreq, 0.2, 'triangle', 0.036, 0, dest);
-
-      const leadFreq = st.lead[step];
-      if (leadFreq) this._tone(leadFreq, 0.15, st.id === 'lofi' ? 'sine' : 'sawtooth', 0.012, 0.02, dest);
-
-      if (step === 0) {
-        st.pad.forEach((pf) => this._tone(pf, 0.65, 'sine', 0.011, 0, dest));
-      }
-
-      if (step % 2 === 0) this._kick(0, dest);
-      if (step % 2 === 1) this._hihat(0, dest);
-
-      this.bgmStep += 1;
+      this._playBgmStep();
     }, station.tempoMs);
   }
 

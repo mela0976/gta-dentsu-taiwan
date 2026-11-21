@@ -194,8 +194,8 @@ export const UI_STRINGS = {
       swipeTouchHint: '左右滑動卡片或點下方按鈕作答'
     },
     cutscene: {
-      kickerGrandma: (roleName) => `HIGGSFIELD CUTSCENE · 阿嬤緊急支援（${roleName}）`,
-      kickerRoute: (slot, routeName) => `HIGGSFIELD CUTSCENE · ${slot} · ${routeName}`,
+      kickerGrandma: (roleName) => `CINEMATIC CUTSCENE · 阿嬤緊急支援（${roleName}）`,
+      kickerRoute: (slot, routeName) => `CINEMATIC CUTSCENE · ${slot} · ${routeName}`,
       soundOff: '🔇 點擊開啟影片聲音',
       soundOn: '🔊 影片人聲＋環境音',
       unlockSound: '🔊 點擊開啟影片人聲與環境音效',
@@ -204,7 +204,7 @@ export const UI_STRINGS = {
       noviceTip: '💡 影片會帶你認識這個時段的現場背景；隨時點右上角粉色按鈕（或按空白鍵 Space）即可跳過直接進入選題畫面！'
     },
     sceneCard: {
-      zoneRef: '👀 左邊：現場參考與小抄（不用急著按，想看再看）',
+      zoneRef: '📍 現場實景與情報',
       iframeTitle360: (loc) => `Google 360° 互動街景：${loc}`,
       iframeTitleSat: (loc) => `Google Maps 真實衛星圖：${loc}`,
       realPhotoAlt: (rs) => `A25 完工實拍：${rs}`,
@@ -233,7 +233,7 @@ export const UI_STRINGS = {
     minimap: {
       header: (id) => `2026 信義 GPS · 站點 ${id}/10`,
       toSat: '🗺️ 衛星圖',
-      toJs: '🔑 JS地圖',
+      toJs: '🗺️ 路線地圖',
       toRadar: '📡 切雷達',
       gmapTitle: 'Google Maps 小地圖',
       stationTitle: (id, slot, loc) => `第 ${id} 站 ${slot}｜${loc}`,
@@ -251,7 +251,7 @@ export const UI_STRINGS = {
       relistenAria: (name) => `重聽 ${name}`,
       gta6CharPrefix: '🎭 Lucia × Jason 角色映射：',
       gta6CraftPrefix: '🇹🇼 台灣設計元素：',
-      grandmaVoiceBadge: '🎙️ Google Gemini TTS「台灣阿嬤」台味配音',
+      grandmaVoiceBadge: '👵 台灣阿嬤・菜市場經濟學金句',
       callPrefix: (title, text) => `☎️ ${title}：「${text}」`,
       summonPotBtn: '🍲 呼叫阿嬤大同電鍋（清通緝星＋補滿體力）',
       relistenQuip: '🔊 重聽金句',
@@ -259,7 +259,7 @@ export const UI_STRINGS = {
       headRight: '5G 富邦 A25'
     },
     stage: {
-      actionZone: '🎯 右邊操作區',
+      actionZone: '🎯 臨場決策任務',
       kickerChapter: (badge, slot, id) => `${badge ? `${badge} · ` : ''}${slot} · 第 ${id}／10 站`,
       steps: ['① 讀行程與狀況', '② 選臨場回覆', '③ 解專屬題目', '④ 年鑑金句復盤'],
       beginnerTip: '🐣 新手提示：看完 LINE 直接點 1–4 回覆（選錯不會死！）；左欄線索卡關再看。',
@@ -334,13 +334,13 @@ export const UI_STRINGS = {
       hudFmt: (t, s, hearts, shield) => `⏱ ${t}s · 💰 ${s}分 · ❤️ ${hearts}${shield ? ' · 🍲電鍋護盾' : ''}`
     },
     streetViewModal: {
-      apiConnected: (pid, desc) => `🟢 Google Maps API (.env.map) 已連線 · Pano ${pid} (${desc})`,
-      keyLoaded: (pid) => `🟢 .env.map 金鑰已載入 · Pano ${pid}`,
-      officialEmbed: (pid) => `📍 官方 Google 360° 街景 · Pano ${pid}`,
+      apiConnected: (_pid, desc) => `🟢 台北信義區即時街景已連線 · ${desc}`,
+      keyLoaded: () => '🟢 台北信義區即時街景已就緒',
+      officialEmbed: () => '📍 台北信義區 360° 實地街景',
       iframeTitle: (loc) => `Google Maps 360° 全景街景：${loc}`,
       title: (id, loc) => `第 ${id} 站實地踩點：${loc}`,
       tab360: '🌐 360° 全彩街景',
-      tabJs: '🔑 JS API 街景',
+      tabJs: '🗺️ 互動街景',
       closeBtn: '✕ 關閉 (Esc)',
       tip: '👆 可用滑鼠／手指 360° 旋轉環顧四周，或點擊路面箭頭沿松仁路實境前進！',
       openExternal: '↗ 在 Google 地圖全螢幕開啟'
@@ -669,8 +669,8 @@ export const UI_STRINGS = {
       swipeTouchHint: 'Swipe card left/right or tap below'
     },
     cutscene: {
-      kickerGrandma: (roleName) => `HIGGSFIELD CUTSCENE · GRANDMA RESCUE (${roleName})`,
-      kickerRoute: (slot, routeName) => `HIGGSFIELD CUTSCENE · ${slot} · ${routeName}`,
+      kickerGrandma: (roleName) => `CINEMATIC CUTSCENE · GRANDMA RESCUE (${roleName})`,
+      kickerRoute: (slot, routeName) => `CINEMATIC CUTSCENE · ${slot} · ${routeName}`,
       soundOff: '🔇 Enable Video Audio',
       soundOn: '🔊 Voice + Ambience',
       unlockSound: '🔊 Tap to Enable Cutscene Audio',
@@ -679,7 +679,7 @@ export const UI_STRINGS = {
       noviceTip: '💡 Watch the scene briefing or click the pink button (or Space) anytime to jump straight into decisions!'
     },
     sceneCard: {
-      zoneRef: '👀 LEFT: LIVE SCENE & CLUES (OPTIONAL REFERENCE)',
+      zoneRef: '📍 Field Scene & Intel',
       iframeTitle360: (loc) => `Google 360° Street View: ${loc}`,
       iframeTitleSat: (loc) => `Google Maps Satellite: ${loc}`,
       realPhotoAlt: (rs) => `Fubon A25 Street Photo: ${rs}`,
@@ -708,7 +708,7 @@ export const UI_STRINGS = {
     minimap: {
       header: (id) => `2026 Xinyi GPS · Stop ${id}/10`,
       toSat: '🗺️ Map',
-      toJs: '🔑 JS Map',
+      toJs: '🗺️ Route Map',
       toRadar: '📡 Radar',
       gmapTitle: 'Google Maps Minimap',
       stationTitle: (id, slot, loc) => `Stop ${id} ${slot} | ${loc}`,
@@ -726,7 +726,7 @@ export const UI_STRINGS = {
       relistenAria: (name) => `Replay ${name}`,
       gta6CharPrefix: '🎭 Lucia × Jason Parallel: ',
       gta6CraftPrefix: '🇹🇼 Taipei Craft Details: ',
-      grandmaVoiceBadge: '🎙️ Google Gemini TTS · Taiwan Grandma Voice',
+      grandmaVoiceBadge: '👵 Taiwan Grandma · Market Wisdom',
       callPrefix: (title, text) => `☎️ ${title}: "${text}"`,
       summonPotBtn: '🍲 Summon Grandma’s Rice Cooker (Clear Stars + Full Stamina)',
       relistenQuip: '🔊 Replay Quip',
@@ -734,7 +734,7 @@ export const UI_STRINGS = {
       headRight: '5G Fubon A25'
     },
     stage: {
-      actionZone: '🎯 RIGHT DECISION STAGE',
+      actionZone: '🎯 Mission Decision',
       kickerChapter: (badge, slot, id) => `${badge ? `${badge} · ` : ''}${slot} · Stop ${id}/10`,
       steps: ['① Situation', '② Reply', '③ Challenge', '④ Takeaway'],
       beginnerTip: '🐣 Beginner tip: Read the LINE ping, then click any reply 1–4 (no wrong moves end your run!).',
@@ -809,13 +809,13 @@ export const UI_STRINGS = {
       hudFmt: (t, s, hearts, shield) => `⏱ ${t}s · 💰 ${s} pts · ❤️ ${hearts}${shield ? ' · 🍲Shield ON' : ''}`
     },
     streetViewModal: {
-      apiConnected: (pid, desc) => `🟢 Google Maps API (.env.map) Connected · Pano ${pid} (${desc})`,
-      keyLoaded: (pid) => `🟢 API Key Loaded · Pano ${pid}`,
-      officialEmbed: (pid) => `📍 Official Google 360° Street View · Pano ${pid}`,
+      apiConnected: (_pid, desc) => `🟢 Live Taipei Street View Connected · ${desc}`,
+      keyLoaded: () => '🟢 Live Taipei Street View Ready',
+      officialEmbed: () => '📍 Taipei 360° Street View',
       iframeTitle: (loc) => `Google Maps 360° Panorama: ${loc}`,
       title: (id, loc) => `Stop ${id} Location Scout: ${loc}`,
       tab360: '🌐 360° Street View',
-      tabJs: '🔑 JS API View',
+      tabJs: '🗺️ Interactive View',
       closeBtn: '✕ Close (Esc)',
       tip: '👆 Drag to look around 360° or click road arrows along Songren Rd!',
       openExternal: '↗ Open Fullscreen in Google Maps'
@@ -1144,8 +1144,8 @@ export const UI_STRINGS = {
       swipeTouchHint: 'カードを左右スワイプまたは下で選択'
     },
     cutscene: {
-      kickerGrandma: (roleName) => `HIGGSFIELD CUTSCENE · おばあちゃん緊急出動（${roleName}）`,
-      kickerRoute: (slot, routeName) => `HIGGSFIELD CUTSCENE · ${slot} · ${routeName}`,
+      kickerGrandma: (roleName) => `CINEMATIC CUTSCENE · おばあちゃん緊急出動（${roleName}）`,
+      kickerRoute: (slot, routeName) => `CINEMATIC CUTSCENE · ${slot} · ${routeName}`,
       soundOff: '🔇 クリックして動画音声をON',
       soundOn: '🔊 ボイス＋環境音',
       unlockSound: '🔊 クリックして動画音声を有効化',
@@ -1154,7 +1154,7 @@ export const UI_STRINGS = {
       noviceTip: '💡 この時間帯の現場導入ムービーです。右上のピンクボタン（または Space キー）でいつでも本編へ進めます！'
     },
     sceneCard: {
-      zoneRef: '👀 左側：現場ビジュアル＆ヒント参照エリア（任意確認）',
+      zoneRef: '📍 現場ビュー＆インテル',
       iframeTitle360: (loc) => `Google 360° ストリートビュー：${loc}`,
       iframeTitleSat: (loc) => `Google マップ衛星画像：${loc}`,
       realPhotoAlt: (rs) => `富邦 A25 実写：${rs}`,
@@ -1183,7 +1183,7 @@ export const UI_STRINGS = {
     minimap: {
       header: (id) => `2026 信義 GPS · 駅 ${id}/10`,
       toSat: '🗺️ 地図図',
-      toJs: '🔑 JS地図',
+      toJs: '🗺️ ルート地図',
       toRadar: '📡 レーダー',
       gmapTitle: 'Google マップミニ地図',
       stationTitle: (id, slot, loc) => `第 ${id} 駅 ${slot}｜${loc}`,
@@ -1201,7 +1201,7 @@ export const UI_STRINGS = {
       relistenAria: (name) => `${name}を再生`,
       gta6CharPrefix: '🎭 Lucia × Jason 対比：',
       gta6CraftPrefix: '🇹🇼 台湾ディテール：',
-      grandmaVoiceBadge: '🎙️ Google Gemini TTS「台湾おばあちゃん」音声',
+      grandmaVoiceBadge: '👵 台湾おばあちゃん・市場の知恵',
       callPrefix: (title, text) => `☎️ ${title}：「${text}」`,
       summonPotBtn: '🍲 電鍋おばあちゃん召喚（手配★解除＋体力全快）',
       relistenQuip: '🔊 格言を聴く',
@@ -1209,7 +1209,7 @@ export const UI_STRINGS = {
       headRight: '5G 富邦 A25'
     },
     stage: {
-      actionZone: '🎯 右側操作エリア',
+      actionZone: '🎯 ミッション決断',
       kickerChapter: (badge, slot, id) => `${badge ? `${badge} · ` : ''}${slot} · 第 ${id}／10 駅`,
       steps: ['① 状況確認', '② 返信選択', '③ 実務テスト', '④ 知恵のまとめ'],
       beginnerTip: '🐣 ヒント：LINE危機を読んだら1〜4どれかを選択（不正解で終了しません！）。困ったら左のメモを確認。',
@@ -1284,13 +1284,13 @@ export const UI_STRINGS = {
       hudFmt: (t, s, hearts, shield) => `⏱ ${t}秒 · 💰 ${s}pt · ❤️ ${hearts}${shield ? ' · 🍲電鍋シールド' : ''}`
     },
     streetViewModal: {
-      apiConnected: (pid, desc) => `🟢 Google Maps API 接続済 · Pano ${pid} (${desc})`,
-      keyLoaded: (pid) => `🟢 APIキー読込済 · Pano ${pid}`,
-      officialEmbed: (pid) => `📍 公式 Google 360° ストリートビュー · Pano ${pid}`,
+      apiConnected: (_pid, desc) => `🟢 台北リアルタイム街景接続済 · ${desc}`,
+      keyLoaded: () => '🟢 台北リアルタイム街景準備完了',
+      officialEmbed: () => '📍 台北 360° ストリートビュー',
       iframeTitle: (loc) => `Google マップ 360° パノラマ：${loc}`,
       title: (id, loc) => `第 ${id} 駅 現地ロケハン：${loc}`,
       tab360: '🌐 360° 街並み',
-      tabJs: '🔑 JS API 表示',
+      tabJs: '🗺️ インタラクティブ街景',
       closeBtn: '✕ 閉じる (Esc)',
       tip: '👆 ドラッグで360°見回したり、松仁路の矢印をクリックして路上移動できます！',
       openExternal: '↗ Google マップ全画面で開く'

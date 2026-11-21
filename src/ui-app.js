@@ -2037,10 +2037,16 @@ class GtaDentsuApp {
       'aria-label': t('hud.radioAria'),
       text: `📻 ${curStationName}`,
       onClick: (e) => {
+        if (this.muted) {
+          this.muted = false;
+          soundFX.setMuted(false);
+          document.querySelectorAll('[data-mute-btn]').forEach((b) => { b.textContent = t('hud.soundOn'); });
+        }
         const st = soundFX.nextStation();
         this._saveAudioPrefs();
         const name = (t('radioStations') || {})[st.id] || st.short;
         e.currentTarget.textContent = `📻 ${name}`;
+        this._showToast(`📻 ${name}`, 'info', 2000);
       }
     });
 
