@@ -1,4 +1,5 @@
 // Web Audio API 多軌 GTA 台北車載電台配樂合成器 ＋ 全角色台灣語音播報引擎（零外部音訊依賴）
+import { gameAssetUrl } from './game-assets.js';
 
 export const RADIO_STATIONS = [
   {
@@ -583,7 +584,7 @@ class SoundEngine {
   }
 
   _playClipFile(clipUrl, _clean, _roleKey, token) {
-    const audio = new Audio(clipUrl);
+    const audio = new Audio(gameAssetUrl(clipUrl));
     audio.preload = 'auto';
     audio.volume = 1.0;
     this.activeAudio = audio;

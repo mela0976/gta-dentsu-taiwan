@@ -36,6 +36,7 @@ import {
 } from './game-engine.js';
 import { GrandmaScooterGame } from './scooter-minigame.js';
 import { RADIO_STATIONS, soundFX } from './audio-fx.js';
+import { gameAssetUrl } from './game-assets.js';
 import {
   SVG_GTA_TAIWAN_CREST,
   SVG_IRON_GRILLE_CORNER,
@@ -82,6 +83,7 @@ function el(tag, attrs = {}, children = []) {
   for (const [k, v] of Object.entries(attrs || {})) {
     if (v === undefined || v === null) continue;
     if (k === 'class') node.className = v;
+    else if (k === 'src' || k === 'poster') node.setAttribute(k, gameAssetUrl(v));
     else if (k === 'style') node.setAttribute('style', v);
     else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
     else if (k === 'text') node.textContent = v;
@@ -258,8 +260,8 @@ class GtaDentsuApp {
           nextState.lastRescueMessage = t('engine.cheatUnlockOnly');
         }
       }
+      if (!this._saveState(nextState)) return;
       this.state = nextState;
-      this._saveState();
     }
     this.render();
     if (this.welcomeDialogOpen) {
@@ -315,7 +317,7 @@ class GtaDentsuApp {
       const ch = getCurrentChapter(this.state);
       if (ch && ch.sceneImage) img = ch.sceneImage;
     }
-    this.backdrop.style.backgroundImage = `url("${img}")`;
+    this.backdrop.style.backgroundImage = `url("${gameAssetUrl(img)}")`;
   }
 
   _getMapsApiKey() {
@@ -390,6 +392,7 @@ class GtaDentsuApp {
   _loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      this.savedStateSnapshot = raw;
       if (!raw) return createInitialState();
       const parsed = JSON.parse(raw);
       return sanitizeLoadedState(parsed, createInitialState, CHAPTERS.length);
@@ -665,12 +668,21 @@ class GtaDentsuApp {
     else dlg.setAttribute('open', '');
   }
 
-  _saveState() {
+  _saveState(next) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      const current = localStorage.getItem(STORAGE_KEY);
+      if (this.savedStateSnapshot !== undefined && current !== this.savedStateSnapshot) {
+        window.alert(t('launch.newerSaveNotice'));
+        window.location.reload();
+        return false;
+      }
+      const snapshot = JSON.stringify(next);
+      localStorage.setItem(STORAGE_KEY, snapshot);
+      this.savedStateSnapshot = snapshot;
     } catch {
-      // ignore storage quota errors
+      // Keep the current session playable when storage is unavailable.
     }
+    return true;
   }
 
   _loadTourDone() {
@@ -1097,6 +1109,7 @@ class GtaDentsuApp {
   }
 
   _setState(next) {
+    if (!this._saveState(next)) return;
     const changedView = next.phase !== this.state.phase || next.chapterIndex !== this.state.chapterIndex;
     const enteredReview = next.phase === 'review' && this.state.phase !== 'review';
     const enteredDeltaPhase = (next.phase === 'game' || next.phase === 'reveal') && next.phase !== this.state.phase;
@@ -1117,7 +1130,6 @@ class GtaDentsuApp {
     this.careerMeta = nextMeta;
     this._saveMeta();
     this.state = next;
-    this._saveState();
     this.render();
     if (changedView && !this.layout?.isDesktopLocked) {
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1208,6 +1220,7 @@ class GtaDentsuApp {
 
     // 過場動畫 / 復盤頁支援 Enter / Space 快速前進
     if (e.key === 'Enter' || e.key === ' ') {
+      if (e.defaultPrevented || e.target?.closest?.('button, a[href], select, [role="button"], [contenteditable]')) return;
       if (this.state.phase === 'cutscene') {
         e.preventDefault();
         this._leaveCutscene();
@@ -2146,7 +2159,7 @@ class GtaDentsuApp {
     ]);
 
     return el('div', { class: 'panel scene-card' }, [
-      el('div', { class: 'tex', style: 'background-image:url(./public/images/ui-begonia-glass.webp);', 'aria-hidden': 'true' }),
+      el('div', { class: 'tex', style: `background-image:url("${gameAssetUrl('./public/images/ui-begonia-glass.webp')}");`, 'aria-hidden': 'true' }),
       htmlNode('grille tl', SVG_IRON_GRILLE_CORNER),
       htmlNode('grille tr', SVG_IRON_GRILLE_CORNER),
       el('div', { class: 'zone-tag is-ref', text: t('sceneCard.zoneRef') }),
@@ -2951,13 +2964,16 @@ class GtaDentsuApp {
       const tickLabel = el('div', { class: 'pill', text: t('miniGame.stopWeek', this.stopTick, game.ticks) });
       const statusPill = el('div', { class: 'rescue-toast', style: 'padding:8px 12px;font-size:14px;', text: getStopStatusText(this.stopTick) });
 
+      this.updateStopDisplay = () => {
+        repEl.textContent = String(game.report.start + this.stopTick * game.report.perTick);
+        freshEl.textContent = `${game.fresh.start + this.stopTick * game.fresh.perTick}${game.fresh.unit}`;
+        tickLabel.textContent = t('miniGame.stopWeek', this.stopTick, game.ticks);
+        statusPill.textContent = getStopStatusText(this.stopTick);
+      };
       if (!this.stopTimer && !this.stopFinished) {
         this.stopTimer = setInterval(() => {
           this.stopTick += 1;
-          repEl.textContent = String(game.report.start + this.stopTick * game.report.perTick);
-          freshEl.textContent = `${game.fresh.start + this.stopTick * game.fresh.perTick}${game.fresh.unit}`;
-          tickLabel.textContent = t('miniGame.stopWeek', this.stopTick, game.ticks);
-          statusPill.textContent = getStopStatusText(this.stopTick);
+          this.updateStopDisplay();
           if (this.stopTick >= game.ticks) {
             this._clearStopTimer();
             this.stopFinished = true;

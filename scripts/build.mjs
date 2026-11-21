@@ -48,7 +48,7 @@ if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) {
 copyDir(path.join(ROOT, 'src'), path.join(DIST, 'src'));
 copyDir(path.join(ROOT, 'public'), path.join(DIST, 'public'));
 
-// Build standalone single-file HTML bundle (no external CSS/JS module requests, loads ./public assets if beside dist)
+// Build a single-file offline edition with local images, cutscenes and voices.
 function stripModuleSyntax(code) {
   return code
     .replace(/^import\s*\{[\s\S]*?\}\s*from\s*['"]\.[^'"]*['"];\s*$/gm, '')
@@ -70,6 +70,7 @@ const bundledModules = [
   'src/locales/roles-ja-1.js',
   'src/locales/roles-ja-2.js',
   'src/i18n.js',
+  'src/game-assets.js',
   'src/audio-fx.js',
   'src/game-engine.js',
   'src/scooter-minigame.js',
@@ -78,6 +79,16 @@ const bundledModules = [
   'src/responsive-layout.js',
   'src/ui-app.js'
 ].map((rel) => stripModuleSyntax(fs.readFileSync(path.join(ROOT, rel), 'utf8'))).join('\n\n');
+
+const offlineTypes = { '.webp': 'image/webp', '.mp4': 'video/mp4', '.mp3': 'audio/mpeg' };
+const offlineAssets = {};
+const publicDir = path.join(DIST, 'public');
+for (const relativePath of fs.readdirSync(publicDir, { recursive: true })) {
+  const type = offlineTypes[path.extname(relativePath)];
+  if (!type) continue;
+  const base64 = fs.readFileSync(path.join(publicDir, relativePath)).toString('base64');
+  offlineAssets[`./public/${relativePath.split(path.sep).join('/')}`] = { type, base64 };
+}
 
 const standaloneHtml = `<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -92,7 +103,7 @@ const standaloneHtml = `<!DOCTYPE html>
 </head>
 <body>
   <div id="app" class="gta-shell"></div>
-  <script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>
+  <script>window.__GTA_OFFLINE_ASSETS__ = ${JSON.stringify(offlineAssets)};</script>
   <script>
 (() => {
 'use strict';

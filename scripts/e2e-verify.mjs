@@ -4,6 +4,7 @@ import http from 'node:http';
 import assert from 'node:assert/strict';
 import os from 'node:os';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, 'dist');
@@ -639,18 +640,31 @@ async function run() {
     // 4. Standalone single-file HTML smoke check
     const solo = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
     attachErrorWatchers(solo, 'standalone-1920');
-    await solo.goto(`${baseUrl}/gta-dentsu-taiwan-standalone.html`, { waitUntil: 'networkidle' });
-    await solo.click('.hero-actions .btn-primary');
-    await solo.waitForSelector('.role-card');
-    await solo.click('.role-card');
-    await solo.waitForSelector('.cutscene-video');
-    await solo.click('.chapter-header .btn-primary');
-    await solo.waitForSelector('.play-grid');
-    await checkImagesLoaded(solo, 'standalone-scene');
-    await checkDesktopGeometry(solo, 'standalone-1920-scene', false);
-    if (ssDir) await solo.screenshot({ path: path.join(ssDir, 'e2e-1920-standalone.png') });
-    await solo.close();
-
+    const offlineCopy = fs.mkdtempSync(path.join(os.tmpdir(), 'gta-offline-'));
+    const offlineHtml = path.join(offlineCopy, 'game.html');
+    fs.copyFileSync(path.join(DIST, 'gta-dentsu-taiwan-standalone.html'), offlineHtml);
+    await solo.context().setOffline(true);
+    try {
+      await solo.goto(pathToFileURL(offlineHtml).href);
+      await solo.click('.hero-actions .btn-primary');
+      await solo.waitForSelector('.role-card');
+      await solo.click('.role-card');
+      await solo.waitForFunction(() => {
+        const video = document.querySelector('.cutscene-video');
+        return video?.currentSrc.startsWith('blob:') && video.readyState >= 1;
+      });
+      assert.equal(await solo.evaluate(() => {
+        const assets = window.__GTA_OFFLINE_ASSETS__;
+        return Object.values(assets).filter(asset => asset.type === 'audio/mpeg').length;
+      }), 354);
+      await solo.click('.chapter-header .btn-primary');
+      await solo.waitForSelector('.play-grid');
+      await checkImagesLoaded(solo, 'standalone-scene');
+      await checkDesktopGeometry(solo, 'standalone-1920-scene', false);
+    } finally {
+      await solo.close();
+      fs.rmSync(offlineCopy, { recursive: true, force: true });
+    }
     // 5. Interactive Step-by-Step Onboarding (<dialog>) & 7-Step Live HUD Tour (popover="manual")
     const tourPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     attachErrorWatchers(tourPage, 'onboarding-tour');
@@ -1082,6 +1096,66 @@ async function run() {
       }
     }
     await dynPage.close();
+
+    // Narrow tabletop: the last role can be reached through the upper pane scroller.
+    const roster = await browser.newPage({ viewport: { width: 320, height: 650 }, hasTouch: true, isMobile: true });
+    attachErrorWatchers(roster, 'tabletop-roster');
+    const rosterDevice = await roster.context().newCDPSession(roster);
+    await rosterDevice.send('Emulation.setDeviceMetricsOverride', {
+      width: 320, height: 650, deviceScaleFactor: 1, mobile: true,
+      displayFeature: { orientation: 'horizontal', offset: 310, maskLength: 30 }
+    });
+    await roster.goto(baseUrl);
+    await roster.click('.hero-actions .btn-primary');
+    await roster.keyboard.type('AMA666');
+    await roster.locator('.role-card.is-grandma').click();
+    await roster.waitForSelector('.cutscene-video');
+    await roster.close();
+
+    // A long-running stop game updates the current DOM after a layout transition.
+    const timed = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true });
+    attachErrorWatchers(timed, 'timed-unfold');
+    await timed.goto(baseUrl);
+    await timed.evaluate(async () => {
+      const { createInitialState, selectRole } = await import('./src/game-engine.js');
+      const state = selectRole(createInitialState(), 'account');
+      localStorage.setItem('gta_dentsu_taiwan_v1', JSON.stringify({ ...state, phase: 'scene', chapterIndex: 7 }));
+    });
+    await timed.reload();
+    await timed.locator('.reply-btn').first().click();
+    await timed.locator('.stop-val').first().waitFor();
+    await timed.setViewportSize({ width: 768, height: 904 });
+    await timed.waitForFunction(() => document.documentElement.dataset.layoutMode === 'medium');
+    const value = await timed.locator('.stop-val').first().textContent();
+    await timed.waitForFunction(old => document.querySelector('.stop-val')?.textContent !== old, value);
+    assert.ok(await timed.locator('.stop-val').first().isVisible());
+    await timed.close();
+
+    const saveContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    const saveA = await saveContext.newPage();
+    await saveA.goto(baseUrl);
+    await saveA.click('.hero-actions .btn-primary');
+    await saveA.locator('.role-card').first().click();
+    await saveA.click('.chapter-header .btn-primary');
+    const saveB = await saveContext.newPage();
+    await saveB.goto(baseUrl);
+    await saveA.locator('.reply-btn').first().click();
+    await saveA.locator('.paper-card').first().click();
+    const key = 'gta_dentsu_taiwan_v1';
+    const newerSave = await saveA.evaluate(key => localStorage.getItem(key), key);
+    const conflict = saveB.waitForEvent('dialog');
+    const staleClick = saveB.locator('.reply-btn').first().click();
+    const notice = await conflict;
+    assert.match(notice.message(), /另一個分頁已更新存檔/);
+    await notice.accept();
+    await staleClick;
+    await saveB.waitForSelector('.takeaway-card');
+    assert.equal(await saveB.evaluate(key => localStorage.getItem(key), key), newerSave);
+    const voiceButton = saveB.locator('.takeaway-card .replay-btn');
+    await voiceButton.focus();
+    await saveB.keyboard.press('Enter');
+    assert.ok(await voiceButton.isVisible(), 'Enter on replay button must not advance the chapter');
+    await saveContext.close();
 
     assert.deepEqual(errors, [], `Browser errors detected:\n${errors.join('\n')}`);
     console.log('E2E VERIFY PASSED: zh/en/ja (354 MP3s, 9 MP4s), full responsive & foldable suite (280x653, 320x320, 344x882, 375x667, 390x844, 667x375, 844x390, 690x829, 840x840, 768x1024, 1024x540, 1024x720, fold-book 1114x720, fold-flex 412x915, 1280x800, 1920x1080, 2560x1080 + live fold/unfold/rotate), 0 Web Speech murmuring, and standalone HTML verified with 0 errors.');
