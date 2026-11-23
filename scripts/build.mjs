@@ -97,6 +97,9 @@ const injectedIndexHtml = rawIndexHtml
     `<script>window.__GOOGLE_MAPS_API_KEY__ = ${JSON.stringify(MAPS_API_KEY)};</script>\n  <script type="module" src="./src/ui-app.js?v=${BUILD_VER}"></script>`
   );
 fs.writeFileSync(path.join(DIST, 'index.html'), injectedIndexHtml, 'utf8');
+if (fs.existsSync(path.join(ROOT, 'slides.html'))) {
+  fs.copyFileSync(path.join(ROOT, 'slides.html'), path.join(DIST, 'slides.html'));
+}
 if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) {
   fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(DIST, 'manifest.webmanifest'));
 }

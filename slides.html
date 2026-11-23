@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 分鐘作品簡報｜GTA 電通台北：決策智慧十年對決</title>
+  <meta name="description" content="《決策智慧》10 週年 Vibe Coding 競賽 3 分鐘互動簡報：作品名稱、描述、製作緣由、操作說明與技術架構。" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23006b54'/><rect x='2' y='2' width='28' height='28' rx='6' fill='none' stroke='%23ffffff' stroke-width='2'/><text x='16' y='21' text-anchor='middle' font-family='sans-serif' font-size='13' font-weight='bold' fill='%23ffffff'>A25</text></svg>" />
+  <style>
+    :root {
+      --bg: #0b0616;
+      --bg-card: rgba(20, 12, 38, 0.9);
+      --ink: #f6f1ff;
+      --muted: #b6abcf;
+      --pink: #ff4fa3;
+      --cyan: #00e5ff;
+      --gold: #ffd166;
+      --lime: #a8ff3e;
+      --orange: #ff8c42;
+      --border: rgba(0, 229, 255, 0.28);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255, 79, 163, 0.2), transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(0, 229, 255, 0.16), transparent 45%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .deck {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      height: 100dvh;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 14px 22px;
+      gap: 12px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 14px;
+      border-radius: 14px;
+      background: rgba(15, 9, 30, 0.88);
+      border: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+    }
+    .tag {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      color: #1a0d00;
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pace-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      color: var(--cyan);
+      font-variant-numeric: tabular-nums;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--ink);
+      transition: transform 0.14s ease, border-color 0.14s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--cyan); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--orange));
+      color: #16081c;
+      border-color: transparent;
+    }
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--cyan), #6cf5ff);
+      color: #08121f;
+      border-color: transparent;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 0;
+    }
+    .slide {
+      display: none;
+      height: 100%;
+      padding: 24px 28px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      overflow-y: auto;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      animation: fadeIn 200ms ease-out;
+    }
+    .slide.is-active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .kicker {
+      font-size: 12.5px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 3.8vw, 50px);
+      line-height: 1.15;
+      font-weight: 900;
+      background: linear-gradient(90deg, #fff, var(--gold), var(--pink));
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(22px, 2.8vw, 34px);
+      line-height: 1.22;
+      color: var(--gold);
+    }
+    p.lead {
+      margin: 0;
+      font-size: clamp(15px, 1.5vw, 19px);
+      line-height: 1.65;
+      color: #efeafd;
+      max-width: 900px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      align-items: stretch;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      padding: 15px 17px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card.is-cyan { border-color: rgba(0, 229, 255, 0.45); background: rgba(0, 229, 255, 0.07); }
+    .card.is-pink { border-color: rgba(255, 79, 163, 0.48); background: rgba(255, 79, 163, 0.08); }
+    .card.is-gold { border-color: rgba(255, 209, 102, 0.5); background: rgba(255, 209, 102, 0.08); }
+    .card.is-lime { border-color: rgba(168, 255, 62, 0.45); background: rgba(168, 255, 62, 0.07); }
+    .card h3 {
+      margin: 0;
+      font-size: 16.5px;
+      color: var(--gold);
+      line-height: 1.3;
+    }
+    .card p, .card li {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: #e6dcf7;
+    }
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-frame {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 229, 255, 0.45);
+      background: #06030d;
+      aspect-ratio: 16 / 9;
+      position: relative;
+    }
+    .hero-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero-caption {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 8px 12px;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.88), transparent);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .role-mini {
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+    .role-mini.is-grandma { border-color: var(--gold); background: rgba(255, 209, 102, 0.09); }
+    .role-mini img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #170d2c;
+    }
+    .role-mini b { font-size: 14px; color: var(--gold); }
+    .role-mini span { font-size: 12px; color: #ddd2f5; line-height: 1.38; }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-weight: 800;
+      font-size: 12.5px;
+      color: var(--gold);
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 14px;
+      border-radius: 14px;
+      background: rgba(15, 9, 30, 0.88);
+      border: 1px solid var(--border);
+    }
+    .dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.22);
+      transition: width 0.2s ease, background 0.2s ease;
+    }
+    .dot.is-active {
+      width: 28px;
+      background: var(--cyan);
+    }
+    .nav-btns { display: flex; gap: 8px; align-items: center; }
+    .slide-counter { font-size: 13px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 860px) {
+      .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+      .deck { padding: 8px 10px; }
+      .slide { padding: 16px; justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <header class="topbar">
+      <div class="brand">
+        <span class="tag">3 分鐘競賽簡報</span>
+        <span>《決策智慧》10 週年 Vibe Coding 集團競賽</span>
+      </div>
+      <div class="top-actions">
+        <span class="pace-pill" id="paceLabel">建議節奏 0:00–0:20</span>
+        <a class="btn btn-primary" href="./index.html" target="_blank" rel="noopener noreferrer">🎮 開啟互動網站</a>
+      </div>
+    </header>
+
+    <main class="stage" id="stage">
+      <!-- Slide 1 -->
+      <section class="slide is-active" data-pace="建議節奏 0:00–0:20（封面與作品名稱）">
+        <div class="grid-2" style="align-items:center;">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="kicker">SLIDE 1 / 8 · PROJECT TITLE & OVERVIEW</div>
+            <h1>GTA 電通台北：<br/>決策智慧十年對決</h1>
+            <p class="lead">
+              <b>Grand Decisions: Dentsu Taipei 2016–2026</b><br/>
+              把電通《決策智慧》橫跨 9 本年鑑的產業洞察，做成台北信義區實景 RPG 冒險。不是被動翻書，而是讓你親自上線扛一次代理商的一天。
+            </p>
+            <div class="card is-gold">
+              <h3>參賽資訊與作品入口</h3>
+              <p>
+                <b>參賽者：</b>蔡政霖 Lewis Tsai（DSC）<br/>
+                <b>遊戲網址：</b><code>https://mela0976.github.io/gta-dentsu-taiwan/</code><br/>
+                <b>語系支援：</b>繁體中文 / English / 日本語（一鍵即時切換）
+              </p>
+            </div>
+          </div>
+          <div class="hero-frame">
+            <img src="./public/images/scene-morning-scooter.webp" alt="GTA 電通台北晨間機車瀑布進場畫面" />
+            <div class="hero-caption">📍 08:00 AM 台北橋機車瀑布 ➔ 松仁路富邦 A25｜GTA6 × 台灣代理商美學</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 2 -->
+      <section class="slide" data-pace="建議節奏 0:20–0:50（製作緣由與作品描述）">
+        <div class="kicker">SLIDE 2 / 8 · MOTIVATION & DESCRIPTION</div>
+        <h2>為什麼把《決策智慧》做成 RPG 冒險遊戲？</h2>
+        <div class="grid-2">
+          <div class="card is-pink">
+            <h3>📌 製作緣由：解決年鑑「看過就忘」的痛點</h3>
+            <ul>
+              <li><b>資訊密度極高：</b>2016–2026 九本年鑑涵蓋歸因錯覺、AI 浪潮、RMN、演算法與定價倫理，單靠文字很難讓人產生體感。</li>
+              <li><b>需要真實代入：</b>同一個客戶危機，業務、策略、創意與媒體看到的角度完全不同；只有親手做出取捨並承擔分數與通緝星後果，金句才會留下來。</li>
+              <li><b>跨語系與零門檻：</b>打造手機、桌機與摺疊機都能一秒打開免登入、還帶語音配音的互動網頁，讓集團同仁像玩遊戲一樣讀完十年精華。</li>
+            </ul>
+          </div>
+          <div class="card is-cyan">
+            <h3>🕹️ 作品描述：10 個台北真實時段 × 9 本年鑑核心洞察</h3>
+            <ul>
+              <li>從清晨 08:00 台北橋機車瀑布出發，經過松仁路富邦 A25 會議室、暴雨便當路邊、內湖片場、深夜加班，一路走到晚上 22:30 臨江街熱炒慶功。</li>
+              <li>結合<b>數位孿生雙胞胎（Lisa & Cindy）</b>、<b>Google 360° 街景與台北戰術雷達</b>，打造沉浸式「代理商一日生存戰」。</li>
+              <li>最終帶走核心結論：<b>「十年前相信數據能取代判斷；十年後的結論是：判斷不能外包。」</b></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 3 -->
+      <section class="slide" data-pace="建議節奏 0:50–1:15（5 種職場角色與差異化路線）">
+        <div class="kicker">SLIDE 3 / 8 · 5 PLAYABLE ROLES & DISTINCT STORYLINES</div>
+        <h2>五種角色五條獨立路線：不同職責，解決不同真實難題</h2>
+        <p class="lead">每位角色擁有專屬台北行程、獨立 LINE 危機、桌邊線索與客製化小遊戲題目，絕不是同一題換句話問。</p>
+        <div class="grid-5">
+          <div class="role-mini">
+            <img src="./public/images/role-account.webp" alt="業務領航總監" />
+            <b>業務領航總監</b>
+            <span>扛營收續約、預算砍半與客戶議價談判。</span>
+          </div>
+          <div class="role-mini">
+            <img src="./public/images/role-planner.webp" alt="品牌策略與洞察師" />
+            <b>品牌策略師</b>
+            <span>★ 新手推薦：全局視野解讀商業增長與人本洞察。</span>
+          </div>
+          <div class="role-mini">
+            <img src="./public/images/role-creative.webp" alt="創意與內容總監" />
+            <b>創意總監</b>
+            <span>守住品牌靈魂、美感留白與 AI 創作協作邊界。</span>
+          </div>
+          <div class="role-mini">
+            <img src="./public/images/role-media.webp" alt="媒體採購與數據獵人" />
+            <b>媒體數據獵人</b>
+            <span>抓出黑箱歸因、真增量與演算法過度收割。</span>
+          </div>
+          <div class="role-mini is-grandma">
+            <img src="./public/images/role-grandma.webp" alt="台灣阿嬤顧問" />
+            <b>👵 台灣阿嬤顧問</b>
+            <span>隱藏神角（AMA666）：用菜市場 60 年常識一句破局！</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 4 -->
+      <section class="slide" data-pace="建議節奏 1:15–1:45（操作描述一：4 步驟核心玩法）">
+        <div class="kicker">SLIDE 4 / 8 · HOW TO PLAY (CORE LOOP)</div>
+        <h2>操作說明（一）：4 步驟玩完每一站，怎麼操作？</h2>
+        <div class="grid-4">
+          <div class="card is-cyan">
+            <h3>① 讀行程與 LINE 危機</h3>
+            <p>進入章節先觀看角色過場動畫（可按 <span class="kbd">Space</span> 跳過），閱讀右側主管／客戶發來的 LINE 急訊並可點擊試聽角色語音。</p>
+          </div>
+          <div class="card is-pink">
+            <h3>② 選 1–4 臨場回覆</h3>
+            <p>點擊或按鍵盤 <span class="kbd">1</span>–<span class="kbd">4</span> 回覆（硬推／短視將升「通緝星」🔥；衡斷／品牌將加能力值），不確定時可先偷看左下情報。</p>
+          </div>
+          <div class="card is-gold">
+            <h3>③ 解 6 種互動小遊戲</h3>
+            <ul>
+              <li>策略紙牌單選 / AI 選擇</li>
+              <li>預算滑桿（Drag / 預設）</li>
+              <li>左右滑動卡片快篩</li>
+              <li>複選題組 / 即時煞車計時</li>
+            </ul>
+          </div>
+          <div class="card is-lime">
+            <h3>④ 年鑑金句與能力復盤</h3>
+            <p>揭曉正確邏輯與能力值增減（📈 帶客力、🎤 溝通力等），蓋上宮廟金印「衡斷破局」，第 10 站解鎖結業稱號與分享成績單。</p>
+          </div>
+        </div>
+        <div class="card">
+          <p><b>💡 左側三大輔助情報：</b>① <b>3D 實景 / Google 360° 街景 / 衛星圖 / Tesla FSD 視角切換</b>；② <b>信義 GPS 戰術雷達</b>；③ <b>角色專屬桌邊線索 ＋ 職業必殺技按鈕</b>（可提示正確選項並加分）。</p>
+        </div>
+      </section>
+
+      <!-- Slide 5 -->
+      <section class="slide" data-pace="建議節奏 1:45–2:10（操作描述二：阿嬤秘技與車載系統）">
+        <div class="kicker">SLIDE 5 / 8 · SPECIAL MODES, EASTER EGGS & CONTROLS</div>
+        <h2>操作說明（二）：手機、阿嬤彩蛋、機車小遊戲與快捷鍵</h2>
+        <div class="grid-2">
+          <div class="card is-gold">
+            <h3>👵 阿嬤模組與緊急電鍋救場</h3>
+            <ul>
+              <li><b>一鍵解鎖：</b>封面或選角頁輸入秘技 <span class="kbd">AMA666</span>（或點擊護身符按鈕）即可開啟隱藏角色「滿級台灣阿嬤顧問」。</li>
+              <li><b>5 星救場：</b>若累積滿 5 顆老闆炎上通緝星，不會 Game Over，阿嬤會提著<b>大同電鍋</b>直接殺到現場消星＋補滿體力！</li>
+              <li><b>手機抽屜：</b>右下 iFruit 手機內建 4 分頁：LINE 紀錄、<b>🧠 讀心雙胞胎（Lisa / Cindy）</b>、<b>👵 阿嬤語音</b>與 <b>🎬 GTA6 對照賞析</b>。</li>
+            </ul>
+          </div>
+          <div class="card is-cyan">
+            <h3>🛵 機車飆車、古典樂電台與全裝置操作</h3>
+            <ul>
+              <li><b>機車小遊戲：</b>隨時點頂部「🛵 電動車×FSD」開啟橫向閃避小遊戲（鍵盤 <span class="kbd">←</span> <span class="kbd">→</span> 或觸控左右轉），收集洞察加分減星！</li>
+              <li><b>6 台古典樂電台：</b>按 <span class="kbd">R</span> 或點擊電台按鈕切換巴洛克卡農、蕭邦夜曲、韋瓦第四季、貝多芬月光等 6 首 Web Audio 多聲部編曲；<span class="kbd">M</span> 鍵靜音。</li>
+              <li><b>手機／摺疊機：</b>自動切換底部 4 分頁或雙螢幕並排（fold-book / fold-flex），單手拇指即可順暢遊玩。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 6 -->
+      <section class="slide" data-pace="建議節奏 2:10–2:35（語音、音訊混音與三語支援）">
+        <div class="kicker">SLIDE 6 / 8 · VOICE ACTING, AUDIO MIXING & TRILINGUAL</div>
+        <h2>聲音工藝與三語系即時切換：354 支工作室語音</h2>
+        <div class="grid-3">
+          <div class="card is-gold">
+            <h3>🎙️ VoAI 春枝 × 台灣阿嬤原聲</h3>
+            <p>阿嬤 36 句台詞（名言、5 句救場、10 章金句、10 通來電、10 條專屬線索）與第 6 章救場過場影片，特別採用 <b>VoAI 67 歲「春枝」道地台灣阿嬤聲線</b>錄製並做 `-16 LUFS` 響度正規化。</p>
+          </div>
+          <div class="card is-cyan">
+            <h3>🎧 零外包瀏覽器噪音與自動 Ducking</h3>
+            <p>全角色共 <b>354 支 MP3（繁中 / EN / 日本語 × 118）</b>與 <b>9 支含 AAC 音軌 MP4</b>，播放角色語音時自動將電台音樂壓低至 20% 並收窄低通濾波，確保人聲清晰不互搶。</p>
+          </div>
+          <div class="card is-pink">
+            <h3>🌐 繁中 / EN / 日本語 無縫切換</h3>
+            <p>介面、年鑑觀點、5 角色 50 站劇情、音檔與過場影片皆支援三語即時切換，切換後不重置目前章節進度，且桌機與手機版面皆經三語零跑版實測。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 7 -->
+      <section class="slide" data-pace="建議節奏 2:35–2:55（Vibe Coding 技術與資安自評）">
+        <div class="kicker">SLIDE 7 / 8 · ARCHITECTURE, QA & SECURITY SELF-AUDIT</div>
+        <h2>Vibe Coding 工程實作與資安自評</h2>
+        <div class="grid-2">
+          <div class="card is-lime">
+            <h3>⚙️ 技術架構與品質保證</h3>
+            <ul>
+              <li><b>純靜態 ES Modules：</b>原生 HTML / CSS / JS 狀態機，搭配 <code>scripts/build.mjs</code> 生成 SHA-256 防快取版本與單檔可離線攜帶版 HTML。</li>
+              <li><b>自動化測試矩陣：</b>13 項單元測試全過，Playwright E2E 腳本自動驗證 17 種桌機／手機／摺疊機視窗、三語無 CJK 外洩與 354 支音檔 HTTP 200。</li>
+            </ul>
+          </div>
+          <div class="card is-cyan">
+            <h3>🔒 部署與資安自評</h3>
+            <ul>
+              <li><b>GitHub Pages CI/CD：</b>推送至 <code>main</code> 自動執行測試、靜態檢查與部署，完全公開、免登入即可開啟。</li>
+              <li><b>零後端／零個資蒐集：</b>無伺服器與資料庫，僅使用本機 <code>localStorage</code> 儲存遊戲進度。</li>
+              <li><b>無憑證外洩檢查：</b><code>npm run check</code> 逐檔掃描 `dist/` 462 份輸出檔案，確認無 `.env`、API Key 或敏感資料（<code>0 leaks</code>）。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 8 -->
+      <section class="slide" data-pace="建議節奏 2:55–3:00（結語與立即試玩）">
+        <div class="kicker">SLIDE 8 / 8 · CLOSING TAKEAWAY</div>
+        <h1>「判斷不能外包。」</h1>
+        <p class="lead">
+          十年《決策智慧》教會我們的事：AI 與自動化儀表板能加速產出、整理報表，但面對品牌取捨、客戶關係與商業倫理時，真正站在方向盤後面的依然是人。
+        </p>
+        <div class="grid-2">
+          <div class="card is-gold">
+            <h3>🔗 評審快速連結</h3>
+            <p>
+              <b>線上互動網站：</b><a href="https://mela0976.github.io/gta-dentsu-taiwan/" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">https://mela0976.github.io/gta-dentsu-taiwan/</a><br/>
+              <b>快速秘技體驗：</b>在首頁右下角或選角頁輸入 <span class="kbd">AMA666</span> 直接聽台灣阿嬤原聲！
+            </p>
+          </div>
+          <div class="card is-cyan" style="justify-content:center;align-items:flex-start;">
+            <h3>🎮 感謝評審撥冗體驗！</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+              <a class="btn btn-primary" href="./index.html" target="_blank" rel="noopener noreferrer">立即進入《GTA 電通台北》➔</a>
+              <button class="btn" type="button" id="restartDeckBtn">↺ 回到第 1 頁</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="dots" id="dots" aria-label="投影片頁碼導覽"></div>
+      <div class="nav-btns">
+        <span class="slide-counter" id="counter">1 / 8</span>
+        <button class="btn" type="button" id="prevBtn">← 上一頁</button>
+        <button class="btn btn-cyan" type="button" id="nextBtn">下一頁 →</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll('.slide')];
+      const dotsEl = document.getElementById('dots');
+      const counterEl = document.getElementById('counter');
+      const paceEl = document.getElementById('paceLabel');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const restartBtn = document.getElementById('restartDeckBtn');
+      let idx = 0;
+
+      slides.forEach((_, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dot' + (i === 0 ? ' is-active' : '');
+        b.setAttribute('aria-label', `前往第 ${i + 1} 頁`);
+        b.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(b);
+      });
+
+      function goTo(next) {
+        idx = Math.max(0, Math.min(slides.length - 1, next));
+        slides.forEach((s, i) => s.classList.toggle('is-active', i === idx));
+        [...dotsEl.children].forEach((d, i) => d.classList.toggle('is-active', i === idx));
+        counterEl.textContent = `${idx + 1} / ${slides.length}`;
+        paceEl.textContent = slides[idx].dataset.pace || '';
+        prevBtn.disabled = idx === 0;
+        nextBtn.disabled = idx === slides.length - 1;
+      }
+
+      prevBtn.addEventListener('click', () => goTo(idx - 1));
+      nextBtn.addEventListener('click', () => goTo(idx + 1));
+      if (restartBtn) restartBtn.addEventListener('click', () => goTo(0));
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          if (e.target && e.target.tagName === 'A') return;
+          e.preventDefault();
+          goTo(idx + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          goTo(idx - 1);
+        } else if (e.key === 'Home') {
+          goTo(0);
+        } else if (e.key === 'End') {
+          goTo(slides.length - 1);
+        }
+      });
+
+      goTo(0);
+    })();
+  </script>
+</body>
+</html>
