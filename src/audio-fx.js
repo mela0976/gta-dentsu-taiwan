@@ -269,7 +269,17 @@ export const GRANDMA_VOICE_CLIPS = {
   '又當老闆又當評審的攤位你的菜怎麼賣得贏他': './public/audio/grandma/ch7_clue.mp3',
   '一直只賣給熟客生意看起來很好但三年後就沒有新朋友了': './public/audio/grandma/ch8_clue.mp3',
   '客人問鄰居哪一攤好鄰居講你的名字這比貼多少海報都有用': './public/audio/grandma/ch9_clue.mp3',
-  '對老主顧多收錢阿嬤這輩子沒這樣做過你自己決定不要推給機器': './public/audio/grandma/ch10_clue.mp3'
+  '對老主顧多收錢阿嬤這輩子沒這樣做過你自己決定不要推給機器': './public/audio/grandma/ch10_clue.mp3',
+  '帳本翻開每天報到的老主顧占八成沒人吆喝照買只有新客是看招牌才拐進巷口招牌拆了先斷的是這一段': './public/audio/grandma/ch1_clue.mp3',
+  '阿嬤電鍋蓋掀開全是眉角徒弟學會切菜就想開店那就升級當師傅開班收學費大宴席照樣得找你掌杓': './public/audio/grandma/ch2_clue.mp3',
+  '阿嬤帳簿寫著民國八十五年賀伯颱風關燈的攤子半年後一半倒了燈亮著的雨停隔天客人排到騎樓外': './public/audio/grandma/ch3_clue.mp3',
+  '帳本最後一頁寫著上個月三位熟客不是被嫌走的是被人跟到家門口嚇跑改去別攤買菜了': './public/audio/grandma/ch4_clue.mp3',
+  '翻開妳六十年菜市場流水帳與里民買菜群八成鄰居喊永續結帳全看甜不甜省不省洗菜工夫沒人替厚包裝貼紙買單': './public/audio/grandma/ch5_clue.mp3',
+  '阿嬤帳簿記得清楚攤上擺一鍋滷汁給人試吃回頭客多三成AI片省下的錢買不回客人那句這味道跟我阿嬤一樣': './public/audio/grandma/ch6_clue.mp3',
+  '我的黑皮小本子記著這個月外面喊進來的客人有三十二位房東報表卻說全是他送的': './public/audio/grandma/ch7_clue.mp3',
+  '翻開電鍋底下的紅格仔手寫帳簿老主顧連被大喇叭吼七天後嫌吵改去隔壁巷而外圍年輕散客進攤率直接跌到零': './public/audio/grandma/ch8_clue.mp3',
+  '阿嬤帳簿最後一頁寫著三十年老客裡七成是鄰居一句去她那買啦帶來的貼海報發傳單沒帶來半個': './public/audio/grandma/ch9_clue.mp3',
+  '阿嬤翻開菜市場老帳本發現這秤只對多年不比價的老主顧加重那不是科技是辜負人家的信任': './public/audio/grandma/ch10_clue.mp3'
 };
 
 export const CHARACTER_VOICE_CLIPS = {
