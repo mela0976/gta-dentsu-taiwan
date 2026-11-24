@@ -248,7 +248,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 .hero-actions { display: flex; flex-wrap: wrap; flex-wrap: balance; gap: 10px; margin-top: 2px; }
 .judge-express-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; }
-.judge-express-btn {
+.hero-actions .judge-express-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -264,8 +264,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   box-shadow: 0 4px 16px rgba(255, 209, 102, 0.2);
   cursor: pointer;
 }
-.judge-express-btn:hover { background: rgba(255, 209, 102, 0.34); border-color: var(--gold); }
-.judge-slides-link {
+.hero-actions .judge-express-btn:hover { background: rgba(255, 209, 102, 0.34); border-color: var(--gold); }
+.hero-actions .judge-slides-link {
   display: inline-flex;
   align-items: center;
   padding: 10px 15px;
@@ -1417,7 +1417,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .gta-subtitle { font-size: 12px; line-height: 1.24; }
   .quickstart-strip { padding: 4px 7px; }
   .hero-actions button { min-height: 32px; padding: 4px 10px; font-size: 12.5px; }
-  .judge-express-btn, .judge-slides-link { min-height: 38px; padding: 5px 13px; font-size: 14.5px; }
+  .hero-actions .judge-express-btn, .hero-actions .judge-slides-link { min-height: 38px; padding: 5px 13px; font-size: 14.5px; }
   .role-avatar-wrap { min-height: 74px; }
   .role-card .role-info { padding: 4px 6px 5px; gap: 1px; }
   .role-info h3 { font-size: 14px; }
