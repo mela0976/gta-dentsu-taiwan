@@ -8,6 +8,7 @@ import { getLang, t, getLocalizedRole, getLocalizedTwins, getLocalizedGrandmaQui
 export { ROLE_ROUTE_META, getChapterForRole };
 
 export const CHEAT_CODE = GRANDMA_QUIPS.cheatCode || 'AMA666';
+export const EXPRESS_STOPS = [0, 5, 9]; // Ch.1 -> Ch.6 -> Ch.10 (3-Stop Express Mode)
 
 export function clampStat(val, min = 0, max = 100) {
   return Math.max(min, Math.min(max, Math.round(val)));
@@ -17,6 +18,7 @@ export function createInitialState() {
   return {
     phase: 'title', // 'title' | 'role' | 'cutscene' | 'scene' | 'game' | 'reveal' | 'scooter' | 'review'
     roleId: 'planner',
+    expressMode: false,
     grandmaUnlocked: false,
     grandmaActive: false,
     grandmaRescues: 0,
@@ -531,7 +533,11 @@ export function completeScooterRun(state, result) {
 
 export function advanceChapter(state) {
   if (state.phase !== 'reveal') return state;
-  const nextIndex = state.chapterIndex + 1;
+  let nextIndex = state.chapterIndex + 1;
+  if (state.expressMode) {
+    const pos = EXPRESS_STOPS.indexOf(state.chapterIndex);
+    nextIndex = pos >= 0 && pos < EXPRESS_STOPS.length - 1 ? EXPRESS_STOPS[pos + 1] : CHAPTERS.length;
+  }
   if (nextIndex >= CHAPTERS.length) {
     return { ...state, phase: 'review' };
   }

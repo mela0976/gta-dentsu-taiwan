@@ -22,6 +22,7 @@ import {
 } from './i18n.js';
 import {
   CHEAT_CODE,
+  EXPRESS_STOPS,
   createInitialState,
   getRole,
   getCurrentChapter,
@@ -186,6 +187,11 @@ class GtaDentsuApp {
     this.careerMeta = this._loadMeta();
     this._saveMeta();
     this.state = this._localizeProgress(this._loadState(), getLang());
+    try {
+      if (new URLSearchParams(window.location.search).get('express') === '1') {
+        this.state.expressMode = true;
+      }
+    } catch {}
     this.phoneTab = 'line'; // 'line' | 'people' | 'grandma' | 'gta6'
     this.scooterModalOpen = false;
     this.scooterInstance = null;
@@ -2979,8 +2985,13 @@ class GtaDentsuApp {
     const ch = getCurrentChapter(this.state);
     const phase = this.state.phase;
     const hasLineClip = Boolean(soundFX.resolveVoiceClip(ch.lineMessage, 'boss', ch.voiceClips?.line));
-    const nextCh = this.state.chapterIndex < CHAPTERS.length - 1
-      ? getLocalizedChapterForRole(this.state.chapterIndex + 1, this.state.roleId)
+    let nextIdx = this.state.chapterIndex + 1;
+    if (this.state.expressMode) {
+      const pos = EXPRESS_STOPS.indexOf(this.state.chapterIndex);
+      nextIdx = pos >= 0 && pos < EXPRESS_STOPS.length - 1 ? EXPRESS_STOPS[pos + 1] : CHAPTERS.length;
+    }
+    const nextCh = nextIdx < CHAPTERS.length
+      ? getLocalizedChapterForRole(nextIdx, this.state.roleId)
       : null;
 
     const actionZoneTag = el('span', { class: 'zone-tag is-action', text: t('stage.actionZone') });

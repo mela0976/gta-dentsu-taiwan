@@ -74,8 +74,9 @@ function walk(dir) {
 const distFiles = walk(DIST);
 for (const file of distFiles) {
   const lower = file.toLowerCase();
-  if (lower.endsWith('.pdf') || lower.endsWith('.indd') || lower.endsWith('.idml')) {
-    errors.push(`Forbidden source file found in dist/: ${file}`);
+  const base = path.basename(lower);
+  if (base.startsWith('.env') || lower.endsWith('.pdf') || lower.endsWith('.indd') || lower.endsWith('.idml')) {
+    errors.push(`Forbidden source/env file found in dist/: ${file}`);
   }
   if (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
     errors.push(`Unconverted raster image found in dist/ (must be .webp): ${file}`);
@@ -84,6 +85,9 @@ for (const file of distFiles) {
     const txt = fs.readFileSync(file, 'utf8');
     if (/https?:\/\/(cdn\.|fonts\.googleapis|unpkg\.com|jsdelivr)/i.test(txt)) {
       errors.push(`Forbidden external CDN URL found in ${file}`);
+    }
+    if (/-----BEGIN [A-Z ]*PRIVATE KEY-----|VOAI_API_KEY|aten_token|ghp_[A-Za-z0-9]{20,}/.test(txt)) {
+      errors.push(`Sensitive secret/token pattern leaked in ${file}`);
     }
   }
 }
