@@ -3015,10 +3015,16 @@ class GtaDentsuApp {
 
     const actionZoneTag = el('span', { class: 'zone-tag is-action', text: t('stage.actionZone') });
 
+    const expressPos = this.state.expressMode ? EXPRESS_STOPS.indexOf(this.state.chapterIndex) : -1;
+    const expressBadge = expressPos >= 0
+      ? el('span', { class: 'express-stage-pill', text: `⚡ ${expressPos + 1}/${EXPRESS_STOPS.length}` })
+      : null;
+
     const header = el('div', { class: 'chapter-header' }, [
       el('div', {}, [
         el('div', { class: 'chapter-kicker-row' }, [
           actionZoneTag,
+          expressBadge,
           el('div', { class: 'gta-kicker', text: t('stage.kickerChapter', ch.roleRoute?.routeBadge || '', ch.timeSlot, ch.id) })
         ]),
         el('h2', { text: `${ch.title}｜${ch.location}` })
