@@ -228,7 +228,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hero-fsd svg, .scene-fsd svg { width: 100%; height: 100%; display: block; }
 .hero-a25 { position: absolute; z-index: 2; left: 10px; bottom: 10px; width: min(46%, 300px); padding: 4px 6px; border-radius: 8px; background: rgba(6, 14, 26, 0.78); border: 1px solid rgba(120, 185, 213, 0.5); }
 .hero-a25 svg { width: 100%; display: block; }
-.hero-body { container: hero-body / inline-size; position: relative; z-index: 2; padding: 14px 16px 18px; display: flex; flex-direction: column; justify-content: center; gap: 10px; min-width: 0; }
+.hero-body { container: hero-body / inline-size; position: relative; z-index: 2; padding: 14px 16px 18px; display: flex; flex-direction: column; justify-content: safe center; gap: 10px; min-width: 0; }
 .hero-crest { width: min(210px, 54%); }
 .hero-crest svg { width: 100%; display: block; }
 .hero-story-card {
@@ -247,6 +247,37 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   letter-spacing: 0.04em;
 }
 .hero-actions { display: flex; flex-wrap: wrap; flex-wrap: balance; gap: 10px; margin-top: 2px; }
+.judge-express-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+.judge-express-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold);
+  background: rgba(255, 209, 102, 0.14);
+  border: 1.5px solid rgba(255, 209, 102, 0.55);
+  cursor: pointer;
+}
+.judge-express-btn:hover { background: rgba(255, 209, 102, 0.26); border-color: var(--gold); }
+.judge-slides-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.42);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.judge-slides-link:hover { background: rgba(0, 229, 255, 0.22); }
 @container hero (inline-size >= 640px) {
   .hero-card { grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); }
   .hero-media { min-height: 300px; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px 10px 14px 14px; }
@@ -972,6 +1003,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .hero-actions .btn-primary { width: 100%; justify-content: center; font-size: 15.5px; min-height: 44px; padding: 8px 14px; }
   .hero-actions .btn-cyan,
   .hero-actions .btn-gold { flex: 1 1 calc(50% - 6px); font-size: 13.5px; padding: 8px 10px; min-height: 44px; }
+  .judge-express-row { gap: 6px; }
+  .judge-express-btn,
+  .judge-slides-link { min-height: 36px; font-size: 12px; padding: 4px 9px; flex: 1 1 auto; justify-content: center; }
 
   .role-topbar { padding: 8px 10px; gap: 6px; }
   .role-topbar h2 { font-size: 15.5px; margin: 2px 0 0; line-height: 1.22; }
@@ -1380,6 +1414,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   .gta-subtitle { font-size: 12px; line-height: 1.24; }
   .quickstart-strip { padding: 4px 7px; }
   .hero-actions button { min-height: 32px; padding: 4px 10px; font-size: 12.5px; }
+  .judge-express-btn, .judge-slides-link { min-height: 28px; padding: 2px 9px; font-size: 11.5px; }
   .role-avatar-wrap { min-height: 74px; }
   .role-card .role-info { padding: 4px 6px 5px; gap: 1px; }
   .role-info h3 { font-size: 14px; }
@@ -2259,7 +2294,7 @@ dialog.confirm-modal::backdrop {
   border-width: 0;
 }
 :root[data-layout-mode="fold-flex"] .hero-media { min-height: 0; height: 100%; }
-:root[data-layout-mode="fold-flex"] .hero-body { overflow-y: auto; padding: 10px 14px 68px; }
+:root[data-layout-mode="fold-flex"] .hero-body { overflow-y: auto; justify-content: flex-start; padding: 10px 14px 68px; }
 :root[data-layout-mode="fold-flex"] .modal-box.scooter-modal-box {
   height: calc(100dvh - 16px);
   max-height: calc(100dvh - 16px);

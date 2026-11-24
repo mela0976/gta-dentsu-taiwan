@@ -1921,6 +1921,25 @@ class GtaDentsuApp {
           text: t('titleScreen.ctaScooter'),
           onClick: () => this._openScooterModal()
         }),
+        el('div', { class: 'judge-express-row' }, [
+          el('button', {
+            type: 'button',
+            class: 'judge-express-btn',
+            onClick: () => {
+              soundFX.playScooterHorn();
+              soundFX.startBGM();
+              this._setState({ ...this.state, expressMode: true, phase: 'role' });
+              this._showToast(t('guideBar.expressToast'), 'gold', 3600);
+            }
+          }, t('titleScreen.ctaExpress')),
+          el('a', {
+            class: 'judge-slides-link',
+            href: './slides.html',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            text: t('titleScreen.ctaSlides')
+          })
+        ]),
         this.state.history.length > 0
           ? el('button', {
               class: 'btn-cyan',
