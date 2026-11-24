@@ -3908,6 +3908,24 @@ class GtaDentsuApp {
       text = t('guideBar.titleText');
       actions.push(
         el('button', {
+          class: 'guide-btn is-primary',
+          text: t('guideBar.titleExpress'),
+          onClick: () => {
+            soundFX.playScooterHorn();
+            soundFX.startBGM();
+            this._setState({ ...this.state, expressMode: true, phase: 'role' });
+            this._showToast(t('guideBar.expressToast'), 'gold', 3600);
+          }
+        }),
+        el('a', {
+          class: 'guide-btn',
+          href: './slides.html',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          style: 'text-decoration:none;display:inline-flex;align-items:center;',
+          text: t('guideBar.titleSlides')
+        }),
+        el('button', {
           class: 'guide-btn',
           text: t('guideBar.titleTour'),
           onClick: (e) => this._openWelcomeTour(0, e.currentTarget)
